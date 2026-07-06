@@ -1,10 +1,507 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 06.07.2026 14:11:39
+// Generation Time: 06.07.2026 17:15:07
 // Encoding: Unicode (UTF-8)
-// Total Files: 1
+// Total Files: 12
 // =====================================
 
-//==== File 1 of 1: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts/Core/Services/Shadow/ShadowValidationService.cs ====
+//==== File 1 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
+using Game.Data;
+using Game.Services.Grid;
+using Game.Services.Input;
+using Game.Services.Placement;
+using Game.Services.Pool;
+using Game.Services.Raycast;
+using Game.Services.Shadow;
+using Game.Views;
+using UnityEngine;
+using Zenject;
+
+namespace Game.Installers
+{
+    public class GameInstaller : MonoInstaller
+    {
+        [field: SerializeField] public BlockView BlockPrefab { get; private set; }
+        [field: SerializeField] public BlockView PreviewBlock { get; private set; }
+        [field: SerializeField] public Transform BlocksParent { get; private set; }
+        [field: SerializeField] public Camera GameCamera { get; private set; }
+        [field: SerializeField] public ShadowLevelConfig ShadowConfig { get; private set; }
+
+        public override void InstallBindings()
+        {
+            Container.BindInstance(BlockPrefab).WithId("BlockPrefab");
+            Container.BindInstance(PreviewBlock).WithId("PreviewBlock");
+            Container.BindInstance(BlocksParent);
+            Container.BindInstance(GameCamera);
+            Container.BindInstance(ShadowConfig);
+
+            Bind<InputService>();
+            Bind<GridService>();
+            Bind<RaycastService>();
+            Bind<BlockPoolService>();
+            Bind<BlockPlacementService>();
+            Bind<ShadowValidationService>();
+        }
+
+        private void Bind<TImplementation>() where TImplementation : class
+        {
+            Container
+                .BindInterfacesTo<TImplementation>()
+                .AsSingle()
+                .Lazy();
+        }
+    }
+}
+
+//==== File 2 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
+using UnityEngine;
+
+namespace Game.Views
+{
+    public class BlockView : MonoBehaviour
+    {
+        private static readonly Vector3 Offset = new(0.5f, 0.5f, 0.5f);
+
+        public void SetPosition(Vector3Int cell) => transform.position = cell + Offset;
+    }
+}
+
+//==== File 3 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
+#if UNITY_EDITOR
+using UnityEngine;
+
+namespace Game.Views
+{
+    [ExecuteInEditMode]
+    public class GridEditorVisualizer : MonoBehaviour
+    {
+        private const int GridSize = 5;
+        private const float CellSize = 1f;
+        private static readonly Vector3 CellOffset = new(0.5f, 0.5f, 0.5f);
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
+
+            for (var x = 0; x < GridSize; x++)
+                for (var y = 0; y < GridSize; y++)
+                    for (var z = 0; z < GridSize; z++)
+                    {
+                        var center = new Vector3Int(x, y, z) + CellOffset;
+                        Gizmos.DrawWireCube(center, Vector3.one * CellSize);
+                    }
+        }
+    }
+}
+#endif
+
+
+//==== File 4 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
+using UnityEngine;
+using Game.Services.Shadow;
+
+namespace Game.Views
+{
+    public class WallCellView : MonoBehaviour
+    {
+        [field: SerializeField] public Material MissingMaterial { get; private set; }
+        [field: SerializeField] public Material CorrectMaterial { get; private set; }
+        [field: SerializeField] public Material ExtraMaterial { get; private set; }
+
+        private Renderer _renderer;
+
+        private void Awake() => _renderer = GetComponent<Renderer>();
+
+        public void SetState(ShadowCellState state)
+        {
+            if (_renderer is null) return;
+
+            if (state == ShadowCellState.Empty)
+            {
+                _renderer.enabled = false;
+                return;
+            }
+
+            _renderer.enabled = true;
+            _renderer.material = state switch
+            {
+                ShadowCellState.Missing => MissingMaterial,
+                ShadowCellState.Correct => CorrectMaterial,
+                ShadowCellState.Extra => ExtraMaterial,
+                _ => _renderer.material
+            };
+        }
+    }
+}
+
+//==== File 5 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
+using UniRx;
+using UnityEngine;
+using Zenject;
+using Game.Services.Shadow;
+
+namespace Game.Views
+{
+    public class WallView : MonoBehaviour
+    {
+        [field: SerializeField] public int WallIndex { get; private set; }
+        [field: SerializeField] public WallCellView[] Cells { get; private set; }
+
+        [Inject]
+        private void Construct(IShadowValidationService validationService)
+        {
+            validationService.OnCellStateChanged
+                .Where(update => update.WallIndex == WallIndex)
+                .Subscribe(UpdateCell)
+                .AddTo(this);
+        }
+
+        private void UpdateCell(ShadowCellUpdate update) => Cells[update.CellIndex].SetState(update.State);
+    }
+}
+
+//==== File 6 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
+using UnityEngine;
+
+namespace Game.Data
+{
+    [CreateAssetMenu(fileName = nameof(ShadowLevelConfig), menuName = "Game/" + nameof(ShadowLevelConfig))]
+    public class ShadowLevelConfig : ScriptableObject
+    {
+        [field: SerializeField] public bool[] Wall1Target { get; private set; }
+        [field: SerializeField] public bool[] Wall2Target { get; private set; }
+    }
+}
+
+//==== File 7 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
+using System;
+using UnityEngine;
+using Zenject;
+
+namespace Game.Services.Grid
+{
+    public interface IGridService
+    {
+        bool IsCellOccupied(Vector3Int cell);
+        void SetCellOccupied(Vector3Int cell, bool isOccupied);
+        bool IsWithinBounds(Vector3Int cell);
+    }
+
+    public class GridService : IGridService, IInitializable
+    {
+        private const int Size = 5;
+        private readonly bool[,,] _cells = new bool[Size, Size, Size];
+
+        public void Initialize() => Array.Clear(_cells, 0, _cells.Length);
+
+        public bool IsCellOccupied(Vector3Int cell) =>
+            IsWithinBounds(cell) && _cells[cell.x, cell.y, cell.z];
+
+        public void SetCellOccupied(Vector3Int cell, bool isOccupied)
+        {
+            if (IsWithinBounds(cell)) _cells[cell.x, cell.y, cell.z] = isOccupied;
+        }
+
+        public bool IsWithinBounds(Vector3Int cell) =>
+            cell.x >= 0 && cell.x < Size &&
+            cell.y >= 0 && cell.y < Size &&
+            cell.z >= 0 && cell.z < Size;
+    }
+}
+
+//==== File 8 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
+using System;
+using UniRx;
+using UnityEngine;
+using Zenject;
+
+namespace Game.Services.Input
+{
+    public interface IInputService
+    {
+        IObservable<Vector2> OnMouseMoved { get; }
+        IObservable<Vector2> OnPrimaryClick { get; }
+    }
+
+    public class InputService : IInputService, ITickable, IDisposable
+    {
+        private readonly Subject<Vector2> _onMouseMoved = new();
+        private readonly Subject<Vector2> _onPrimaryClick = new();
+        private readonly CompositeDisposable _disposables = new();
+
+        public IObservable<Vector2> OnMouseMoved => _onMouseMoved;
+        public IObservable<Vector2> OnPrimaryClick => _onPrimaryClick;
+
+        public void Tick()
+        {
+            _onMouseMoved.OnNext(UnityEngine.Input.mousePosition);
+
+            if (UnityEngine.Input.GetMouseButtonDown(0))
+                _onPrimaryClick.OnNext(UnityEngine.Input.mousePosition);
+        }
+
+        public void Dispose() => _disposables?.Dispose();
+    }
+}
+
+//==== File 9 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
+using System;
+using UniRx;
+using UnityEngine;
+using Zenject;
+using Game.Services.Grid;
+using Game.Services.Input;
+using Game.Services.Pool;
+using Game.Services.Raycast;
+using Game.Views;
+
+namespace Game.Services.Placement
+{
+    public interface IBlockPlacementService
+    {
+        IObservable<Vector3Int> OnBlockPlaced { get; }
+    }
+
+    public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
+    {
+        private readonly Subject<Vector3Int> _onBlockPlaced = new();
+        private readonly CompositeDisposable _disposables = new();
+        private readonly IInputService _inputService;
+        private readonly IRaycastService _raycastService;
+        private readonly IGridService _gridService;
+        private readonly IBlockPoolService _poolService;
+        private readonly BlockView _previewBlock;
+
+        public IObservable<Vector3Int> OnBlockPlaced => _onBlockPlaced;
+
+        public BlockPlacementService(
+            IInputService inputService,
+            IRaycastService raycastService,
+            IGridService gridService,
+            IBlockPoolService poolService,
+            [Inject(Id = "PreviewBlock")] BlockView previewBlock)
+        {
+            _inputService = inputService;
+            _raycastService = raycastService;
+            _gridService = gridService;
+            _poolService = poolService;
+            _previewBlock = previewBlock;
+        }
+
+        public void Initialize()
+        {
+            _inputService.OnMouseMoved
+                .Subscribe(UpdatePreview)
+                .AddTo(_disposables);
+
+            _inputService.OnPrimaryClick
+                .Subscribe(PlaceBlock)
+                .AddTo(_disposables);
+
+            if (_previewBlock is not null)
+                _previewBlock.gameObject.SetActive(false);
+        }
+
+        private void UpdatePreview(Vector2 mousePosition)
+        {
+            if (_previewBlock is null) return;
+
+            if (_raycastService.TryGetTargetCell(mousePosition, out var cell, out _))
+            {
+                _previewBlock.gameObject.SetActive(true);
+                _previewBlock.SetPosition(cell);
+            }
+            else
+            {
+                _previewBlock.gameObject.SetActive(false);
+            }
+        }
+
+        private void PlaceBlock(Vector2 mousePosition)
+        {
+            if (!_raycastService.TryGetTargetCell(mousePosition, out var cell, out _)) return;
+
+            _gridService.SetCellOccupied(cell, true);
+            var block = _poolService.Get();
+            if (block is null) return;
+
+            block.SetPosition(cell);
+            _onBlockPlaced.OnNext(cell);
+        }
+
+        public void Dispose() => _disposables?.Dispose();
+    }
+}
+
+//==== File 10 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
+using System.Collections.Generic;
+using UnityEngine;
+using Zenject;
+using Game.Views;
+
+namespace Game.Services.Pool
+{
+    public interface IBlockPoolService
+    {
+        BlockView Get();
+        void Return(BlockView block);
+    }
+
+    public class BlockPoolService : IBlockPoolService, IInitializable
+    {
+        private const int PoolSize = 125;
+        private readonly BlockView _prefab;
+        private readonly Transform _parent;
+        private readonly Queue<BlockView> _pool = new();
+
+        public BlockPoolService([Inject(Id = "BlockPrefab")] BlockView prefab, Transform parent)
+        {
+            _prefab = prefab;
+            _parent = parent;
+        }
+
+        public void Initialize()
+        {
+            for (var i = 0; i < PoolSize; i++)
+            {
+                var block = Object.Instantiate(_prefab, _parent);
+                block.gameObject.SetActive(false);
+                _pool.Enqueue(block);
+            }
+        }
+
+        public BlockView Get()
+        {
+            if (_pool.Count == 0) return null;
+            var block = _pool.Dequeue();
+            block.gameObject.SetActive(true);
+            return block;
+        }
+
+        public void Return(BlockView block)
+        {
+            block.gameObject.SetActive(false);
+            _pool.Enqueue(block);
+        }
+    }
+}
+
+//==== File 11 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
+using UnityEngine;
+using Zenject;
+using Game.Services.Grid;
+
+namespace Game.Services.Raycast
+{
+    public interface IRaycastService
+    {
+        bool TryGetTargetCell(Vector2 screenPosition, out Vector3Int cell, out Vector3Int normal);
+    }
+
+    public class RaycastService : IRaycastService
+    {
+        private const int GridSize = 5;
+        private readonly Camera _camera;
+        private readonly IGridService _gridService;
+        private readonly Plane _floorPlane;
+
+        public RaycastService(Camera camera, IGridService gridService)
+        {
+            _camera = camera;
+            _gridService = gridService;
+            _floorPlane = new Plane(Vector3.up, Vector3.zero);
+        }
+
+        public bool TryGetTargetCell(Vector2 screenPosition, out Vector3Int cell, out Vector3Int normal)
+        {
+            cell = default;
+            normal = default;
+            var ray = _camera.ScreenPointToRay(screenPosition);
+
+            if (_floorPlane.Raycast(ray, out var floorDistance))
+            {
+                var hitPoint = ray.GetPoint(floorDistance);
+                var floorCell = new Vector3Int(Mathf.FloorToInt(hitPoint.x), 0, Mathf.FloorToInt(hitPoint.z));
+
+                if (IsInBounds(floorCell) && !_gridService.IsCellOccupied(floorCell))
+                {
+                    cell = floorCell;
+                    normal = Vector3Int.up;
+                    return true;
+                }
+            }
+
+            return TryRaycastBlocks(ray, out cell, out normal);
+        }
+
+        private bool TryRaycastBlocks(Ray ray, out Vector3Int cell, out Vector3Int normal)
+        {
+            cell = default;
+            normal = default;
+            var closestDistance = float.MaxValue;
+            var found = false;
+
+            for (var x = 0; x < GridSize; x++)
+                for (var y = 0; y < GridSize; y++)
+                    for (var z = 0; z < GridSize; z++)
+                    {
+                        var currentCell = new Vector3Int(x, y, z);
+                        if (!_gridService.IsCellOccupied(currentCell)) continue;
+
+                        var center = new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
+                        if (IntersectRayAABB(ray, center, out var distance, out var hitNormal) && distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            normal = Vector3Int.RoundToInt(hitNormal);
+                            cell = currentCell + normal;
+                            found = true;
+                        }
+                    }
+
+            return found && IsInBounds(cell) && !_gridService.IsCellOccupied(cell);
+        }
+
+        private bool IntersectRayAABB(Ray ray, Vector3 center, out float distance, out Vector3 normal)
+        {
+            distance = 0;
+            normal = default;
+
+            var tMin = new Vector3(
+                (center.x - 0.5f - ray.origin.x) / ray.direction.x,
+                (center.y - 0.5f - ray.origin.y) / ray.direction.y,
+                (center.z - 0.5f - ray.origin.z) / ray.direction.z
+            );
+
+            var tMax = new Vector3(
+                (center.x + 0.5f - ray.origin.x) / ray.direction.x,
+                (center.y + 0.5f - ray.origin.y) / ray.direction.y,
+                (center.z + 0.5f - ray.origin.z) / ray.direction.z
+            );
+
+            var t1 = new Vector3(Mathf.Min(tMin.x, tMax.x), Mathf.Min(tMin.y, tMax.y), Mathf.Min(tMin.z, tMax.z));
+            var t2 = new Vector3(Mathf.Max(tMin.x, tMax.x), Mathf.Max(tMin.y, tMax.y), Mathf.Max(tMin.z, tMax.z));
+
+            var tNear = Mathf.Max(Mathf.Max(t1.x, t1.y), t1.z);
+            var tFar = Mathf.Min(Mathf.Min(t2.x, t2.y), t2.z);
+
+            if (tNear > tFar || tFar < 0) return false;
+
+            distance = tNear;
+
+            if (t1.x > t1.y && t1.x > t1.z) normal = ray.direction.x > 0 ? Vector3.left : Vector3.right;
+            else if (t1.y > t1.z) normal = ray.direction.y > 0 ? Vector3.down : Vector3.up;
+            else normal = ray.direction.z > 0 ? Vector3.back : Vector3.forward;
+
+            return true;
+        }
+
+        private bool IsInBounds(Vector3Int cell) =>
+            cell.x >= 0 && cell.x < GridSize &&
+            cell.y >= 0 && cell.y < GridSize &&
+            cell.z >= 0 && cell.z < GridSize;
+    }
+}
+
+//==== File 12 of 12: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -23,7 +520,19 @@ namespace Game.Services.Shadow
         Extra
     }
 
-    public readonly record struct ShadowCellUpdate(int WallIndex, int CellIndex, ShadowCellState State);
+    public readonly struct ShadowCellUpdate
+    {
+        public int WallIndex { get; }
+        public int CellIndex { get; }
+        public ShadowCellState State { get; }
+
+        public ShadowCellUpdate(int wallIndex, int cellIndex, ShadowCellState state)
+        {
+            WallIndex = wallIndex;
+            CellIndex = cellIndex;
+            State = state;
+        }
+    }
 
     public interface IShadowValidationService
     {
@@ -66,7 +575,13 @@ namespace Game.Services.Shadow
                 .AddTo(_disposables);
         }
 
-        public void Initialize() => ValidateAndPublish();
+        public void Initialize()
+        {
+            if (_config is null || _config.Wall1Target?.Length != CellCount || _config.Wall2Target?.Length != CellCount)
+                throw new InvalidOperationException($"ShadowLevelConfig validation failed. Both target arrays must contain exactly {CellCount} elements.");
+
+            ValidateAndPublish();
+        }
 
         private void ValidateAndPublish()
         {
@@ -126,10 +641,10 @@ namespace Game.Services.Shadow
 
 
 // ============ Statistics =============
-// Total Files: 1
-// Total Size: 4,08 KB
-// Total Lines: 118
-// Classes: 1
-// Methods: 4
+// Total Files: 12
+// Total Size: 19,90 KB
+// Total Lines: 611
+// Classes: 12
+// Methods: 35
 // Comments (Blocks): 0
 // =====================================
