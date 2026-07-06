@@ -1,10 +1,3 @@
-﻿// ===== Combined Scripts Header =====
-// Generation Time: 06.07.2026 14:11:39
-// Encoding: Unicode (UTF-8)
-// Total Files: 1
-// =====================================
-
-//==== File 1 of 1: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts/Core/Services/Shadow/ShadowValidationService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -23,7 +16,19 @@ namespace Game.Services.Shadow
         Extra
     }
 
-    public readonly record struct ShadowCellUpdate(int WallIndex, int CellIndex, ShadowCellState State);
+    public readonly struct ShadowCellUpdate
+    {
+        public int WallIndex { get; }
+        public int CellIndex { get; }
+        public ShadowCellState State { get; }
+
+        public ShadowCellUpdate(int wallIndex, int cellIndex, ShadowCellState state)
+        {
+            WallIndex = wallIndex;
+            CellIndex = cellIndex;
+            State = state;
+        }
+    }
 
     public interface IShadowValidationService
     {
@@ -66,7 +71,13 @@ namespace Game.Services.Shadow
                 .AddTo(_disposables);
         }
 
-        public void Initialize() => ValidateAndPublish();
+        public void Initialize()
+        {
+            if (_config is null || _config.Wall1Target?.Length != CellCount || _config.Wall2Target?.Length != CellCount)
+                throw new InvalidOperationException($"ShadowLevelConfig validation failed. Both target arrays must contain exactly {CellCount} elements.");
+
+            ValidateAndPublish();
+        }
 
         private void ValidateAndPublish()
         {
@@ -123,13 +134,3 @@ namespace Game.Services.Shadow
         public void Dispose() => _disposables?.Dispose();
     }
 }
-
-
-// ============ Statistics =============
-// Total Files: 1
-// Total Size: 4,08 KB
-// Total Lines: 118
-// Classes: 1
-// Methods: 4
-// Comments (Blocks): 0
-// =====================================
