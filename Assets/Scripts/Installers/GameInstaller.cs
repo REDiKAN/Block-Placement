@@ -19,6 +19,7 @@ namespace Game.Installers
         [field: SerializeField] public Transform BlocksParent { get; private set; }
         [field: SerializeField] public Camera GameCamera { get; private set; }
         [field: SerializeField] public ShadowLevelConfig ShadowConfig { get; private set; }
+        [field: SerializeField] public RaycastConfig RaycastConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -27,6 +28,7 @@ namespace Game.Installers
             Container.BindInstance(BlocksParent);
             Container.BindInstance(GameCamera);
             Container.BindInstance(ShadowConfig);
+            Container.BindInstance(RaycastConfig);
 
             Bind<InputService>();
             Bind<GridService>();

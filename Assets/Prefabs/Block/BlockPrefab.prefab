@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5263598673918910524}
   - component: {fileID: 229738514984466294}
   - component: {fileID: 3124042197976563722}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BlockPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,12 +76,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 5263598673918910524}
     m_Modifications:
     - target: {fileID: 3355834286232000863, guid: 5f66424606d3df545b4970a3715f2da2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3355834286232000863, guid: 5f66424606d3df545b4970a3715f2da2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c59261a2a0ff801468eb1888c73c1ee4, type: 2}
     - target: {fileID: 5998491550254387863, guid: 5f66424606d3df545b4970a3715f2da2, type: 3}
       propertyPath: m_Name
       value: Cube
+      objectReference: {fileID: 0}
+    - target: {fileID: 5998491550254387863, guid: 5f66424606d3df545b4970a3715f2da2, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 9196263130251183496, guid: 5f66424606d3df545b4970a3715f2da2, type: 3}
       propertyPath: m_LocalPosition.x

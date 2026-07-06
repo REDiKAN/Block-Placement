@@ -372,6 +372,7 @@ MonoBehaviour:
   <BlocksParent>k__BackingField: {fileID: 378661812}
   <GameCamera>k__BackingField: {fileID: 85385236}
   <ShadowConfig>k__BackingField: {fileID: 11400000, guid: b9078e68a2f360843a4bf1c5ad87ca4f, type: 2}
+  <RaycastConfig>k__BackingField: {fileID: 11400000, guid: 8aef93f682c2c574ea934ec103e8806f, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3642,6 +3643,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767954844013037}
   - component: {fileID: 7356767954844013038}
+  - component: {fileID: 7356767954844013039}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3659,6 +3661,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767954954043637}
   - component: {fileID: 7356767954954043638}
+  - component: {fileID: 7356767954954043639}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3676,6 +3679,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955114812130}
   - component: {fileID: 7356767955114812131}
+  - component: {fileID: 7356767955114812132}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3693,6 +3697,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955322913355}
   - component: {fileID: 7356767955322913356}
+  - component: {fileID: 7356767955322913357}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3710,6 +3715,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955242035118}
   - component: {fileID: 7356767955242035119}
+  - component: {fileID: 7356767955242035120}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3727,6 +3733,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767954324993448}
   - component: {fileID: 7356767954324993449}
+  - component: {fileID: 7356767954324993450}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3744,6 +3751,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767954568405611}
   - component: {fileID: 7356767954568405612}
+  - component: {fileID: 7356767954568405613}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3761,6 +3769,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767954535325094}
   - component: {fileID: 7356767954535325095}
+  - component: {fileID: 7356767954535325096}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3778,6 +3787,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955954886580}
   - component: {fileID: 7356767955954886581}
+  - component: {fileID: 7356767955954886582}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3795,6 +3805,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955898527468}
   - component: {fileID: 7356767955898527469}
+  - component: {fileID: 7356767955898527470}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3812,6 +3823,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767956124378692}
   - component: {fileID: 7356767956124378693}
+  - component: {fileID: 7356767956124378694}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3829,6 +3841,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767956249922624}
   - component: {fileID: 7356767956249922625}
+  - component: {fileID: 7356767956249922626}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3846,6 +3859,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767956370876746}
   - component: {fileID: 7356767956370876747}
+  - component: {fileID: 7356767956370876748}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3863,6 +3877,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767956378886113}
   - component: {fileID: 7356767956378886114}
+  - component: {fileID: 7356767956378886115}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3880,6 +3895,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767956276574801}
   - component: {fileID: 7356767956276574802}
+  - component: {fileID: 7356767956276574803}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3897,6 +3913,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955453158506}
   - component: {fileID: 7356767955453158507}
+  - component: {fileID: 7356767955453158508}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3914,6 +3931,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955336988722}
   - component: {fileID: 7356767955336988723}
+  - component: {fileID: 7356767955336988724}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3931,6 +3949,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955585628486}
   - component: {fileID: 7356767955585628487}
+  - component: {fileID: 7356767955585628488}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3948,6 +3967,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955590157674}
   - component: {fileID: 7356767955590157675}
+  - component: {fileID: 7356767955590157676}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3965,6 +3985,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955479840646}
   - component: {fileID: 7356767955479840647}
+  - component: {fileID: 7356767955479840648}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3982,6 +4003,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955711817280}
   - component: {fileID: 7356767955711817281}
+  - component: {fileID: 7356767955711817282}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -3999,6 +4021,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955605480897}
   - component: {fileID: 7356767955605480898}
+  - component: {fileID: 7356767955605480899}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -4016,6 +4039,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955844723900}
   - component: {fileID: 7356767955844723901}
+  - component: {fileID: 7356767955844723902}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -4033,6 +4057,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356767955829206279}
   - component: {fileID: 7356767955829206280}
+  - component: {fileID: 7356767955829206281}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -5850,6 +5875,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767954324993450
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371044424809}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767954535325094
 Transform:
   m_ObjectHideFlags: 0
@@ -5879,6 +5925,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767954535325096
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371354121319}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767954568405611
 Transform:
   m_ObjectHideFlags: 0
@@ -5908,6 +5975,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767954568405613
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371321138090}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767954844013037
 Transform:
   m_ObjectHideFlags: 0
@@ -5937,6 +6025,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767954844013039
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855370516981804}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767954954043637
 Transform:
   m_ObjectHideFlags: 0
@@ -5966,6 +6075,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767954954043639
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855370667129140}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955114812130
 Transform:
   m_ObjectHideFlags: 0
@@ -5995,6 +6125,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955114812132
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855370791443235}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955242035118
 Transform:
   m_ObjectHideFlags: 0
@@ -6024,6 +6175,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955242035120
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855370916044399}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955322913355
 Transform:
   m_ObjectHideFlags: 0
@@ -6053,6 +6225,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955322913357
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855370860362634}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955336988722
 Transform:
   m_ObjectHideFlags: 0
@@ -6082,6 +6275,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955336988724
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372188299763}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955453158506
 Transform:
   m_ObjectHideFlags: 0
@@ -6111,6 +6325,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955453158508
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372072197547}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955479840646
 Transform:
   m_ObjectHideFlags: 0
@@ -6140,6 +6375,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955479840648
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372297076295}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955585628486
 Transform:
   m_ObjectHideFlags: 0
@@ -6169,6 +6425,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955585628488
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372199673991}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955590157674
 Transform:
   m_ObjectHideFlags: 0
@@ -6198,6 +6475,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955590157676
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372203699371}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955605480897
 Transform:
   m_ObjectHideFlags: 0
@@ -6227,6 +6525,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955605480899
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372456778752}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955711817280
 Transform:
   m_ObjectHideFlags: 0
@@ -6256,6 +6575,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955711817282
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372325343105}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955829206279
 Transform:
   m_ObjectHideFlags: 0
@@ -6285,6 +6625,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955829206281
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372476290246}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955844723900
 Transform:
   m_ObjectHideFlags: 0
@@ -6314,6 +6675,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955844723902
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372460871037}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955898527468
 Transform:
   m_ObjectHideFlags: 0
@@ -6343,6 +6725,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955898527470
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371610019629}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767955954886580
 Transform:
   m_ObjectHideFlags: 0
@@ -6372,6 +6775,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767955954886582
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371562049141}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767956124378692
 Transform:
   m_ObjectHideFlags: 0
@@ -6401,6 +6825,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767956124378694
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371669413765}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767956249922624
 Transform:
   m_ObjectHideFlags: 0
@@ -6430,6 +6875,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767956249922626
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371795494273}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767956276574801
 Transform:
   m_ObjectHideFlags: 0
@@ -6459,6 +6925,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767956276574803
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855372054119312}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767956370876746
 Transform:
   m_ObjectHideFlags: 0
@@ -6488,6 +6975,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767956370876748
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371942908043}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7356767956378886113
 Transform:
   m_ObjectHideFlags: 0
@@ -6517,6 +7025,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+--- !u!65 &7356767956378886115
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199855371951711776}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7761741582514103796
 GameObject:
   m_ObjectHideFlags: 0
@@ -6527,6 +7056,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4208700550637592039}
   - component: {fileID: 5108450029207100257}
+  - component: {fileID: 7761741582514103797}
   m_Layer: 0
   m_Name: Cell Floor
   m_TagString: Untagged
@@ -6534,6 +7064,27 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!65 &7761741582514103797
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7761741582514103796}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

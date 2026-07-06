@@ -1,12 +1,13 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 06.07.2026 18:33:36
+// Generation Time: 06.07.2026 21:19:36
 // Encoding: Unicode (UTF-8)
-// Total Files: 15
+// Total Files: 18
 // =====================================
 
-//==== File 1 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
+//==== File 1 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
 using Game.Data;
 using Game.Services.Grid;
+using Game.Services.History;
 using Game.Services.Input;
 using Game.Services.Placement;
 using Game.Services.Pool;
@@ -38,6 +39,7 @@ namespace Game.Installers
             Bind<GridService>();
             Bind<RaycastService>();
             Bind<BlockPoolService>();
+            Bind<BlockHistoryService>();
             Bind<BlockPlacementService>();
             Bind<ShadowValidationService>();
         }
@@ -52,7 +54,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 2 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
+//==== File 2 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
 using UnityEngine;
 
 namespace Game.Views
@@ -65,7 +67,66 @@ namespace Game.Views
     }
 }
 
-//==== File 3 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
+//==== File 3 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
+using UnityEngine;
+
+namespace Game.Views
+{
+    public class FloorCellView : MonoBehaviour
+    {
+        [field: SerializeField] public int Index { get; set; }
+
+        public void SetVisible(bool isVisible) => gameObject.SetActive(isVisible);
+    }
+}
+
+//==== File 4 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
+using UnityEngine;
+using Zenject;
+using Game.Data;
+
+namespace Game.Views
+{
+    public class FloorGridView : MonoBehaviour
+    {
+        [field: SerializeField] public FloorCellView[] Cells { get; private set; }
+
+        [Inject]
+        private void Construct(ShadowLevelConfig config)
+        {
+            AssignIndices();
+            ApplyConfig(config);
+        }
+
+        private void AssignIndices()
+        {
+            if (Cells is null) return;
+
+            foreach (var cell in Cells)
+            {
+                if (cell is null) continue;
+
+                var x = Mathf.FloorToInt(cell.transform.localPosition.x);
+                var z = Mathf.FloorToInt(cell.transform.localPosition.z);
+                cell.Index = x * 5 + z;
+            }
+        }
+
+        private void ApplyConfig(ShadowLevelConfig config)
+        {
+            if (config?.FloorMatrix is null || Cells is null) return;
+
+            foreach (var cell in Cells)
+            {
+                if (cell is null || cell.Index < 0 || cell.Index >= config.FloorMatrix.Length) continue;
+
+                cell.SetVisible(config.FloorMatrix[cell.Index]);
+            }
+        }
+    }
+}
+
+//==== File 5 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
 #if UNITY_EDITOR
 using UnityEngine;
 
@@ -95,7 +156,7 @@ namespace Game.Views
 #endif
 
 
-//==== File 4 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
+//==== File 6 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
 using UnityEngine;
 using Game.Services.Shadow;
 
@@ -133,7 +194,7 @@ namespace Game.Views
     }
 }
 
-//==== File 5 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
+//==== File 7 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -159,7 +220,7 @@ namespace Game.Views
     }
 }
 
-//==== File 6 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
+//==== File 8 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -169,10 +230,11 @@ namespace Game.Data
     {
         [field: SerializeField] public bool[] Wall1Target { get; private set; }
         [field: SerializeField] public bool[] Wall2Target { get; private set; }
+        [field: SerializeField] public bool[] FloorMatrix { get; private set; }
     }
 }
 
-//==== File 7 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowCalculator.cs ====
+//==== File 9 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowCalculator.cs ====
 using UnityEngine;
 
 namespace Game.Editor.Tool
@@ -201,7 +263,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 8 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelEditorWindow.cs ====
+//==== File 10 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelEditorWindow.cs ====
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -219,6 +281,7 @@ namespace Game.Editor.Tool
         private SerializedObject _serializedConfig;
         private SerializedProperty _wall1Prop;
         private SerializedProperty _wall2Prop;
+        private SerializedProperty _floorProp;
 
         private bool[,,] _testGrid = new bool[_gridSize, _gridSize, _gridSize];
         private int _currentZLayer;
@@ -275,6 +338,7 @@ namespace Game.Editor.Tool
                 _serializedConfig = null;
                 _wall1Prop = null;
                 _wall2Prop = null;
+                _floorProp = null;
             }
 
             EditorGUILayout.EndHorizontal();
@@ -283,6 +347,7 @@ namespace Game.Editor.Tool
         private void DrawGenerationPanel()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+
             EditorGUILayout.LabelField("Difficulty", GUILayout.Width(80));
             _difficulty = EditorGUILayout.IntSlider(_difficulty, 0, 10, GUILayout.Width(300));
             EditorGUILayout.LabelField(_difficulty.ToString(), GUILayout.Width(30));
@@ -306,6 +371,8 @@ namespace Game.Editor.Tool
                     _wall1Prop.GetArrayElementAtIndex(i).boolValue = result.Wall1Target[i];
                 if (i < _wall2Prop.arraySize)
                     _wall2Prop.GetArrayElementAtIndex(i).boolValue = result.Wall2Target[i];
+                if (i < _floorProp.arraySize)
+                    _floorProp.GetArrayElementAtIndex(i).boolValue = result.FloorMatrix[i];
             }
 
             _serializedConfig.ApplyModifiedProperties();
@@ -346,9 +413,11 @@ namespace Game.Editor.Tool
             _serializedConfig = new SerializedObject(_currentConfig);
             _wall1Prop = _serializedConfig.FindProperty("<Wall1Target>k__BackingField");
             _wall2Prop = _serializedConfig.FindProperty("<Wall2Target>k__BackingField");
+            _floorProp = _serializedConfig.FindProperty("<FloorMatrix>k__BackingField");
 
             if (_wall1Prop != null && _wall1Prop.arraySize != _cellCount) _wall1Prop.arraySize = _cellCount;
             if (_wall2Prop != null && _wall2Prop.arraySize != _cellCount) _wall2Prop.arraySize = _cellCount;
+            if (_floorProp != null && _floorProp.arraySize != _cellCount) _floorProp.arraySize = _cellCount;
         }
 
         private void ClearArrays()
@@ -360,6 +429,10 @@ namespace Game.Editor.Tool
             if (_wall2Prop != null)
                 for (var i = 0; i < _cellCount; i++)
                     _wall2Prop.GetArrayElementAtIndex(i).boolValue = false;
+
+            if (_floorProp != null)
+                for (var i = 0; i < _cellCount; i++)
+                    _floorProp.GetArrayElementAtIndex(i).boolValue = true;
 
             for (var x = 0; x < _gridSize; x++)
                 for (var y = 0; y < _gridSize; y++)
@@ -402,7 +475,7 @@ namespace Game.Editor.Tool
         private void DrawTargetShadowEditor()
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(450));
-            EditorGUILayout.LabelField("Target Shadows", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Target Shadows & Floor", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal();
 
@@ -417,6 +490,10 @@ namespace Game.Editor.Tool
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(20);
+            DrawFloorEditor();
+
             EditorGUILayout.EndVertical();
         }
 
@@ -439,6 +516,35 @@ namespace Game.Editor.Tool
                     if (index >= arrayProp.arraySize) continue;
 
                     var element = arrayProp.GetArrayElementAtIndex(index);
+                    var currentValue = element.boolValue;
+                    var newValue = GUILayout.Toggle(currentValue, "", GUILayout.Width(35), GUILayout.Height(35));
+
+                    if (newValue != currentValue)
+                        element.boolValue = newValue;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
+        private void DrawFloorEditor()
+        {
+            EditorGUILayout.LabelField("Floor Matrix (XZ)", EditorStyles.miniBoldLabel);
+
+            if (_floorProp is null)
+            {
+                EditorGUILayout.HelpBox("Load or Create a config first.", MessageType.Info);
+                return;
+            }
+
+            for (var z = _gridSize - 1; z >= 0; z--)
+            {
+                EditorGUILayout.BeginHorizontal();
+                for (var x = 0; x < _gridSize; x++)
+                {
+                    var index = x * _gridSize + z;
+                    if (index >= _floorProp.arraySize) continue;
+
+                    var element = _floorProp.GetArrayElementAtIndex(index);
                     var currentValue = element.boolValue;
                     var newValue = GUILayout.Toggle(currentValue, "", GUILayout.Width(35), GUILayout.Height(35));
 
@@ -537,7 +643,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 9 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
+//==== File 11 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -554,17 +660,37 @@ namespace Game.Editor.Tool
             public bool[,,] Grid;
             public bool[] Wall1Target;
             public bool[] Wall2Target;
+            public bool[] FloorMatrix;
         }
 
         public GenerationResult Generate(int difficulty)
         {
+            var floorMatrix = new bool[_gridSize * _gridSize];
+            for (var i = 0; i < floorMatrix.Length; i++) floorMatrix[i] = true;
+
+            if (difficulty >= 6)
+            {
+                var missingCount = Mathf.RoundToInt((difficulty - 5) * 2.5f);
+                var availableFloors = new List<int>();
+
+                for (var i = 0; i < floorMatrix.Length; i++) availableFloors.Add(i);
+
+                for (var i = 0; i < missingCount && availableFloors.Count > 0; i++)
+                {
+                    var index = Random.Range(0, availableFloors.Count);
+                    floorMatrix[availableFloors[index]] = false;
+                    availableFloors.RemoveAt(index);
+                }
+            }
+
             var targetBlockCount = Mathf.RoundToInt(difficulty * _cellsPerDifficulty);
             var grid = new bool[_gridSize, _gridSize, _gridSize];
             var availablePositions = new List<Vector3Int>(_totalCells);
 
             for (var x = 0; x < _gridSize; x++)
                 for (var z = 0; z < _gridSize; z++)
-                    availablePositions.Add(new Vector3Int(x, 0, z));
+                    if (floorMatrix[x * _gridSize + z])
+                        availablePositions.Add(new Vector3Int(x, 0, z));
 
             var placedCount = 0;
 
@@ -589,7 +715,13 @@ namespace Game.Editor.Tool
             var wall2 = new bool[_gridSize * _gridSize];
             CalculateShadows(grid, _gridSize, wall1, wall2);
 
-            return new GenerationResult { Grid = grid, Wall1Target = wall1, Wall2Target = wall2 };
+            return new GenerationResult
+            {
+                Grid = grid,
+                Wall1Target = wall1,
+                Wall2Target = wall2,
+                FloorMatrix = floorMatrix
+            };
         }
 
         private static void CalculateShadows(bool[,,] grid, int size, bool[] wall1, bool[] wall2)
@@ -609,10 +741,11 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 10 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
+//==== File 12 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
 using System;
 using UnityEngine;
 using Zenject;
+using Game.Data;
 
 namespace Game.Services.Grid
 {
@@ -621,31 +754,87 @@ namespace Game.Services.Grid
         bool IsCellOccupied(Vector3Int cell);
         void SetCellOccupied(Vector3Int cell, bool isOccupied);
         bool IsWithinBounds(Vector3Int cell);
+        bool IsFloorExists(Vector3Int cell);
     }
 
     public class GridService : IGridService, IInitializable
     {
         private const int Size = 5;
-        private readonly bool[,,] _cells = new bool[Size, Size, Size];
+        private const int CellCount = 25;
 
-        public void Initialize() => Array.Clear(_cells, 0, _cells.Length);
+        private readonly bool[,,] _cells = new bool[Size, Size, Size];
+        private readonly bool[] _floor = new bool[CellCount];
+        private readonly ShadowLevelConfig _config;
+
+        public GridService(ShadowLevelConfig config) => _config = config;
+
+        public void Initialize()
+        {
+            Array.Clear(_cells, 0, _cells.Length);
+
+            if (_config?.FloorMatrix?.Length == CellCount)
+                Array.Copy(_config.FloorMatrix, _floor, CellCount);
+            else
+                Array.Fill(_floor, true);
+        }
 
         public bool IsCellOccupied(Vector3Int cell) =>
             IsWithinBounds(cell) && _cells[cell.x, cell.y, cell.z];
 
         public void SetCellOccupied(Vector3Int cell, bool isOccupied)
         {
-            if (IsWithinBounds(cell)) _cells[cell.x, cell.y, cell.z] = isOccupied;
+            if (IsWithinBounds(cell))
+                _cells[cell.x, cell.y, cell.z] = isOccupied;
         }
 
         public bool IsWithinBounds(Vector3Int cell) =>
             cell.x >= 0 && cell.x < Size &&
             cell.y >= 0 && cell.y < Size &&
             cell.z >= 0 && cell.z < Size;
+
+        public bool IsFloorExists(Vector3Int cell) =>
+            cell.x >= 0 && cell.x < Size &&
+            cell.z >= 0 && cell.z < Size &&
+            _floor[cell.x * Size + cell.z];
     }
 }
 
-//==== File 11 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
+//==== File 13 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\BlockHistoryService.cs ====
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Game.Services.History
+{
+    public interface IBlockHistoryService
+    {
+        void RecordPlacement(Vector3Int cell);
+        bool TryPop(out Vector3Int cell);
+        void Clear();
+    }
+
+    public class BlockHistoryService : IBlockHistoryService
+    {
+        private readonly Stack<Vector3Int> _history = new();
+
+        public void RecordPlacement(Vector3Int cell) => _history.Push(cell);
+
+        public bool TryPop(out Vector3Int cell)
+        {
+            if (_history.Count == 0)
+            {
+                cell = default;
+                return false;
+            }
+
+            cell = _history.Pop();
+            return true;
+        }
+
+        public void Clear() => _history.Clear();
+    }
+}
+
+//==== File 14 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -657,16 +846,19 @@ namespace Game.Services.Input
     {
         IObservable<Vector2> OnMouseMoved { get; }
         IObservable<Vector2> OnPrimaryClick { get; }
+        IObservable<Vector2> OnSecondaryClick { get; }
     }
 
     public class InputService : IInputService, ITickable, IDisposable
     {
         private readonly Subject<Vector2> _onMouseMoved = new();
         private readonly Subject<Vector2> _onPrimaryClick = new();
+        private readonly Subject<Vector2> _onSecondaryClick = new();
         private readonly CompositeDisposable _disposables = new();
 
         public IObservable<Vector2> OnMouseMoved => _onMouseMoved;
         public IObservable<Vector2> OnPrimaryClick => _onPrimaryClick;
+        public IObservable<Vector2> OnSecondaryClick => _onSecondaryClick;
 
         public void Tick()
         {
@@ -674,53 +866,62 @@ namespace Game.Services.Input
 
             if (UnityEngine.Input.GetMouseButtonDown(0))
                 _onPrimaryClick.OnNext(UnityEngine.Input.mousePosition);
+
+            if (UnityEngine.Input.GetMouseButtonDown(1))
+                _onSecondaryClick.OnNext(UnityEngine.Input.mousePosition);
         }
 
         public void Dispose() => _disposables?.Dispose();
     }
 }
 
-//==== File 12 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
-using System;
-using UniRx;
-using UnityEngine;
-using Zenject;
+//==== File 15 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
 using Game.Services.Grid;
+using Game.Services.History;
 using Game.Services.Input;
 using Game.Services.Pool;
 using Game.Services.Raycast;
 using Game.Views;
+using System;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
+using Zenject;
 
 namespace Game.Services.Placement
 {
     public interface IBlockPlacementService
     {
-        IObservable<Vector3Int> OnBlockPlaced { get; }
+        IObservable<Unit> OnGridChanged { get; }
     }
 
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
     {
-        private readonly Subject<Vector3Int> _onBlockPlaced = new();
+        private readonly Subject<Unit> _onGridChanged = new();
         private readonly CompositeDisposable _disposables = new();
+        private readonly Dictionary<Vector3Int, BlockView> _activeBlocks = new();
         private readonly IInputService _inputService;
         private readonly IRaycastService _raycastService;
         private readonly IGridService _gridService;
         private readonly IBlockPoolService _poolService;
+        private readonly IBlockHistoryService _historyService;
         private readonly BlockView _previewBlock;
 
-        public IObservable<Vector3Int> OnBlockPlaced => _onBlockPlaced;
+        public IObservable<Unit> OnGridChanged => _onGridChanged;
 
         public BlockPlacementService(
             IInputService inputService,
             IRaycastService raycastService,
             IGridService gridService,
             IBlockPoolService poolService,
+            IBlockHistoryService historyService,
             [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
             _inputService = inputService;
             _raycastService = raycastService;
             _gridService = gridService;
             _poolService = poolService;
+            _historyService = historyService;
             _previewBlock = previewBlock;
         }
 
@@ -732,6 +933,10 @@ namespace Game.Services.Placement
 
             _inputService.OnPrimaryClick
                 .Subscribe(PlaceBlock)
+                .AddTo(_disposables);
+
+            _inputService.OnSecondaryClick
+                .Subscribe(_ => RemoveLastBlock())
                 .AddTo(_disposables);
 
             if (_previewBlock is not null)
@@ -759,17 +964,37 @@ namespace Game.Services.Placement
 
             _gridService.SetCellOccupied(cell, true);
             var block = _poolService.Get();
+
             if (block is null) return;
 
             block.SetPosition(cell);
-            _onBlockPlaced.OnNext(cell);
+            _activeBlocks[cell] = block;
+            _historyService.RecordPlacement(cell);
+            _onGridChanged.OnNext(Unit.Default);
+        }
+
+        private void RemoveLastBlock()
+        {
+            if (!_historyService.TryPop(out var targetCell)) return;
+
+            if (_gridService.IsCellOccupied(targetCell + Vector3Int.up)) return;
+
+            _gridService.SetCellOccupied(targetCell, false);
+
+            if (_activeBlocks.TryGetValue(targetCell, out var block))
+            {
+                _poolService.Return(block);
+                _activeBlocks.Remove(targetCell);
+            }
+
+            _onGridChanged.OnNext(Unit.Default);
         }
 
         public void Dispose() => _disposables?.Dispose();
     }
 }
 
-//==== File 13 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
+//==== File 16 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -822,7 +1047,7 @@ namespace Game.Services.Pool
     }
 }
 
-//==== File 14 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
+//==== File 17 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Services.Grid;
@@ -837,6 +1062,7 @@ namespace Game.Services.Raycast
     public class RaycastService : IRaycastService
     {
         private const int GridSize = 5;
+
         private readonly Camera _camera;
         private readonly IGridService _gridService;
         private readonly Plane _floorPlane;
@@ -852,6 +1078,7 @@ namespace Game.Services.Raycast
         {
             cell = default;
             normal = default;
+
             var ray = _camera.ScreenPointToRay(screenPosition);
 
             if (_floorPlane.Raycast(ray, out var floorDistance))
@@ -859,7 +1086,7 @@ namespace Game.Services.Raycast
                 var hitPoint = ray.GetPoint(floorDistance);
                 var floorCell = new Vector3Int(Mathf.FloorToInt(hitPoint.x), 0, Mathf.FloorToInt(hitPoint.z));
 
-                if (IsInBounds(floorCell) && !_gridService.IsCellOccupied(floorCell))
+                if (IsInBounds(floorCell) && !_gridService.IsCellOccupied(floorCell) && _gridService.IsFloorExists(floorCell))
                 {
                     cell = floorCell;
                     normal = Vector3Int.up;
@@ -874,6 +1101,7 @@ namespace Game.Services.Raycast
         {
             cell = default;
             normal = default;
+
             var closestDistance = float.MaxValue;
             var found = false;
 
@@ -885,6 +1113,7 @@ namespace Game.Services.Raycast
                         if (!_gridService.IsCellOccupied(currentCell)) continue;
 
                         var center = new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
+
                         if (IntersectRayAABB(ray, center, out var distance, out var hitNormal) && distance < closestDistance)
                         {
                             closestDistance = distance;
@@ -938,7 +1167,7 @@ namespace Game.Services.Raycast
     }
 }
 
-//==== File 15 of 15: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
+//==== File 18 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -981,19 +1210,15 @@ namespace Game.Services.Shadow
     {
         private const int GridSize = 5;
         private const int CellCount = 25;
-
         private readonly Subject<ShadowCellUpdate> _onCellStateChanged = new();
         private readonly Subject<Unit> _onLevelCompleted = new();
         private readonly CompositeDisposable _disposables = new();
-
         private readonly IGridService _gridService;
         private readonly ShadowLevelConfig _config;
-
         private readonly bool[] _hasShadow1 = new bool[CellCount];
         private readonly bool[] _hasShadow2 = new bool[CellCount];
         private readonly ShadowCellState[] _wall1States = new ShadowCellState[CellCount];
         private readonly ShadowCellState[] _wall2States = new ShadowCellState[CellCount];
-
         private Vector3Int _cellCoord;
 
         public IObservable<ShadowCellUpdate> OnCellStateChanged => _onCellStateChanged;
@@ -1007,7 +1232,7 @@ namespace Game.Services.Shadow
             _gridService = gridService;
             _config = config;
 
-            placementService.OnBlockPlaced
+            placementService.OnGridChanged
                 .Subscribe(_ => ValidateAndPublish())
                 .AddTo(_disposables);
         }
@@ -1078,10 +1303,10 @@ namespace Game.Services.Shadow
 
 
 // ============ Statistics =============
-// Total Files: 15
-// Total Size: 35,29 KB
-// Total Lines: 1042
-// Classes: 15
-// Methods: 59
+// Total Files: 18
+// Total Size: 42,46 KB
+// Total Lines: 1261
+// Classes: 18
+// Methods: 75
 // Comments (Blocks): 0
 // =====================================
