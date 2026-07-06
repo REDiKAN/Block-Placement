@@ -40,19 +40,15 @@ namespace Game.Services.Shadow
     {
         private const int GridSize = 5;
         private const int CellCount = 25;
-
         private readonly Subject<ShadowCellUpdate> _onCellStateChanged = new();
         private readonly Subject<Unit> _onLevelCompleted = new();
         private readonly CompositeDisposable _disposables = new();
-
         private readonly IGridService _gridService;
         private readonly ShadowLevelConfig _config;
-
         private readonly bool[] _hasShadow1 = new bool[CellCount];
         private readonly bool[] _hasShadow2 = new bool[CellCount];
         private readonly ShadowCellState[] _wall1States = new ShadowCellState[CellCount];
         private readonly ShadowCellState[] _wall2States = new ShadowCellState[CellCount];
-
         private Vector3Int _cellCoord;
 
         public IObservable<ShadowCellUpdate> OnCellStateChanged => _onCellStateChanged;
@@ -66,7 +62,7 @@ namespace Game.Services.Shadow
             _gridService = gridService;
             _config = config;
 
-            placementService.OnBlockPlaced
+            placementService.OnGridChanged
                 .Subscribe(_ => ValidateAndPublish())
                 .AddTo(_disposables);
         }

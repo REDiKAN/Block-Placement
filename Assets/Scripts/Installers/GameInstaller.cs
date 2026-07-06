@@ -1,5 +1,6 @@
 using Game.Data;
 using Game.Services.Grid;
+using Game.Services.History;
 using Game.Services.Input;
 using Game.Services.Placement;
 using Game.Services.Pool;
@@ -31,6 +32,7 @@ namespace Game.Installers
             Bind<GridService>();
             Bind<RaycastService>();
             Bind<BlockPoolService>();
+            Bind<BlockHistoryService>();
             Bind<BlockPlacementService>();
             Bind<ShadowValidationService>();
         }
