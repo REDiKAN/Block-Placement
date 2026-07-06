@@ -15,6 +15,7 @@ namespace Game.Editor.Tool
         private SerializedObject _serializedConfig;
         private SerializedProperty _wall1Prop;
         private SerializedProperty _wall2Prop;
+        private SerializedProperty _floorProp;
 
         private bool[,,] _testGrid = new bool[_gridSize, _gridSize, _gridSize];
         private int _currentZLayer;
@@ -71,6 +72,7 @@ namespace Game.Editor.Tool
                 _serializedConfig = null;
                 _wall1Prop = null;
                 _wall2Prop = null;
+                _floorProp = null;
             }
 
             EditorGUILayout.EndHorizontal();
@@ -79,6 +81,7 @@ namespace Game.Editor.Tool
         private void DrawGenerationPanel()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+
             EditorGUILayout.LabelField("Difficulty", GUILayout.Width(80));
             _difficulty = EditorGUILayout.IntSlider(_difficulty, 0, 10, GUILayout.Width(300));
             EditorGUILayout.LabelField(_difficulty.ToString(), GUILayout.Width(30));
@@ -102,6 +105,8 @@ namespace Game.Editor.Tool
                     _wall1Prop.GetArrayElementAtIndex(i).boolValue = result.Wall1Target[i];
                 if (i < _wall2Prop.arraySize)
                     _wall2Prop.GetArrayElementAtIndex(i).boolValue = result.Wall2Target[i];
+                if (i < _floorProp.arraySize)
+                    _floorProp.GetArrayElementAtIndex(i).boolValue = result.FloorMatrix[i];
             }
 
             _serializedConfig.ApplyModifiedProperties();
@@ -142,9 +147,11 @@ namespace Game.Editor.Tool
             _serializedConfig = new SerializedObject(_currentConfig);
             _wall1Prop = _serializedConfig.FindProperty("<Wall1Target>k__BackingField");
             _wall2Prop = _serializedConfig.FindProperty("<Wall2Target>k__BackingField");
+            _floorProp = _serializedConfig.FindProperty("<FloorMatrix>k__BackingField");
 
             if (_wall1Prop != null && _wall1Prop.arraySize != _cellCount) _wall1Prop.arraySize = _cellCount;
             if (_wall2Prop != null && _wall2Prop.arraySize != _cellCount) _wall2Prop.arraySize = _cellCount;
+            if (_floorProp != null && _floorProp.arraySize != _cellCount) _floorProp.arraySize = _cellCount;
         }
 
         private void ClearArrays()
@@ -156,6 +163,10 @@ namespace Game.Editor.Tool
             if (_wall2Prop != null)
                 for (var i = 0; i < _cellCount; i++)
                     _wall2Prop.GetArrayElementAtIndex(i).boolValue = false;
+
+            if (_floorProp != null)
+                for (var i = 0; i < _cellCount; i++)
+                    _floorProp.GetArrayElementAtIndex(i).boolValue = true;
 
             for (var x = 0; x < _gridSize; x++)
                 for (var y = 0; y < _gridSize; y++)
@@ -198,7 +209,7 @@ namespace Game.Editor.Tool
         private void DrawTargetShadowEditor()
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(450));
-            EditorGUILayout.LabelField("Target Shadows", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Target Shadows & Floor", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal();
 
@@ -213,6 +224,10 @@ namespace Game.Editor.Tool
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(20);
+            DrawFloorEditor();
+
             EditorGUILayout.EndVertical();
         }
 
@@ -235,6 +250,35 @@ namespace Game.Editor.Tool
                     if (index >= arrayProp.arraySize) continue;
 
                     var element = arrayProp.GetArrayElementAtIndex(index);
+                    var currentValue = element.boolValue;
+                    var newValue = GUILayout.Toggle(currentValue, "", GUILayout.Width(35), GUILayout.Height(35));
+
+                    if (newValue != currentValue)
+                        element.boolValue = newValue;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
+        private void DrawFloorEditor()
+        {
+            EditorGUILayout.LabelField("Floor Matrix (XZ)", EditorStyles.miniBoldLabel);
+
+            if (_floorProp is null)
+            {
+                EditorGUILayout.HelpBox("Load or Create a config first.", MessageType.Info);
+                return;
+            }
+
+            for (var z = _gridSize - 1; z >= 0; z--)
+            {
+                EditorGUILayout.BeginHorizontal();
+                for (var x = 0; x < _gridSize; x++)
+                {
+                    var index = x * _gridSize + z;
+                    if (index >= _floorProp.arraySize) continue;
+
+                    var element = _floorProp.GetArrayElementAtIndex(index);
                     var currentValue = element.boolValue;
                     var newValue = GUILayout.Toggle(currentValue, "", GUILayout.Width(35), GUILayout.Height(35));
 

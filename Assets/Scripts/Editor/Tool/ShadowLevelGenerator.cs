@@ -14,17 +14,37 @@ namespace Game.Editor.Tool
             public bool[,,] Grid;
             public bool[] Wall1Target;
             public bool[] Wall2Target;
+            public bool[] FloorMatrix;
         }
 
         public GenerationResult Generate(int difficulty)
         {
+            var floorMatrix = new bool[_gridSize * _gridSize];
+            for (var i = 0; i < floorMatrix.Length; i++) floorMatrix[i] = true;
+
+            if (difficulty >= 6)
+            {
+                var missingCount = Mathf.RoundToInt((difficulty - 5) * 2.5f);
+                var availableFloors = new List<int>();
+
+                for (var i = 0; i < floorMatrix.Length; i++) availableFloors.Add(i);
+
+                for (var i = 0; i < missingCount && availableFloors.Count > 0; i++)
+                {
+                    var index = Random.Range(0, availableFloors.Count);
+                    floorMatrix[availableFloors[index]] = false;
+                    availableFloors.RemoveAt(index);
+                }
+            }
+
             var targetBlockCount = Mathf.RoundToInt(difficulty * _cellsPerDifficulty);
             var grid = new bool[_gridSize, _gridSize, _gridSize];
             var availablePositions = new List<Vector3Int>(_totalCells);
 
             for (var x = 0; x < _gridSize; x++)
                 for (var z = 0; z < _gridSize; z++)
-                    availablePositions.Add(new Vector3Int(x, 0, z));
+                    if (floorMatrix[x * _gridSize + z])
+                        availablePositions.Add(new Vector3Int(x, 0, z));
 
             var placedCount = 0;
 
@@ -49,7 +69,13 @@ namespace Game.Editor.Tool
             var wall2 = new bool[_gridSize * _gridSize];
             CalculateShadows(grid, _gridSize, wall1, wall2);
 
-            return new GenerationResult { Grid = grid, Wall1Target = wall1, Wall2Target = wall2 };
+            return new GenerationResult
+            {
+                Grid = grid,
+                Wall1Target = wall1,
+                Wall2Target = wall2,
+                FloorMatrix = floorMatrix
+            };
         }
 
         private static void CalculateShadows(bool[,,] grid, int size, bool[] wall1, bool[] wall2)

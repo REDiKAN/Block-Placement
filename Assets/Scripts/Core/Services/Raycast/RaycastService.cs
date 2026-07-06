@@ -12,6 +12,7 @@ namespace Game.Services.Raycast
     public class RaycastService : IRaycastService
     {
         private const int GridSize = 5;
+
         private readonly Camera _camera;
         private readonly IGridService _gridService;
         private readonly Plane _floorPlane;
@@ -27,6 +28,7 @@ namespace Game.Services.Raycast
         {
             cell = default;
             normal = default;
+
             var ray = _camera.ScreenPointToRay(screenPosition);
 
             if (_floorPlane.Raycast(ray, out var floorDistance))
@@ -34,7 +36,7 @@ namespace Game.Services.Raycast
                 var hitPoint = ray.GetPoint(floorDistance);
                 var floorCell = new Vector3Int(Mathf.FloorToInt(hitPoint.x), 0, Mathf.FloorToInt(hitPoint.z));
 
-                if (IsInBounds(floorCell) && !_gridService.IsCellOccupied(floorCell))
+                if (IsInBounds(floorCell) && !_gridService.IsCellOccupied(floorCell) && _gridService.IsFloorExists(floorCell))
                 {
                     cell = floorCell;
                     normal = Vector3Int.up;
@@ -49,6 +51,7 @@ namespace Game.Services.Raycast
         {
             cell = default;
             normal = default;
+
             var closestDistance = float.MaxValue;
             var found = false;
 
@@ -60,6 +63,7 @@ namespace Game.Services.Raycast
                         if (!_gridService.IsCellOccupied(currentCell)) continue;
 
                         var center = new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
+
                         if (IntersectRayAABB(ray, center, out var distance, out var hitNormal) && distance < closestDistance)
                         {
                             closestDistance = distance;

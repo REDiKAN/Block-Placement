@@ -7,5 +7,6 @@ namespace Game.Data
     {
         [field: SerializeField] public bool[] Wall1Target { get; private set; }
         [field: SerializeField] public bool[] Wall2Target { get; private set; }
+        [field: SerializeField] public bool[] FloorMatrix { get; private set; }
     }
 }
