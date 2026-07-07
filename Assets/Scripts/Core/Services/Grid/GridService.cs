@@ -21,17 +21,32 @@ namespace Game.Services.Grid
         private readonly bool[,,] _cells = new bool[Size, Size, Size];
         private readonly bool[] _floor = new bool[CellCount];
         private readonly ShadowLevelConfig _config;
+        private readonly bool _isDeveloperMode;
 
-        public GridService(ShadowLevelConfig config) => _config = config;
+        public GridService(ShadowLevelConfig config, [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
+        {
+            _config = config;
+            _isDeveloperMode = isDeveloperMode;
+        }
 
         public void Initialize()
         {
             Array.Clear(_cells, 0, _cells.Length);
 
-            if (_config?.FloorMatrix?.Length == CellCount)
-                Array.Copy(_config.FloorMatrix, _floor, CellCount);
-            else
+            if (_isDeveloperMode)
+            {
                 Array.Fill(_floor, true);
+                Debug.Log("[GridService] Developer mode active. Floor fully initialized without holes.");
+            }
+            else
+            {
+                if (_config?.FloorMatrix?.Length == CellCount)
+                    Array.Copy(_config.FloorMatrix, _floor, CellCount);
+                else
+                    Array.Fill(_floor, true);
+
+                Debug.Log("[GridService] Normal mode active. Floor initialized from configuration.");
+            }
         }
 
         public bool IsCellOccupied(Vector3Int cell) =>

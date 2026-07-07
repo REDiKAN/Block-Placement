@@ -1,4 +1,5 @@
 using Game.Data;
+using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.History;
 using Game.Services.Input;
@@ -20,6 +21,7 @@ namespace Game.Installers
         [field: SerializeField] public Camera GameCamera { get; private set; }
         [field: SerializeField] public ShadowLevelConfig ShadowConfig { get; private set; }
         [field: SerializeField] public RaycastConfig RaycastConfig { get; private set; }
+        [field: SerializeField] public bool IsDeveloperMode { get; private set; }
 
         public override void InstallBindings()
         {
@@ -29,6 +31,7 @@ namespace Game.Installers
             Container.BindInstance(GameCamera);
             Container.BindInstance(ShadowConfig);
             Container.BindInstance(RaycastConfig);
+            Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
 
             Bind<InputService>();
             Bind<GridService>();
@@ -38,6 +41,8 @@ namespace Game.Installers
             Bind<BlockPlacementService>();
             Bind<ShadowCalculationService>();
             Bind<ShadowValidationService>();
+            Bind<DevInputService>();
+            Bind<DevLevelExportService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class

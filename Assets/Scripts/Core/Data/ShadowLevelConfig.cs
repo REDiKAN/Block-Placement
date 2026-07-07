@@ -7,5 +7,11 @@ namespace Game.Data
     {
         [field: SerializeField] public Vector3Int[] InitialBlocks { get; private set; }
         [field: SerializeField] public bool[] FloorMatrix { get; private set; }
+
+        public void SetData(Vector3Int[] initialBlocks, bool[] floorMatrix)
+        {
+            InitialBlocks = initialBlocks;
+            FloorMatrix = floorMatrix;
+        }
     }
 }
