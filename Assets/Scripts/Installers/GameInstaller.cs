@@ -36,6 +36,7 @@ namespace Game.Installers
             Bind<BlockPoolService>();
             Bind<BlockHistoryService>();
             Bind<BlockPlacementService>();
+            Bind<ShadowCalculationService>();
             Bind<ShadowValidationService>();
         }
 

@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bca4a7151ade9054fbb7894cf2c629f5, type: 3}
   m_Name: Level_01
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.ShadowLevelConfig
-  <Wall1Target>k__BackingField: 00000000010101010101010101010101010101010101010101
-  <Wall2Target>k__BackingField: 01010101010101010101010101010101010101010101010101
+  <InitialBlocks>k__BackingField:
+  - {x: 1, y: 0, z: 0}
+  <FloorMatrix>k__BackingField: 

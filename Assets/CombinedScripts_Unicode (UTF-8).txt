@@ -1,10 +1,10 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 06.07.2026 21:19:36
+// Generation Time: 07.07.2026 15:48:26
 // Encoding: Unicode (UTF-8)
-// Total Files: 18
+// Total Files: 19
 // =====================================
 
-//==== File 1 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
+//==== File 1 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
 using Game.Data;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -26,6 +26,7 @@ namespace Game.Installers
         [field: SerializeField] public Transform BlocksParent { get; private set; }
         [field: SerializeField] public Camera GameCamera { get; private set; }
         [field: SerializeField] public ShadowLevelConfig ShadowConfig { get; private set; }
+        [field: SerializeField] public RaycastConfig RaycastConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -34,6 +35,7 @@ namespace Game.Installers
             Container.BindInstance(BlocksParent);
             Container.BindInstance(GameCamera);
             Container.BindInstance(ShadowConfig);
+            Container.BindInstance(RaycastConfig);
 
             Bind<InputService>();
             Bind<GridService>();
@@ -54,7 +56,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 2 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
+//==== File 2 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
 using UnityEngine;
 
 namespace Game.Views
@@ -67,7 +69,7 @@ namespace Game.Views
     }
 }
 
-//==== File 3 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
+//==== File 3 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
 using UnityEngine;
 
 namespace Game.Views
@@ -80,7 +82,7 @@ namespace Game.Views
     }
 }
 
-//==== File 4 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
+//==== File 4 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -126,7 +128,7 @@ namespace Game.Views
     }
 }
 
-//==== File 5 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
+//==== File 5 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
 #if UNITY_EDITOR
 using UnityEngine;
 
@@ -156,7 +158,7 @@ namespace Game.Views
 #endif
 
 
-//==== File 6 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
+//==== File 6 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
 using UnityEngine;
 using Game.Services.Shadow;
 
@@ -169,22 +171,24 @@ namespace Game.Views
         [field: SerializeField] public Material ExtraMaterial { get; private set; }
 
         private Renderer _renderer;
+        private Material _defaultMaterial;
 
-        private void Awake() => _renderer = GetComponent<Renderer>();
+        private void Awake()
+        {
+            _renderer = GetComponent<Renderer>();
+            if (_renderer is not null)
+                _defaultMaterial = _renderer.material;
+        }
 
         public void SetState(ShadowCellState state)
         {
             if (_renderer is null) return;
 
-            if (state == ShadowCellState.Empty)
-            {
-                _renderer.enabled = false;
-                return;
-            }
-
             _renderer.enabled = true;
+
             _renderer.material = state switch
             {
+                ShadowCellState.Empty => _defaultMaterial,
                 ShadowCellState.Missing => MissingMaterial,
                 ShadowCellState.Correct => CorrectMaterial,
                 ShadowCellState.Extra => ExtraMaterial,
@@ -194,7 +198,7 @@ namespace Game.Views
     }
 }
 
-//==== File 7 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
+//==== File 7 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -220,7 +224,21 @@ namespace Game.Views
     }
 }
 
-//==== File 8 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
+//==== File 8 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RaycastConfig.cs ====
+using UnityEngine;
+
+namespace Game.Data
+{
+    [CreateAssetMenu(fileName = nameof(RaycastConfig), menuName = "Game/" + nameof(RaycastConfig))]
+    public class RaycastConfig : ScriptableObject
+    {
+        [field: SerializeField] public LayerMask FloorMask { get; private set; }
+        [field: SerializeField] public LayerMask BlockMask { get; private set; }
+        [field: SerializeField] public float MaxDistance { get; private set; } = 100f;
+    }
+}
+
+//==== File 9 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -234,7 +252,7 @@ namespace Game.Data
     }
 }
 
-//==== File 9 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowCalculator.cs ====
+//==== File 10 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowCalculator.cs ====
 using UnityEngine;
 
 namespace Game.Editor.Tool
@@ -263,7 +281,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 10 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelEditorWindow.cs ====
+//==== File 11 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelEditorWindow.cs ====
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -643,7 +661,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 11 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
+//==== File 12 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -741,7 +759,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 12 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
+//==== File 13 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
 using System;
 using UnityEngine;
 using Zenject;
@@ -799,7 +817,7 @@ namespace Game.Services.Grid
     }
 }
 
-//==== File 13 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\BlockHistoryService.cs ====
+//==== File 14 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\BlockHistoryService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -834,7 +852,7 @@ namespace Game.Services.History
     }
 }
 
-//==== File 14 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
+//==== File 15 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -875,18 +893,18 @@ namespace Game.Services.Input
     }
 }
 
-//==== File 15 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
+//==== File 16 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
+using System;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
+using Zenject;
 using Game.Services.Grid;
 using Game.Services.History;
 using Game.Services.Input;
 using Game.Services.Pool;
 using Game.Services.Raycast;
 using Game.Views;
-using System;
-using System.Collections.Generic;
-using UniRx;
-using UnityEngine;
-using Zenject;
 
 namespace Game.Services.Placement
 {
@@ -994,7 +1012,7 @@ namespace Game.Services.Placement
     }
 }
 
-//==== File 16 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
+//==== File 17 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -1047,9 +1065,10 @@ namespace Game.Services.Pool
     }
 }
 
-//==== File 17 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
+//==== File 18 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
 using UnityEngine;
 using Zenject;
+using Game.Data;
 using Game.Services.Grid;
 
 namespace Game.Services.Raycast
@@ -1061,113 +1080,56 @@ namespace Game.Services.Raycast
 
     public class RaycastService : IRaycastService
     {
-        private const int GridSize = 5;
-
         private readonly Camera _camera;
         private readonly IGridService _gridService;
-        private readonly Plane _floorPlane;
+        private readonly RaycastConfig _config;
 
-        public RaycastService(Camera camera, IGridService gridService)
+        public RaycastService(Camera camera, IGridService gridService, RaycastConfig config)
         {
             _camera = camera;
             _gridService = gridService;
-            _floorPlane = new Plane(Vector3.up, Vector3.zero);
+            _config = config;
         }
 
         public bool TryGetTargetCell(Vector2 screenPosition, out Vector3Int cell, out Vector3Int normal)
         {
             cell = default;
             normal = default;
-
             var ray = _camera.ScreenPointToRay(screenPosition);
 
-            if (_floorPlane.Raycast(ray, out var floorDistance))
+            if (Physics.Raycast(ray, out var blockHit, _config.MaxDistance, _config.BlockMask))
             {
-                var hitPoint = ray.GetPoint(floorDistance);
-                var floorCell = new Vector3Int(Mathf.FloorToInt(hitPoint.x), 0, Mathf.FloorToInt(hitPoint.z));
+                var targetPos = blockHit.point + blockHit.normal * 0.5f;
+                cell = new Vector3Int(
+                    Mathf.FloorToInt(targetPos.x),
+                    Mathf.FloorToInt(targetPos.y),
+                    Mathf.FloorToInt(targetPos.z)
+                );
+                normal = Vector3Int.RoundToInt(blockHit.normal);
 
-                if (IsInBounds(floorCell) && !_gridService.IsCellOccupied(floorCell) && _gridService.IsFloorExists(floorCell))
-                {
-                    cell = floorCell;
-                    normal = Vector3Int.up;
-                    return true;
-                }
+                return _gridService.IsWithinBounds(cell) && !_gridService.IsCellOccupied(cell);
             }
 
-            return TryRaycastBlocks(ray, out cell, out normal);
+            if (Physics.Raycast(ray, out var floorHit, _config.MaxDistance, _config.FloorMask))
+            {
+                cell = new Vector3Int(
+                    Mathf.FloorToInt(floorHit.point.x),
+                    0,
+                    Mathf.FloorToInt(floorHit.point.z)
+                );
+                normal = Vector3Int.up;
+
+                return _gridService.IsWithinBounds(cell)
+                       && !_gridService.IsCellOccupied(cell)
+                       && _gridService.IsFloorExists(cell);
+            }
+
+            return false;
         }
-
-        private bool TryRaycastBlocks(Ray ray, out Vector3Int cell, out Vector3Int normal)
-        {
-            cell = default;
-            normal = default;
-
-            var closestDistance = float.MaxValue;
-            var found = false;
-
-            for (var x = 0; x < GridSize; x++)
-                for (var y = 0; y < GridSize; y++)
-                    for (var z = 0; z < GridSize; z++)
-                    {
-                        var currentCell = new Vector3Int(x, y, z);
-                        if (!_gridService.IsCellOccupied(currentCell)) continue;
-
-                        var center = new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
-
-                        if (IntersectRayAABB(ray, center, out var distance, out var hitNormal) && distance < closestDistance)
-                        {
-                            closestDistance = distance;
-                            normal = Vector3Int.RoundToInt(hitNormal);
-                            cell = currentCell + normal;
-                            found = true;
-                        }
-                    }
-
-            return found && IsInBounds(cell) && !_gridService.IsCellOccupied(cell);
-        }
-
-        private bool IntersectRayAABB(Ray ray, Vector3 center, out float distance, out Vector3 normal)
-        {
-            distance = 0;
-            normal = default;
-
-            var tMin = new Vector3(
-                (center.x - 0.5f - ray.origin.x) / ray.direction.x,
-                (center.y - 0.5f - ray.origin.y) / ray.direction.y,
-                (center.z - 0.5f - ray.origin.z) / ray.direction.z
-            );
-
-            var tMax = new Vector3(
-                (center.x + 0.5f - ray.origin.x) / ray.direction.x,
-                (center.y + 0.5f - ray.origin.y) / ray.direction.y,
-                (center.z + 0.5f - ray.origin.z) / ray.direction.z
-            );
-
-            var t1 = new Vector3(Mathf.Min(tMin.x, tMax.x), Mathf.Min(tMin.y, tMax.y), Mathf.Min(tMin.z, tMax.z));
-            var t2 = new Vector3(Mathf.Max(tMin.x, tMax.x), Mathf.Max(tMin.y, tMax.y), Mathf.Max(tMin.z, tMax.z));
-
-            var tNear = Mathf.Max(Mathf.Max(t1.x, t1.y), t1.z);
-            var tFar = Mathf.Min(Mathf.Min(t2.x, t2.y), t2.z);
-
-            if (tNear > tFar || tFar < 0) return false;
-
-            distance = tNear;
-
-            if (t1.x > t1.y && t1.x > t1.z) normal = ray.direction.x > 0 ? Vector3.left : Vector3.right;
-            else if (t1.y > t1.z) normal = ray.direction.y > 0 ? Vector3.down : Vector3.up;
-            else normal = ray.direction.z > 0 ? Vector3.back : Vector3.forward;
-
-            return true;
-        }
-
-        private bool IsInBounds(Vector3Int cell) =>
-            cell.x >= 0 && cell.x < GridSize &&
-            cell.y >= 0 && cell.y < GridSize &&
-            cell.z >= 0 && cell.z < GridSize;
     }
 }
 
-//==== File 18 of 18: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
+//==== File 19 of 19: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -1303,10 +1265,10 @@ namespace Game.Services.Shadow
 
 
 // ============ Statistics =============
-// Total Files: 18
-// Total Size: 42,46 KB
-// Total Lines: 1261
-// Classes: 18
-// Methods: 75
+// Total Files: 19
+// Total Size: 40,82 KB
+// Total Lines: 1221
+// Classes: 19
+// Methods: 72
 // Comments (Blocks): 0
 // =====================================
