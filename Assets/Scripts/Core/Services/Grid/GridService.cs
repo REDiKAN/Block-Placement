@@ -7,14 +7,18 @@ namespace Game.Services.Grid
 {
     public interface IGridService
     {
+        int GridSize { get; }
         bool IsCellOccupied(Vector3Int cell);
         void SetCellOccupied(Vector3Int cell, bool isOccupied);
         bool IsWithinBounds(Vector3Int cell);
         bool IsFloorExists(Vector3Int cell);
+        void Rotate(int angle);
     }
 
     public class GridService : IGridService, IInitializable
     {
+        public int GridSize => Size;
+
         private const int Size = 5;
         private const int CellCount = 25;
 
@@ -32,11 +36,9 @@ namespace Game.Services.Grid
         public void Initialize()
         {
             Array.Clear(_cells, 0, _cells.Length);
-
             if (_isDeveloperMode)
             {
                 Array.Fill(_floor, true);
-                Debug.Log("[GridService] Developer mode active. Floor fully initialized without holes.");
             }
             else
             {
@@ -44,8 +46,6 @@ namespace Game.Services.Grid
                     Array.Copy(_config.FloorMatrix, _floor, CellCount);
                 else
                     Array.Fill(_floor, true);
-
-                Debug.Log("[GridService] Normal mode active. Floor initialized from configuration.");
             }
         }
 
@@ -67,5 +67,19 @@ namespace Game.Services.Grid
             cell.x >= 0 && cell.x < Size &&
             cell.z >= 0 && cell.z < Size &&
             _floor[cell.x * Size + cell.z];
+
+        public void Rotate(int angle)
+        {
+            var newCells = new bool[Size, Size, Size];
+            for (var x = 0; x < Size; x++)
+                for (var y = 0; y < Size; y++)
+                    for (var z = 0; z < Size; z++)
+                    {
+                        if (!_cells[x, y, z]) continue;
+                        var (nx, nz) = angle == 90 ? (z, Size - 1 - x) : (Size - 1 - z, x);
+                        newCells[nx, y, nz] = true;
+                    }
+            Array.Copy(newCells, _cells, _cells.Length);
+        }
     }
 }

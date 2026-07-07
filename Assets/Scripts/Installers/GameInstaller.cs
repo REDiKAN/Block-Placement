@@ -6,6 +6,7 @@ using Game.Services.Input;
 using Game.Services.Placement;
 using Game.Services.Pool;
 using Game.Services.Raycast;
+using Game.Services.Rotation;
 using Game.Services.Shadow;
 using Game.Views;
 using UnityEngine;
@@ -21,10 +22,14 @@ namespace Game.Installers
         [field: SerializeField] public Camera GameCamera { get; private set; }
         [field: SerializeField] public ShadowLevelConfig ShadowConfig { get; private set; }
         [field: SerializeField] public RaycastConfig RaycastConfig { get; private set; }
+        [field: SerializeField] public Transform RotationPivot { get; private set; }
+        [field: SerializeField] public RotationConfig RotationConfig { get; private set; }
         [field: SerializeField] public bool IsDeveloperMode { get; private set; }
 
         public override void InstallBindings()
         {
+            Container.BindInstance(RotationPivot).WithId("RotationPivot");
+            Container.BindInstance(RotationConfig);
             Container.BindInstance(BlockPrefab).WithId("BlockPrefab");
             Container.BindInstance(PreviewBlock).WithId("PreviewBlock");
             Container.BindInstance(BlocksParent);
@@ -43,6 +48,7 @@ namespace Game.Installers
             Bind<ShadowValidationService>();
             Bind<DevInputService>();
             Bind<DevLevelExportService>();
+            Bind<RotationService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class

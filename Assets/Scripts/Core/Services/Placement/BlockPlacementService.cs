@@ -8,6 +8,7 @@ using Game.Services.History;
 using Game.Services.Input;
 using Game.Services.Pool;
 using Game.Services.Raycast;
+using Game.Services.Rotation;
 using Game.Views;
 
 namespace Game.Services.Placement
@@ -19,17 +20,19 @@ namespace Game.Services.Placement
 
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
     {
+        public IObservable<Unit> OnGridChanged => _onGridChanged;
+
         private readonly Subject<Unit> _onGridChanged = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly Dictionary<Vector3Int, BlockView> _activeBlocks = new();
+
         private readonly IInputService _inputService;
         private readonly IRaycastService _raycastService;
         private readonly IGridService _gridService;
         private readonly IBlockPoolService _poolService;
         private readonly IBlockHistoryService _historyService;
+        private readonly IRotationService _rotationService;
         private readonly BlockView _previewBlock;
-
-        public IObservable<Unit> OnGridChanged => _onGridChanged;
 
         public BlockPlacementService(
             IInputService inputService,
@@ -37,6 +40,7 @@ namespace Game.Services.Placement
             IGridService gridService,
             IBlockPoolService poolService,
             IBlockHistoryService historyService,
+            IRotationService rotationService,
             [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
             _inputService = inputService;
@@ -44,6 +48,7 @@ namespace Game.Services.Placement
             _gridService = gridService;
             _poolService = poolService;
             _historyService = historyService;
+            _rotationService = rotationService;
             _previewBlock = previewBlock;
         }
 
@@ -59,6 +64,10 @@ namespace Game.Services.Placement
 
             _inputService.OnSecondaryClick
                 .Subscribe(_ => RemoveLastBlock())
+                .AddTo(_disposables);
+
+            _rotationService.OnRotationCompleted
+                .Subscribe(RotateActiveBlocks)
                 .AddTo(_disposables);
 
             if (_previewBlock is not null)
@@ -86,7 +95,6 @@ namespace Game.Services.Placement
 
             _gridService.SetCellOccupied(cell, true);
             var block = _poolService.Get();
-
             if (block is null) return;
 
             block.SetPosition(cell);
@@ -98,17 +106,37 @@ namespace Game.Services.Placement
         private void RemoveLastBlock()
         {
             if (!_historyService.TryPop(out var targetCell)) return;
-
             if (_gridService.IsCellOccupied(targetCell + Vector3Int.up)) return;
 
             _gridService.SetCellOccupied(targetCell, false);
-
             if (_activeBlocks.TryGetValue(targetCell, out var block))
             {
                 _poolService.Return(block);
                 _activeBlocks.Remove(targetCell);
             }
+            _onGridChanged.OnNext(Unit.Default);
+        }
 
+        private void RotateActiveBlocks(int angle)
+        {
+            var gridSize = _gridService.GridSize;
+            var newActiveBlocks = new Dictionary<Vector3Int, BlockView>();
+
+            foreach (var (cell, block) in _activeBlocks)
+            {
+                var newCell = angle == 90
+                    ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
+                    : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
+
+                block.SetPosition(newCell);
+                newActiveBlocks[newCell] = block;
+            }
+
+            _activeBlocks.Clear();
+            foreach (var kvp in newActiveBlocks)
+                _activeBlocks.Add(kvp.Key, kvp.Value);
+
+            _gridService.Rotate(angle);
             _onGridChanged.OnNext(Unit.Default);
         }
 

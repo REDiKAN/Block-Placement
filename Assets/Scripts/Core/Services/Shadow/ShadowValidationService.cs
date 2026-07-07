@@ -2,9 +2,9 @@ using System;
 using UniRx;
 using UnityEngine;
 using Zenject;
-using Game.Data;
 using Game.Services.Grid;
 using Game.Services.Placement;
+using Game.Services.Rotation;
 
 namespace Game.Services.Shadow
 {
@@ -34,10 +34,14 @@ namespace Game.Services.Shadow
     {
         IObservable<ShadowCellUpdate> OnCellStateChanged { get; }
         IObservable<Unit> OnLevelCompleted { get; }
+        void ForceRevalidate();
     }
 
     public class ShadowValidationService : IShadowValidationService, IInitializable, IDisposable
     {
+        public IObservable<ShadowCellUpdate> OnCellStateChanged => _onCellStateChanged;
+        public IObservable<Unit> OnLevelCompleted => _onLevelCompleted;
+
         private const int GridSize = 5;
         private const int CellCount = 25;
 
@@ -47,7 +51,7 @@ namespace Game.Services.Shadow
 
         private readonly IGridService _gridService;
         private readonly IShadowCalculationService _calculationService;
-        private readonly ShadowLevelConfig _config;
+        private readonly IRotationService _rotationService;
 
         private readonly bool[] _hasShadow1 = new bool[CellCount];
         private readonly bool[] _hasShadow2 = new bool[CellCount];
@@ -58,18 +62,15 @@ namespace Game.Services.Shadow
         private bool[] _targetWall2;
         private Vector3Int _cellCoord;
 
-        public IObservable<ShadowCellUpdate> OnCellStateChanged => _onCellStateChanged;
-        public IObservable<Unit> OnLevelCompleted => _onLevelCompleted;
-
         public ShadowValidationService(
             IGridService gridService,
             IBlockPlacementService placementService,
             IShadowCalculationService calculationService,
-            ShadowLevelConfig config)
+            IRotationService rotationService)
         {
             _gridService = gridService;
             _calculationService = calculationService;
-            _config = config;
+            _rotationService = rotationService;
 
             placementService.OnGridChanged
                 .Subscribe(_ => ValidateAndPublish())
@@ -78,21 +79,15 @@ namespace Game.Services.Shadow
 
         public void Initialize()
         {
-            if (_config is null || _config.FloorMatrix?.Length != CellCount)
-                throw new InvalidOperationException($"ShadowLevelConfig validation failed. FloorMatrix must contain exactly {CellCount} elements.");
-
-            var projection = _calculationService.Calculate(_config.InitialBlocks, GridSize);
-            _targetWall1 = projection.Wall1;
-            _targetWall2 = projection.Wall2;
-
-            if (_targetWall1.Length != CellCount || _targetWall2.Length != CellCount)
-                throw new InvalidOperationException($"ShadowCalculationService returned invalid array sizes. Both must contain exactly {CellCount} elements.");
-
             ValidateAndPublish();
         }
 
         private void ValidateAndPublish()
         {
+            var projection = _calculationService.Calculate(_rotationService.CurrentInitialBlocks, GridSize);
+            _targetWall1 = projection.Wall1;
+            _targetWall2 = projection.Wall2;
+
             Array.Clear(_hasShadow1, 0, CellCount);
             Array.Clear(_hasShadow2, 0, CellCount);
 
@@ -113,7 +108,6 @@ namespace Game.Services.Shadow
             }
 
             var isLevelCompleted = true;
-
             for (var i = 0; i < CellCount; i++)
             {
                 isLevelCompleted &= EvaluateAndPublish(0, i, _hasShadow1[i], _targetWall1[i], ref _wall1States[i]);
@@ -144,5 +138,7 @@ namespace Game.Services.Shadow
         }
 
         public void Dispose() => _disposables?.Dispose();
+
+        public void ForceRevalidate() => ValidateAndPublish();
     }
 }
