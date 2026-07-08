@@ -32,9 +32,10 @@ namespace Game.Views
         private void PopulateBlockMenu()
         {
             if (_blockConfigs is null || _blockItemPrefab is null || _blockListContent is null) return;
+
             foreach (var config in _blockConfigs)
             {
-                var button = Instantiate(_blockItemPrefab, _blockListContent);
+                var button = Instantiate(_blockItemPrefab, _blockListContent, false);
                 var textComponent = button.GetComponentInChildren<TextMeshProUGUI>();
                 if (textComponent is not null)
                     textComponent.text = config.DisplayName;
@@ -57,6 +58,7 @@ namespace Game.Views
             _mainMenu.SetActive(false);
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(true);
+            _contextService.SetContext(InputContext.None);
         }
 
         public void ShowMainMenu()
@@ -64,6 +66,11 @@ namespace Game.Views
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
             _mainMenu.SetActive(true);
+        }
+
+        public void ResetContextAndShowMainMenu()
+        {
+            ShowMainMenu();
             _contextService.SetContext(InputContext.None);
         }
 

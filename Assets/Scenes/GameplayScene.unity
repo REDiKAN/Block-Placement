@@ -463,7 +463,7 @@ MonoBehaviour:
   <PreviewBlock>k__BackingField: {fileID: 2470772666054578897, guid: a20e55b232c378d41a1c91f09fcdf5ba, type: 3}
   <BlocksParent>k__BackingField: {fileID: 378661812}
   <GameCamera>k__BackingField: {fileID: 85385236}
-  <ShadowConfig>k__BackingField: {fileID: 11400000, guid: b9078e68a2f360843a4bf1c5ad87ca4f, type: 2}
+  <ShadowConfig>k__BackingField: {fileID: 11400000, guid: be19a39cfd36df2488e1cb2e14e97125, type: 2}
   <RaycastConfig>k__BackingField: {fileID: 11400000, guid: 8aef93f682c2c574ea934ec103e8806f, type: 2}
   <RotationPivot>k__BackingField: {fileID: 2104908761}
   <RotationConfig>k__BackingField: {fileID: 11400000, guid: c193fee9883b5914dafe3a20b65eecda, type: 2}

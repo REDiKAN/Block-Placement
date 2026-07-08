@@ -10,11 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bca4a7151ade9054fbb7894cf2c629f5, type: 3}
-  m_Name: LevelConfig
+  m_Name: DevLevelConfig
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.ShadowLevelConfig
-  <InitialBlocks>k__BackingField:
-  - {x: 3, y: 0, z: 1}
-  - {x: 3, y: 1, z: 1}
-  - {x: 3, y: 2, z: 1}
-  - {x: 4, y: 1, z: 1}
-  <FloorMatrix>k__BackingField: 00000000000000000000000000000000010000000000000000
+  <InitialBlocks>k__BackingField: []
+  <FloorMatrix>k__BackingField: 00000000000000000000000000000000000000000000000000
