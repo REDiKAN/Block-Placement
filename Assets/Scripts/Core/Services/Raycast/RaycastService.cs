@@ -38,22 +38,20 @@ namespace Game.Services.Raycast
                     Mathf.FloorToInt(targetPos.z)
                 );
                 normal = Vector3Int.RoundToInt(blockHit.normal);
-
                 return _gridService.IsWithinBounds(cell) && !_gridService.IsCellOccupied(cell);
             }
 
             if (Physics.Raycast(ray, out var floorHit, _config.MaxDistance, _config.FloorMask))
             {
-                cell = new Vector3Int(
+                var cell2D = new Vector2Int(
                     Mathf.FloorToInt(floorHit.point.x),
-                    0,
                     Mathf.FloorToInt(floorHit.point.z)
                 );
+                cell = new Vector3Int(cell2D.x, 0, cell2D.y);
                 normal = Vector3Int.up;
-
                 return _gridService.IsWithinBounds(cell)
                        && !_gridService.IsCellOccupied(cell)
-                       && _gridService.IsFloorExists(cell);
+                       && _gridService.IsFloorExists(cell2D);
             }
 
             return false;

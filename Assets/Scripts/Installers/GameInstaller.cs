@@ -6,6 +6,7 @@ using Game.Services.Input;
 using Game.Services.Placement;
 using Game.Services.Pool;
 using Game.Services.Raycast;
+using Game.Services.Registry;
 using Game.Services.Rotation;
 using Game.Services.Shadow;
 using Game.Views;
@@ -16,6 +17,7 @@ namespace Game.Installers
 {
     public class GameInstaller : MonoInstaller
     {
+        [field: SerializeField] public BlockConfig[] BlockConfigs { get; private set; }
         [field: SerializeField] public BlockView BlockPrefab { get; private set; }
         [field: SerializeField] public BlockView PreviewBlock { get; private set; }
         [field: SerializeField] public Transform BlocksParent { get; private set; }
@@ -38,11 +40,17 @@ namespace Game.Installers
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
 
+            if (BlockConfigs is not null && BlockConfigs.Length > 0)
+                Container.BindInstance(BlockConfigs);
+
             Bind<InputService>();
+            Bind<InputContextService>();
             Bind<GridService>();
             Bind<RaycastService>();
+            Bind<ObjectRegistryService>();
             Bind<BlockPoolService>();
             Bind<BlockHistoryService>();
+            Bind<DevModeService>();
             Bind<BlockPlacementService>();
             Bind<ShadowCalculationService>();
             Bind<ShadowValidationService>();
@@ -51,12 +59,10 @@ namespace Game.Installers
             Bind<RotationService>();
         }
 
-        private void Bind<TImplementation>() where TImplementation : class
-        {
+        private void Bind<TImplementation>() where TImplementation : class =>
             Container
                 .BindInterfacesTo<TImplementation>()
                 .AsSingle()
                 .Lazy();
-        }
     }
 }

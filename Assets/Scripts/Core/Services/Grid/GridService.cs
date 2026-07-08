@@ -1,4 +1,5 @@
 using System;
+using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -8,22 +9,25 @@ namespace Game.Services.Grid
     public interface IGridService
     {
         int GridSize { get; }
+        IObservable<Vector2Int> OnFloorCellChanged { get; }
         bool IsCellOccupied(Vector3Int cell);
         void SetCellOccupied(Vector3Int cell, bool isOccupied);
         bool IsWithinBounds(Vector3Int cell);
-        bool IsFloorExists(Vector3Int cell);
+        bool IsFloorExists(Vector2Int cell);
+        void SetFloorExists(Vector2Int cell, bool exists);
         void Rotate(int angle);
     }
 
     public class GridService : IGridService, IInitializable
     {
         public int GridSize => Size;
+        public IObservable<Vector2Int> OnFloorCellChanged => _onFloorCellChanged;
 
         private const int Size = 5;
         private const int CellCount = 25;
-
         private readonly bool[,,] _cells = new bool[Size, Size, Size];
         private readonly bool[] _floor = new bool[CellCount];
+        private readonly Subject<Vector2Int> _onFloorCellChanged = new();
         private readonly ShadowLevelConfig _config;
         private readonly bool _isDeveloperMode;
 
@@ -37,16 +41,11 @@ namespace Game.Services.Grid
         {
             Array.Clear(_cells, 0, _cells.Length);
             if (_isDeveloperMode)
-            {
                 Array.Fill(_floor, true);
-            }
+            else if (_config?.FloorMatrix?.Length == CellCount)
+                Array.Copy(_config.FloorMatrix, _floor, CellCount);
             else
-            {
-                if (_config?.FloorMatrix?.Length == CellCount)
-                    Array.Copy(_config.FloorMatrix, _floor, CellCount);
-                else
-                    Array.Fill(_floor, true);
-            }
+                Array.Fill(_floor, true);
         }
 
         public bool IsCellOccupied(Vector3Int cell) =>
@@ -63,10 +62,21 @@ namespace Game.Services.Grid
             cell.y >= 0 && cell.y < Size &&
             cell.z >= 0 && cell.z < Size;
 
-        public bool IsFloorExists(Vector3Int cell) =>
+        public bool IsFloorExists(Vector2Int cell) =>
             cell.x >= 0 && cell.x < Size &&
-            cell.z >= 0 && cell.z < Size &&
-            _floor[cell.x * Size + cell.z];
+            cell.y >= 0 && cell.y < Size &&
+            _floor[cell.x * Size + cell.y];
+
+        public void SetFloorExists(Vector2Int cell, bool exists)
+        {
+            if (cell.x < 0 || cell.x >= Size || cell.y < 0 || cell.y >= Size) return;
+            var index = cell.x * Size + cell.y;
+            if (_floor[index] != exists)
+            {
+                _floor[index] = exists;
+                _onFloorCellChanged.OnNext(cell);
+            }
+        }
 
         public void Rotate(int angle)
         {

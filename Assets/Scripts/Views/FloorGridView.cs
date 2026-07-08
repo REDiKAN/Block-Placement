@@ -1,6 +1,7 @@
+using UniRx;
 using UnityEngine;
 using Zenject;
-using Game.Data;
+using Game.Services.Grid;
 
 namespace Game.Views
 {
@@ -8,37 +9,49 @@ namespace Game.Views
     {
         [field: SerializeField] public FloorCellView[] Cells { get; private set; }
 
-        [Inject]
-        private void Construct(ShadowLevelConfig config)
+        [Inject] private IGridService _gridService;
+        private readonly CompositeDisposable _disposables = new();
+
+        private void Start()
         {
             AssignIndices();
-            ApplyConfig(config);
+            SyncAllCells();
+            _gridService.OnFloorCellChanged
+                .Subscribe(UpdateCell)
+                .AddTo(_disposables);
+        }
+
+        private void SyncAllCells()
+        {
+            if (Cells is null) return;
+            foreach (var cell in Cells)
+            {
+                if (cell is null) continue;
+                var x = cell.Index / 5;
+                var z = cell.Index % 5;
+                cell.SetVisible(_gridService.IsFloorExists(new Vector2Int(x, z)));
+            }
+        }
+
+        private void UpdateCell(Vector2Int cellCoord)
+        {
+            var index = cellCoord.x * 5 + cellCoord.y;
+            if (index >= 0 && index < Cells.Length && Cells[index] is not null)
+                Cells[index].SetVisible(_gridService.IsFloorExists(cellCoord));
         }
 
         private void AssignIndices()
         {
             if (Cells is null) return;
-
             foreach (var cell in Cells)
             {
                 if (cell is null) continue;
-
                 var x = Mathf.FloorToInt(cell.transform.localPosition.x);
                 var z = Mathf.FloorToInt(cell.transform.localPosition.z);
                 cell.Index = x * 5 + z;
             }
         }
 
-        private void ApplyConfig(ShadowLevelConfig config)
-        {
-            if (config?.FloorMatrix is null || Cells is null) return;
-
-            foreach (var cell in Cells)
-            {
-                if (cell is null || cell.Index < 0 || cell.Index >= config.FloorMatrix.Length) continue;
-
-                cell.SetVisible(config.FloorMatrix[cell.Index]);
-            }
-        }
+        private void OnDestroy() => _disposables?.Dispose();
     }
 }
