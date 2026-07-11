@@ -463,11 +463,11 @@ MonoBehaviour:
   <PreviewBlock>k__BackingField: {fileID: 2470772666054578897, guid: a20e55b232c378d41a1c91f09fcdf5ba, type: 3}
   <BlocksParent>k__BackingField: {fileID: 378661812}
   <GameCamera>k__BackingField: {fileID: 85385236}
-  <ShadowConfig>k__BackingField: {fileID: 11400000, guid: be19a39cfd36df2488e1cb2e14e97125, type: 2}
+  <ShadowConfig>k__BackingField: {fileID: 11400000, guid: fe9ffcc1d65960c4990ae994936c5521, type: 2}
   <RaycastConfig>k__BackingField: {fileID: 11400000, guid: 8aef93f682c2c574ea934ec103e8806f, type: 2}
   <RotationPivot>k__BackingField: {fileID: 2104908761}
   <RotationConfig>k__BackingField: {fileID: 11400000, guid: c193fee9883b5914dafe3a20b65eecda, type: 2}
-  <IsDeveloperMode>k__BackingField: 1
+  <IsDeveloperMode>k__BackingField: 0
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2869,7 +2869,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &832259240
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3571,10 +3571,10 @@ RectTransform:
   - {fileID: 160323262}
   m_Father: {fileID: 832259240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 150, y: -490}
+  m_SizeDelta: {x: 150, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1261258782
 MonoBehaviour:
@@ -4314,10 +4314,10 @@ RectTransform:
   - {fileID: 1977507770}
   m_Father: {fileID: 832259240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 150, y: -590}
+  m_SizeDelta: {x: 150, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1561262937
 MonoBehaviour:
