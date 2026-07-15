@@ -4150,7 +4150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &654543917
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12375,6 +12375,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!23 &7192204991863235537
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13604,6 +13605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767954324993450
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13654,6 +13656,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767954535325096
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13704,6 +13707,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767954568405613
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13754,6 +13758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767954844013039
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13804,6 +13809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767954954043639
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13854,6 +13860,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955114812132
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13904,6 +13911,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955242035120
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13954,6 +13962,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955322913357
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14004,6 +14013,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955336988724
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14054,6 +14064,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955453158508
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14104,6 +14115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955479840648
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14154,6 +14166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955585628488
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14204,6 +14217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955590157676
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14254,6 +14268,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955605480899
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14304,6 +14319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955711817282
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14354,6 +14370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955829206281
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14404,6 +14421,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955844723902
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14454,6 +14472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955898527470
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14504,6 +14523,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767955954886582
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14554,6 +14574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767956124378694
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14604,6 +14625,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767956249922626
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14654,6 +14676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767956276574803
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14704,6 +14727,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767956370876748
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14754,6 +14778,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloorCellView
   <Index>k__BackingField: 0
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
 --- !u!65 &7356767956378886115
 BoxCollider:
   m_ObjectHideFlags: 0

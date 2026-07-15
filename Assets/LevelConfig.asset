@@ -72,6 +72,8 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
   <WallXY>k__BackingField:
     <CellDensities>k__BackingField:
+    - <IsDensityEnabled>k__BackingField: 1
+      <TargetDensity>k__BackingField: 2
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
@@ -110,10 +112,8 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
-    - <IsDensityEnabled>k__BackingField: 0
-      <TargetDensity>k__BackingField: 0
-    - <IsDensityEnabled>k__BackingField: 0
-      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 1
+      <TargetDensity>k__BackingField: 2
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0

@@ -1,6 +1,7 @@
 using UniRx;
 using UnityEngine;
 using Zenject;
+using Game.Services.Dev;
 using Game.Services.Grid;
 
 namespace Game.Views
@@ -10,15 +11,42 @@ namespace Game.Views
         [field: SerializeField] public FloorCellView[] Cells { get; private set; }
 
         [Inject] private IGridService _gridService;
+        [Inject] private ICellHoverService _cellHoverService;
+
         private readonly CompositeDisposable _disposables = new();
 
         private void Start()
         {
             AssignIndices();
             SyncAllCells();
+
             _gridService.OnFloorCellChanged
                 .Subscribe(UpdateCell)
                 .AddTo(_disposables);
+
+            _cellHoverService.OnFloorCellHovered
+                .Subscribe(SetCellHover)
+                .AddTo(_disposables);
+
+            _cellHoverService.OnFloorCellUnhovered
+                .Subscribe(_ => ResetHovers())
+                .AddTo(_disposables);
+        }
+
+        private void SetCellHover(int index)
+        {
+            if (index >= 0 && index < Cells.Length && Cells[index] is not null)
+                Cells[index].SetHover(true);
+        }
+
+        private void ResetHovers()
+        {
+            if (Cells is null) return;
+            foreach (var cell in Cells)
+            {
+                if (cell is not null)
+                    cell.SetHover(false);
+            }
         }
 
         private void SyncAllCells()

@@ -1,7 +1,9 @@
 using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using Game.Services.Dev;
 using Game.Services.Grid;
 
 namespace Game.Views
@@ -17,6 +19,8 @@ namespace Game.Views
         [field: SerializeField] private Color _inactiveColor = new(0.2f, 0.2f, 0.2f, 0.8f);
 
         [Inject] private IGridService _gridService;
+        [Inject] private ICellHoverService _cellHoverService;
+
         private readonly Button[] _buttons = new Button[TotalCells];
         private readonly Vector2Int[] _coords = new Vector2Int[TotalCells];
         private readonly CompositeDisposable _disposables = new();
@@ -39,7 +43,18 @@ namespace Game.Views
                 _coords[i] = ButtonIndexToCoord(i);
                 var button = Instantiate(_cellButtonPrefab, _gridContent, false);
                 var capturedCoord = _coords[i];
+                var capturedIndex = i;
+
                 button.onClick.AddListener(() => ToggleCell(capturedCoord));
+
+                button.OnPointerEnterAsObservable()
+                    .Subscribe(_ => _cellHoverService.NotifyFloorHovered(capturedIndex))
+                    .AddTo(_disposables);
+
+                button.OnPointerExitAsObservable()
+                    .Subscribe(_ => _cellHoverService.NotifyFloorUnhovered())
+                    .AddTo(_disposables);
+
                 _buttons[i] = button;
             }
         }
