@@ -8,16 +8,22 @@ namespace Game.Views
         [field: SerializeField] public Material MissingMaterial { get; private set; }
         [field: SerializeField] public Material CorrectMaterial { get; private set; }
         [field: SerializeField] public Material ExtraMaterial { get; private set; }
+        [field: SerializeField] public Material HoverMaterial { get; private set; }
         [field: SerializeField] public GameObject[] DensityIndicators { get; private set; }
 
         private Renderer _renderer;
         private Material _defaultMaterial;
+        private Material _currentBaseMaterial;
 
         private void Awake()
         {
             _renderer = GetComponentInChildren<Renderer>();
+
             if (_renderer is not null)
+            {
                 _defaultMaterial = _renderer.material;
+                _currentBaseMaterial = _defaultMaterial;
+            }
         }
 
         public void SetState(ShadowCellState state)
@@ -26,14 +32,26 @@ namespace Game.Views
 
             _renderer.enabled = true;
 
-            _renderer.material = state switch
+            _currentBaseMaterial = state switch
             {
                 ShadowCellState.Empty => _defaultMaterial,
                 ShadowCellState.Missing => MissingMaterial,
                 ShadowCellState.Correct => CorrectMaterial,
                 ShadowCellState.Extra => ExtraMaterial,
-                _ => _renderer.material
+                _ => _currentBaseMaterial
             };
+
+            _renderer.material = _currentBaseMaterial;
+        }
+
+        public void SetHover(bool isHovered)
+        {
+            if (_renderer is null) return;
+
+            if (isHovered && HoverMaterial is not null)
+                _renderer.material = HoverMaterial;
+            else if (_currentBaseMaterial is not null)
+                _renderer.material = _currentBaseMaterial;
         }
 
         public void SetTargetDensity(int density, bool isDensityEnabled)

@@ -1,4 +1,5 @@
 using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -18,6 +19,7 @@ namespace Game.Views
         [field: SerializeField] private Color _inactiveColor = new(0.2f, 0.2f, 0.2f, 0.8f);
 
         [Inject] private IShadowDensityService _densityService;
+        [Inject] private ICellHoverService _cellHoverService;
 
         private readonly Button[] _wallYZButtons = new Button[TotalCells];
         private readonly Button[] _wallXYButtons = new Button[TotalCells];
@@ -42,7 +44,17 @@ namespace Game.Views
             {
                 var button = Instantiate(_cellButtonPrefab, content, false);
                 var capturedIndex = i;
+
                 button.onClick.AddListener(() => _densityService.ToggleDensity(wallIndex, capturedIndex));
+
+                button.OnPointerEnterAsObservable()
+                    .Subscribe(_ => _cellHoverService.NotifyHovered(wallIndex, capturedIndex))
+                    .AddTo(_disposables);
+
+                button.OnPointerExitAsObservable()
+                    .Subscribe(_ => _cellHoverService.NotifyUnhovered())
+                    .AddTo(_disposables);
+
                 buttons[i] = button;
             }
         }

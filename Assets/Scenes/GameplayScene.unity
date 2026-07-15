@@ -795,7 +795,7 @@ MonoBehaviour:
   <RaycastConfig>k__BackingField: {fileID: 11400000, guid: 8aef93f682c2c574ea934ec103e8806f, type: 2}
   <RotationPivot>k__BackingField: {fileID: 2104908761}
   <RotationConfig>k__BackingField: {fileID: 11400000, guid: c193fee9883b5914dafe3a20b65eecda, type: 2}
-  <IsDeveloperMode>k__BackingField: 0
+  <IsDeveloperMode>k__BackingField: 1
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4150,7 +4150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &654543917
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6954,9 +6954,9 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_StartCorner: 0
-  m_StartAxis: 0
+  m_ChildAlignment: 4
+  m_StartCorner: 2
+  m_StartAxis: 1
   m_CellSize: {x: 50, y: 50}
   m_Spacing: {x: 5, y: 5}
   m_Constraint: 1
@@ -7101,8 +7101,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_StartCorner: 0
+  m_ChildAlignment: 4
+  m_StartCorner: 2
   m_StartAxis: 0
   m_CellSize: {x: 50, y: 50}
   m_Spacing: {x: 5, y: 5}

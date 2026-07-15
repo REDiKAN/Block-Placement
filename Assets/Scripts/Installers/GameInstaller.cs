@@ -58,6 +58,7 @@ namespace Game.Installers
             Bind<DevLevelExportService>();
             Bind<RotationService>();
             Bind<ShadowDensityService>();
+            Bind<CellHoverService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

@@ -2,6 +2,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Data;
+using Game.Services.Dev;
 using Game.Services.Shadow;
 
 namespace Game.Views
@@ -14,11 +15,20 @@ namespace Game.Views
         [Inject] private LevelConfig _levelConfig;
 
         [Inject]
-        private void Construct(IShadowValidationService validationService)
+        private void Construct(IShadowValidationService validationService, ICellHoverService cellHoverService)
         {
             validationService.OnCellStateChanged
                 .Where(update => update.WallIndex == WallIndex)
                 .Subscribe(UpdateCell)
+                .AddTo(this);
+
+            cellHoverService.OnCellHovered
+                .Where(data => data.WallIndex == WallIndex)
+                .Subscribe(data => Cells[data.CellIndex].SetHover(true))
+                .AddTo(this);
+
+            cellHoverService.OnCellUnhovered
+                .Subscribe(_ => ResetHovers())
                 .AddTo(this);
 
             InitializeTargetDensities();
@@ -28,7 +38,7 @@ namespace Game.Views
         {
             if (Cells is null || _levelConfig is null) return;
 
-            var densities = WallIndex == 0 ? _levelConfig.WallYZ.CellDensities : _levelConfig.WallXY.CellDensities;
+            var densities = WallIndex == 0 ? _levelConfig.WallYZ?.CellDensities : _levelConfig.WallXY?.CellDensities;
 
             if (densities is null) return;
 
@@ -40,5 +50,15 @@ namespace Game.Views
         }
 
         private void UpdateCell(ShadowCellUpdate update) => Cells[update.CellIndex].SetState(update.State);
+
+        private void ResetHovers()
+        {
+            if (Cells is null) return;
+            foreach (var cell in Cells)
+            {
+                if (cell is not null)
+                    cell.SetHover(false);
+            }
+        }
     }
 }

@@ -1404,6 +1404,7 @@ MonoBehaviour:
   <MissingMaterial>k__BackingField: {fileID: 2100000, guid: 0b6ddec950b3d294991b460bf75c5cd8, type: 2}
   <CorrectMaterial>k__BackingField: {fileID: 2100000, guid: 3df055cba95daec46a54f5321547b4f0, type: 2}
   <ExtraMaterial>k__BackingField: {fileID: 2100000, guid: c2f6b7171b0e19541865479e648c7795, type: 2}
+  <HoverMaterial>k__BackingField: {fileID: 2100000, guid: 500b38a6a40921b4b8829177b9ccb86b, type: 2}
   <DensityIndicators>k__BackingField:
   - {fileID: 2063685949095418945}
   - {fileID: 2324570312498193983}

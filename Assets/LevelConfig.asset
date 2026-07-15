@@ -14,43 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelConfig
   <InitialBlocks>k__BackingField:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
-  - {x: 0, y: 0, z: 2}
-  - {x: 0, y: 0, z: 3}
   - {x: 0, y: 0, z: 4}
-  - {x: 1, y: 0, z: 0}
-  - {x: 1, y: 0, z: 1}
-  - {x: 1, y: 0, z: 2}
-  - {x: 1, y: 0, z: 3}
-  - {x: 1, y: 0, z: 4}
-  - {x: 2, y: 0, z: 0}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 2}
-  - {x: 2, y: 0, z: 3}
-  - {x: 2, y: 0, z: 4}
-  - {x: 3, y: 0, z: 0}
-  - {x: 3, y: 0, z: 1}
-  - {x: 3, y: 0, z: 2}
-  - {x: 3, y: 0, z: 3}
-  - {x: 3, y: 0, z: 4}
   - {x: 4, y: 0, z: 0}
-  - {x: 4, y: 0, z: 1}
-  - {x: 4, y: 0, z: 2}
-  - {x: 4, y: 0, z: 3}
   - {x: 4, y: 0, z: 4}
   <FloorMatrix>k__BackingField: 01010101010101010101010101010101010101010101010101
   <WallYZ>k__BackingField:
     <CellDensities>k__BackingField:
     - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
+      <TargetDensity>k__BackingField: 2
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
+      <TargetDensity>k__BackingField: 2
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
@@ -93,8 +72,6 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
   <WallXY>k__BackingField:
     <CellDensities>k__BackingField:
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
@@ -103,8 +80,6 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
@@ -113,8 +88,6 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
@@ -123,8 +96,6 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
@@ -133,8 +104,16 @@ MonoBehaviour:
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
-    - <IsDensityEnabled>k__BackingField: 1
-      <TargetDensity>k__BackingField: 5
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
+    - <IsDensityEnabled>k__BackingField: 0
+      <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
     - <IsDensityEnabled>k__BackingField: 0
