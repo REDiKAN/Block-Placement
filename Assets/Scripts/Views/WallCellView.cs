@@ -40,12 +40,12 @@ namespace Game.Views
         {
             if (DensityIndicators is null) return;
 
-            var activeCount = isDensityEnabled && density > 0 ? density : 0;
+            var targetIndex = isDensityEnabled && density > 0 ? density : -1;
 
             for (var i = 0; i < DensityIndicators.Length; i++)
             {
                 if (DensityIndicators[i] is not null)
-                    DensityIndicators[i].SetActive(i < activeCount);
+                    DensityIndicators[i].SetActive(i == targetIndex);
             }
         }
     }
