@@ -795,7 +795,7 @@ MonoBehaviour:
   <RaycastConfig>k__BackingField: {fileID: 11400000, guid: 8aef93f682c2c574ea934ec103e8806f, type: 2}
   <RotationPivot>k__BackingField: {fileID: 2104908761}
   <RotationConfig>k__BackingField: {fileID: 11400000, guid: c193fee9883b5914dafe3a20b65eecda, type: 2}
-  <IsDeveloperMode>k__BackingField: 1
+  <IsDeveloperMode>k__BackingField: 0
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0

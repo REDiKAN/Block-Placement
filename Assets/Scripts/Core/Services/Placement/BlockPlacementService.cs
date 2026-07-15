@@ -133,10 +133,13 @@ namespace Game.Services.Placement
 
         private void RemoveLastBlock()
         {
-            if (!_historyService.TryPop(out var targetCell)) return;
+            if (!_historyService.TryPeek(out var targetCell)) return;
             if (_gridService.IsCellOccupied(targetCell + Vector3Int.up)) return;
 
+            _historyService.TryPop(out _);
+
             _gridService.SetCellOccupied(targetCell, false);
+
             if (_activeBlocks.TryGetValue(targetCell, out var block))
             {
                 _poolService.Return(block);
@@ -168,6 +171,8 @@ namespace Game.Services.Placement
                 _activeBlocks.Add(kvp.Key, kvp.Value);
 
             _gridService.Rotate(angle);
+            _historyService.Rotate(angle, gridSize);
+
             _onGridChanged.OnNext(Unit.Default);
         }
 
