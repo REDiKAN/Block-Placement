@@ -2,6 +2,7 @@ using System;
 using UniRx;
 using UnityEngine;
 using Zenject;
+using Game.Data;
 using Game.Services.Grid;
 using Game.Services.Placement;
 using Game.Services.Rotation;
@@ -52,6 +53,7 @@ namespace Game.Services.Shadow
         private readonly IGridService _gridService;
         private readonly IShadowCalculationService _calculationService;
         private readonly IRotationService _rotationService;
+        private readonly LevelConfig _levelConfig;
 
         private readonly bool[] _hasShadow1 = new bool[CellCount];
         private readonly bool[] _hasShadow2 = new bool[CellCount];
@@ -66,11 +68,13 @@ namespace Game.Services.Shadow
             IGridService gridService,
             IBlockPlacementService placementService,
             IShadowCalculationService calculationService,
-            IRotationService rotationService)
+            IRotationService rotationService,
+            LevelConfig levelConfig)
         {
             _gridService = gridService;
             _calculationService = calculationService;
             _rotationService = rotationService;
+            _levelConfig = levelConfig;
 
             placementService.OnGridChanged
                 .Subscribe(_ => ValidateAndPublish())
@@ -110,23 +114,52 @@ namespace Game.Services.Shadow
             var isLevelCompleted = true;
             for (var i = 0; i < CellCount; i++)
             {
-                isLevelCompleted &= EvaluateAndPublish(0, i, _hasShadow1[i], _targetWall1[i], ref _wall1States[i]);
-                isLevelCompleted &= EvaluateAndPublish(1, i, _hasShadow2[i], _targetWall2[i], ref _wall2States[i]);
+                var yzData = GetDensityData(_levelConfig.WallYZ, i);
+                var xyData = GetDensityData(_levelConfig.WallXY, i);
+
+                isLevelCompleted &= EvaluateAndPublish(0, i, _hasShadow1[i], _targetWall1[i], yzData, ref _wall1States[i]);
+                isLevelCompleted &= EvaluateAndPublish(1, i, _hasShadow2[i], _targetWall2[i], xyData, ref _wall2States[i]);
             }
 
             if (isLevelCompleted)
                 _onLevelCompleted.OnNext(Unit.Default);
         }
 
-        private bool EvaluateAndPublish(int wallIndex, int cellIndex, bool hasShadow, bool isTarget, ref ShadowCellState currentState)
+        private WallCellDensityData GetDensityData(WallData wallData, int index)
         {
-            var newState = (hasShadow, isTarget) switch
+            if (wallData?.CellDensities is null || index >= wallData.CellDensities.Length)
+                return default;
+
+            return wallData.CellDensities[index];
+        }
+
+        private bool EvaluateAndPublish(int wallIndex, int cellIndex, bool hasShadow, bool isTarget, WallCellDensityData densityData, ref ShadowCellState currentState)
+        {
+            ShadowCellState newState;
+
+            if (densityData.IsDensityEnabled)
             {
-                (false, false) => ShadowCellState.Empty,
-                (false, true) => ShadowCellState.Missing,
-                (true, true) => ShadowCellState.Correct,
-                _ => ShadowCellState.Extra
-            };
+                var actualDensity = _calculationService.CalculateDensity(wallIndex, cellIndex, _gridService, GridSize);
+                var targetDensity = densityData.TargetDensity;
+
+                newState = targetDensity switch
+                {
+                    0 => ShadowCellState.Empty,
+                    _ when actualDensity == targetDensity => ShadowCellState.Correct,
+                    _ when actualDensity < targetDensity => ShadowCellState.Missing,
+                    _ => ShadowCellState.Extra
+                };
+            }
+            else
+            {
+                newState = (hasShadow, isTarget) switch
+                {
+                    (false, false) => ShadowCellState.Empty,
+                    (false, true) => ShadowCellState.Missing,
+                    (true, true) => ShadowCellState.Correct,
+                    _ => ShadowCellState.Extra
+                };
+            }
 
             if (currentState != newState)
             {
@@ -134,11 +167,16 @@ namespace Game.Services.Shadow
                 _onCellStateChanged.OnNext(new ShadowCellUpdate(wallIndex, cellIndex, newState));
             }
 
+            if (densityData.IsDensityEnabled)
+            {
+                var targetDensity = densityData.TargetDensity;
+                return targetDensity == 0 ? newState == ShadowCellState.Empty : newState == ShadowCellState.Correct;
+            }
+
             return isTarget ? newState == ShadowCellState.Correct : newState == ShadowCellState.Empty;
         }
 
         public void Dispose() => _disposables?.Dispose();
-
         public void ForceRevalidate() => ValidateAndPublish();
     }
 }

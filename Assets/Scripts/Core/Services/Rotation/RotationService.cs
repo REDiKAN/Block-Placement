@@ -20,13 +20,11 @@ namespace Game.Services.Rotation
         public Vector3Int[] CurrentInitialBlocks => _currentInitialBlocks;
 
         private const int GridSize = 5;
-
         private readonly Subject<int> _onRotationCompleted = new();
         private readonly IInputService _inputService;
         private readonly RotationConfig _config;
         private readonly Transform _pivot;
         private readonly CompositeDisposable _disposables = new();
-
         private Vector3Int[] _currentInitialBlocks;
         private Tween _rotationTween;
         private bool _isRotating;
@@ -36,7 +34,7 @@ namespace Game.Services.Rotation
             IInputService inputService,
             RotationConfig config,
             [Inject(Id = "RotationPivot")] Transform pivot,
-            ShadowLevelConfig levelConfig)
+            LevelConfig levelConfig)
         {
             _inputService = inputService;
             _config = config;
@@ -49,7 +47,6 @@ namespace Game.Services.Rotation
             _inputService.OnRotateLeft
                 .Subscribe(_ => Rotate(-90))
                 .AddTo(_disposables);
-
             _inputService.OnRotateRight
                 .Subscribe(_ => Rotate(90))
                 .AddTo(_disposables);
@@ -58,12 +55,9 @@ namespace Game.Services.Rotation
         private void Rotate(int angle)
         {
             if (_isRotating) return;
-
             _isRotating = true;
             _lastAngle = angle;
-
             RotateInitialBlocks(angle);
-
             var targetRotation = _pivot.eulerAngles + new Vector3(0f, angle, 0f);
             _rotationTween = _pivot.DORotate(targetRotation, _config.Duration)
                 .SetEase(Ease.Linear)

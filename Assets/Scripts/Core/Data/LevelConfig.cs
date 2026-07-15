@@ -1,12 +1,5 @@
-﻿// ===== Combined Scripts Header =====
-// Generation Time: 15.07.2026 13:01:56
-// Encoding: Unicode (UTF-8)
-// Total Files: 1
-// =====================================
-
-//==== File 1 of 1: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts/Core/Data/LevelConfig.cs ====
 using UnityEngine;
-using TetraCreations.Attributes;
+using Game.Attributes;
 
 namespace Game.Data
 {
@@ -15,12 +8,20 @@ namespace Game.Data
     {
         [field: SerializeField] public bool IsDensityEnabled { get; private set; }
         [field: SerializeField, Range(0, 5)] public int TargetDensity { get; private set; }
+
+        public WallCellDensityData(bool isDensityEnabled, int targetDensity)
+        {
+            IsDensityEnabled = isDensityEnabled;
+            TargetDensity = targetDensity;
+        }
     }
 
     [System.Serializable]
     public class WallData
     {
         [field: SerializeField] public WallCellDensityData[] CellDensities { get; private set; }
+
+        public void SetDensities(WallCellDensityData[] densities) => CellDensities = densities;
     }
 
     [CreateAssetMenu(fileName = nameof(LevelConfig), menuName = "Game/" + nameof(LevelConfig))]
@@ -49,13 +50,3 @@ namespace Game.Data
         }
     }
 }
-
-
-// ============ Statistics =============
-// Total Files: 1
-// Total Size: 1,58 KB
-// Total Lines: 44
-// Classes: 2
-// Methods: 3
-// Comments (Blocks): 0
-// =====================================

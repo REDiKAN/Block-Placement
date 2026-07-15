@@ -11,7 +11,7 @@ namespace Game.Views
         private const float CellSize = 1f;
         private static readonly Vector3 CellOffset = new(0.5f, 0.5f, 0.5f);
 
-        [field: SerializeField] private ShadowLevelConfig Config { get; set; }
+        [field: SerializeField] private LevelConfig Config { get; set; }
         [field: SerializeField] private bool ShowGrid { get; set; } = true;
         [field: SerializeField] private bool ShowInitialBlocks { get; set; } = true;
 
@@ -36,7 +36,6 @@ namespace Game.Views
         private void DrawInitialBlocks()
         {
             if (Config?.InitialBlocks is null) return;
-
             Gizmos.color = new Color(0f, 1f, 0f, 0.3f);
             foreach (var block in Config.InitialBlocks)
             {

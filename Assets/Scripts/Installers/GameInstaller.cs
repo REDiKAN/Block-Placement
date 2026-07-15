@@ -22,7 +22,7 @@ namespace Game.Installers
         [field: SerializeField] public BlockView PreviewBlock { get; private set; }
         [field: SerializeField] public Transform BlocksParent { get; private set; }
         [field: SerializeField] public Camera GameCamera { get; private set; }
-        [field: SerializeField] public ShadowLevelConfig ShadowConfig { get; private set; }
+        [field: SerializeField] public LevelConfig LevelConfig { get; private set; }
         [field: SerializeField] public RaycastConfig RaycastConfig { get; private set; }
         [field: SerializeField] public Transform RotationPivot { get; private set; }
         [field: SerializeField] public RotationConfig RotationConfig { get; private set; }
@@ -36,7 +36,7 @@ namespace Game.Installers
             Container.BindInstance(PreviewBlock).WithId("PreviewBlock");
             Container.BindInstance(BlocksParent);
             Container.BindInstance(GameCamera);
-            Container.BindInstance(ShadowConfig);
+            Container.BindInstance(LevelConfig);
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
 
@@ -57,6 +57,7 @@ namespace Game.Installers
             Bind<DevInputService>();
             Bind<DevLevelExportService>();
             Bind<RotationService>();
+            Bind<ShadowDensityService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

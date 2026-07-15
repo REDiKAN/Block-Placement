@@ -8,13 +8,14 @@ namespace Game.Views
         [field: SerializeField] public Material MissingMaterial { get; private set; }
         [field: SerializeField] public Material CorrectMaterial { get; private set; }
         [field: SerializeField] public Material ExtraMaterial { get; private set; }
+        [field: SerializeField] public GameObject[] DensityIndicators { get; private set; }
 
         private Renderer _renderer;
         private Material _defaultMaterial;
 
         private void Awake()
         {
-            _renderer = GetComponent<Renderer>();
+            _renderer = GetComponentInChildren<Renderer>();
             if (_renderer is not null)
                 _defaultMaterial = _renderer.material;
         }
@@ -33,6 +34,19 @@ namespace Game.Views
                 ShadowCellState.Extra => ExtraMaterial,
                 _ => _renderer.material
             };
+        }
+
+        public void SetTargetDensity(int density, bool isDensityEnabled)
+        {
+            if (DensityIndicators is null) return;
+
+            var activeCount = isDensityEnabled && density > 0 ? density : 0;
+
+            for (var i = 0; i < DensityIndicators.Length; i++)
+            {
+                if (DensityIndicators[i] is not null)
+                    DensityIndicators[i].SetActive(i < activeCount);
+            }
         }
     }
 }

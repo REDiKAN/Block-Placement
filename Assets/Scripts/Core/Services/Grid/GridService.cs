@@ -28,10 +28,10 @@ namespace Game.Services.Grid
         private readonly bool[,,] _cells = new bool[Size, Size, Size];
         private readonly bool[] _floor = new bool[CellCount];
         private readonly Subject<Vector2Int> _onFloorCellChanged = new();
-        private readonly ShadowLevelConfig _config;
+        private readonly LevelConfig _config;
         private readonly bool _isDeveloperMode;
 
-        public GridService(ShadowLevelConfig config, [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
+        public GridService(LevelConfig config, [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
             _config = config;
             _isDeveloperMode = isDeveloperMode;

@@ -14,6 +14,7 @@ namespace Game.Views
         [field: SerializeField] private GameObject _mainMenu;
         [field: SerializeField] private GameObject _blockSubMenu;
         [field: SerializeField] private GameObject _floorEditorPanel;
+        [field: SerializeField] private GameObject _densityEditorPanel;
         [field: SerializeField] private Transform _blockListContent;
         [field: SerializeField] private Button _blockItemPrefab;
 
@@ -50,6 +51,7 @@ namespace Game.Views
         {
             _mainMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
+            _densityEditorPanel.SetActive(false);
             _blockSubMenu.SetActive(true);
         }
 
@@ -57,7 +59,17 @@ namespace Game.Views
         {
             _mainMenu.SetActive(false);
             _blockSubMenu.SetActive(false);
+            _densityEditorPanel.SetActive(false);
             _floorEditorPanel.SetActive(true);
+            _contextService.SetContext(InputContext.None);
+        }
+
+        public void OpenShadowDensityEditor()
+        {
+            _mainMenu.SetActive(false);
+            _blockSubMenu.SetActive(false);
+            _floorEditorPanel.SetActive(false);
+            _densityEditorPanel.SetActive(true);
             _contextService.SetContext(InputContext.None);
         }
 
@@ -65,6 +77,7 @@ namespace Game.Views
         {
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
+            _densityEditorPanel.SetActive(false);
             _mainMenu.SetActive(true);
         }
 
