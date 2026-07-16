@@ -24,7 +24,6 @@ namespace Game.Services.Shadow
 
         private readonly WallCellDensityData[] _baseWallYZ;
         private readonly WallCellDensityData[] _baseWallXY;
-
         private readonly WallCellDensityData[] _currentWallYZ = new WallCellDensityData[CellCount];
         private readonly WallCellDensityData[] _currentWallXY = new WallCellDensityData[CellCount];
 
@@ -60,19 +59,17 @@ namespace Game.Services.Shadow
             var yzSource = _currentAngle is 90 or 270 ? _baseWallXY : _baseWallYZ;
             var xySource = _currentAngle is 90 or 270 ? _baseWallYZ : _baseWallXY;
 
-            ApplyRotation(yzSource, _currentWallYZ, _currentAngle);
-            ApplyRotation(xySource, _currentWallXY, _currentAngle);
+            ApplyRotation(yzSource, _currentWallYZ, _currentAngle, 0);
+            ApplyRotation(xySource, _currentWallXY, _currentAngle, 1);
 
             _onDensitiesProjected.OnNext((0, _currentWallYZ));
             _onDensitiesProjected.OnNext((1, _currentWallXY));
         }
 
-        private void ApplyRotation(WallCellDensityData[] source, WallCellDensityData[] target, int angle)
+        private void ApplyRotation(WallCellDensityData[] source, WallCellDensityData[] target, int angle, int wallIndex)
         {
             if (source.Length != CellCount) return;
-
             Array.Clear(target, 0, CellCount);
-
             var normalizedAngle = (angle % 360 + 360) % 360;
 
             for (var i = 0; i < CellCount; i++)
@@ -80,11 +77,22 @@ namespace Game.Services.Shadow
                 var row = i / GridSize;
                 var col = i % GridSize;
 
-                var (newRow, newCol) = normalizedAngle switch
+                var (newRow, newCol) = wallIndex switch
                 {
-                    90 => (col, GridSize - 1 - row),
-                    180 => (GridSize - 1 - row, GridSize - 1 - col),
-                    270 => (GridSize - 1 - col, row),
+                    0 => normalizedAngle switch
+                    {
+                        90 => (col, GridSize - 1 - row),
+                        180 => (row, GridSize - 1 - col),
+                        270 => (col, row),
+                        _ => (row, col)
+                    },
+                    1 => normalizedAngle switch
+                    {
+                        90 => (col, row),
+                        180 => (GridSize - 1 - row, col),
+                        270 => (GridSize - 1 - col, row),
+                        _ => (row, col)
+                    },
                     _ => (row, col)
                 };
 
