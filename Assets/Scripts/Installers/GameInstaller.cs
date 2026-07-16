@@ -53,6 +53,7 @@ namespace Game.Installers
             Bind<DevModeService>();
             Bind<BlockPlacementService>();
             Bind<ShadowCalculationService>();
+            Bind<TargetDensityProjectionService>();
             Bind<ShadowValidationService>();
             Bind<DevInputService>();
             Bind<DevLevelExportService>();

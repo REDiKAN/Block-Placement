@@ -12,14 +12,26 @@ namespace Game.Views
         [field: SerializeField] public int WallIndex { get; private set; }
         [field: SerializeField] public WallCellView[] Cells { get; private set; }
 
-        [Inject] private LevelConfig _levelConfig;
+        private ITargetDensityProjectionService _projectionService;
+        private IShadowValidationService _validationService;
 
         [Inject]
-        private void Construct(IShadowValidationService validationService, ICellHoverService cellHoverService)
+        private void Construct(
+            ITargetDensityProjectionService projectionService,
+            IShadowValidationService validationService,
+            ICellHoverService cellHoverService)
         {
-            validationService.OnCellStateChanged
+            _projectionService = projectionService;
+            _validationService = validationService;
+
+            _validationService.OnCellStateChanged
                 .Where(update => update.WallIndex == WallIndex)
                 .Subscribe(UpdateCell)
+                .AddTo(this);
+
+            _projectionService.OnDensitiesProjected
+                .Where(update => update.WallIndex == WallIndex)
+                .Subscribe(UpdateDensities)
                 .AddTo(this);
 
             cellHoverService.OnCellHovered
@@ -30,35 +42,41 @@ namespace Game.Views
             cellHoverService.OnCellUnhovered
                 .Subscribe(_ => ResetHovers())
                 .AddTo(this);
-
-            InitializeTargetDensities();
         }
 
-        private void InitializeTargetDensities()
+        private void Start()
         {
-            if (Cells is null || _levelConfig is null) return;
+            var densities = _projectionService.GetCurrentDensities(WallIndex);
+            if (densities is not null)
+                UpdateDensities((WallIndex, densities));
+        }
 
-            var densities = WallIndex == 0 ? _levelConfig.WallYZ?.CellDensities : _levelConfig.WallXY?.CellDensities;
+        private void UpdateCell(ShadowCellUpdate update)
+        {
+            if (Cells is null || update.CellIndex < 0 || update.CellIndex >= Cells.Length || Cells[update.CellIndex] is null)
+                return;
 
-            if (densities is null) return;
+            Cells[update.CellIndex].SetState(update.State);
+        }
+
+        private void UpdateDensities((int WallIndex, WallCellDensityData[] Densities) update)
+        {
+            if (Cells is null || update.Densities is null) return;
 
             for (var i = 0; i < Cells.Length; i++)
             {
-                if (Cells[i] is not null && i < densities.Length)
-                    Cells[i].SetTargetDensity(densities[i].TargetDensity, densities[i].IsDensityEnabled);
+                if (Cells[i] is not null && i < update.Densities.Length)
+                    Cells[i].SetTargetDensity(update.Densities[i].TargetDensity, update.Densities[i].IsDensityEnabled);
             }
         }
-
-        private void UpdateCell(ShadowCellUpdate update) => Cells[update.CellIndex].SetState(update.State);
 
         private void ResetHovers()
         {
             if (Cells is null) return;
+
             foreach (var cell in Cells)
-            {
                 if (cell is not null)
                     cell.SetHover(false);
-            }
         }
     }
 }

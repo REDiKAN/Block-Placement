@@ -1,10 +1,10 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 15.07.2026 16:38:38
+// Generation Time: 16.07.2026 17:33:38
 // Encoding: Unicode (UTF-8)
-// Total Files: 38
+// Total Files: 39
 // =====================================
 
-//==== File 1 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
+//==== File 1 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
 using Game.Data;
 using Game.Services.Dev;
 using Game.Services.Grid;
@@ -60,6 +60,7 @@ namespace Game.Installers
             Bind<DevModeService>();
             Bind<BlockPlacementService>();
             Bind<ShadowCalculationService>();
+            Bind<TargetDensityProjectionService>();
             Bind<ShadowValidationService>();
             Bind<DevInputService>();
             Bind<DevLevelExportService>();
@@ -76,7 +77,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 2 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
+//==== File 2 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
 using UnityEngine;
 
 namespace Game.Views
@@ -89,7 +90,7 @@ namespace Game.Views
     }
 }
 
-//==== File 3 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevFloorEditorView.cs ====
+//==== File 3 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevFloorEditorView.cs ====
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
@@ -187,7 +188,7 @@ namespace Game.Views
     }
 }
 
-//==== File 4 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevModeView.cs ====
+//==== File 4 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevModeView.cs ====
 using UnityEngine;
 using Zenject;
 
@@ -201,7 +202,7 @@ namespace Game.Views
     }
 }
 
-//==== File 5 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListItemView.cs ====
+//==== File 5 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListItemView.cs ====
 using TMPro;
 using UnityEngine;
 using Game.Services.Registry;
@@ -217,7 +218,7 @@ namespace Game.Views
     }
 }
 
-//==== File 6 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListView.cs ====
+//==== File 6 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListView.cs ====
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -288,7 +289,7 @@ namespace Game.Views
     }
 }
 
-//==== File 7 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevShadowDensityEditorView.cs ====
+//==== File 7 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevShadowDensityEditorView.cs ====
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
@@ -380,7 +381,7 @@ namespace Game.Views
     }
 }
 
-//==== File 8 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevStatisticsView.cs ====
+//==== File 8 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevStatisticsView.cs ====
 using UniRx;
 using TMPro;
 using UnityEngine;
@@ -428,7 +429,7 @@ namespace Game.Views
     }
 }
 
-//==== File 9 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevToolsView.cs ====
+//==== File 9 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevToolsView.cs ====
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -532,7 +533,7 @@ namespace Game.Views
     }
 }
 
-//==== File 10 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
+//==== File 10 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
 using UnityEngine;
 
 namespace Game.Views
@@ -571,7 +572,7 @@ namespace Game.Views
     }
 }
 
-//==== File 11 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
+//==== File 11 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -658,7 +659,7 @@ namespace Game.Views
     }
 }
 
-//==== File 12 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
+//==== File 12 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
 #if UNITY_EDITOR
 using UnityEngine;
 using Game.Data;
@@ -708,7 +709,7 @@ namespace Game.Views
 }
 #endif
 
-//==== File 13 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
+//==== File 13 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
 using UnityEngine;
 using Game.Services.Shadow;
 
@@ -780,7 +781,7 @@ namespace Game.Views
     }
 }
 
-//==== File 14 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
+//==== File 14 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -795,14 +796,26 @@ namespace Game.Views
         [field: SerializeField] public int WallIndex { get; private set; }
         [field: SerializeField] public WallCellView[] Cells { get; private set; }
 
-        [Inject] private LevelConfig _levelConfig;
+        private ITargetDensityProjectionService _projectionService;
+        private IShadowValidationService _validationService;
 
         [Inject]
-        private void Construct(IShadowValidationService validationService, ICellHoverService cellHoverService)
+        private void Construct(
+            ITargetDensityProjectionService projectionService,
+            IShadowValidationService validationService,
+            ICellHoverService cellHoverService)
         {
-            validationService.OnCellStateChanged
+            _projectionService = projectionService;
+            _validationService = validationService;
+
+            _validationService.OnCellStateChanged
                 .Where(update => update.WallIndex == WallIndex)
                 .Subscribe(UpdateCell)
+                .AddTo(this);
+
+            _projectionService.OnDensitiesProjected
+                .Where(update => update.WallIndex == WallIndex)
+                .Subscribe(UpdateDensities)
                 .AddTo(this);
 
             cellHoverService.OnCellHovered
@@ -813,40 +826,46 @@ namespace Game.Views
             cellHoverService.OnCellUnhovered
                 .Subscribe(_ => ResetHovers())
                 .AddTo(this);
-
-            InitializeTargetDensities();
         }
 
-        private void InitializeTargetDensities()
+        private void Start()
         {
-            if (Cells is null || _levelConfig is null) return;
+            var densities = _projectionService.GetCurrentDensities(WallIndex);
+            if (densities is not null)
+                UpdateDensities((WallIndex, densities));
+        }
 
-            var densities = WallIndex == 0 ? _levelConfig.WallYZ?.CellDensities : _levelConfig.WallXY?.CellDensities;
+        private void UpdateCell(ShadowCellUpdate update)
+        {
+            if (Cells is null || update.CellIndex < 0 || update.CellIndex >= Cells.Length || Cells[update.CellIndex] is null)
+                return;
 
-            if (densities is null) return;
+            Cells[update.CellIndex].SetState(update.State);
+        }
+
+        private void UpdateDensities((int WallIndex, WallCellDensityData[] Densities) update)
+        {
+            if (Cells is null || update.Densities is null) return;
 
             for (var i = 0; i < Cells.Length; i++)
             {
-                if (Cells[i] is not null && i < densities.Length)
-                    Cells[i].SetTargetDensity(densities[i].TargetDensity, densities[i].IsDensityEnabled);
+                if (Cells[i] is not null && i < update.Densities.Length)
+                    Cells[i].SetTargetDensity(update.Densities[i].TargetDensity, update.Densities[i].IsDensityEnabled);
             }
         }
-
-        private void UpdateCell(ShadowCellUpdate update) => Cells[update.CellIndex].SetState(update.State);
 
         private void ResetHovers()
         {
             if (Cells is null) return;
+
             foreach (var cell in Cells)
-            {
                 if (cell is not null)
                     cell.SetHover(false);
-            }
         }
     }
 }
 
-//==== File 15 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Attributes\TitleAttribute.cs ====
+//==== File 15 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Attributes\TitleAttribute.cs ====
 using UnityEngine;
 
 namespace Game.Attributes
@@ -880,7 +899,7 @@ namespace Game.Attributes
     }
 }
 
-//==== File 16 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\BlockConfig.cs ====
+//==== File 16 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\BlockConfig.cs ====
 using UnityEngine;
 using Game.Views;
 
@@ -894,7 +913,7 @@ namespace Game.Data
     }
 }
 
-//==== File 17 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\LevelConfig.cs ====
+//==== File 17 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\LevelConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -948,7 +967,7 @@ namespace Game.Data
     }
 }
 
-//==== File 18 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RaycastConfig.cs ====
+//==== File 18 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RaycastConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -962,7 +981,7 @@ namespace Game.Data
     }
 }
 
-//==== File 19 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RotationConfig.cs ====
+//==== File 19 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RotationConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -974,7 +993,7 @@ namespace Game.Data
     }
 }
 
-//==== File 20 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
+//==== File 20 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -993,7 +1012,7 @@ namespace Game.Data
     }
 }
 
-//==== File 21 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
+//==== File 21 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -1091,7 +1110,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 22 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\CellHoverService.cs ====
+//==== File 22 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\CellHoverService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -1155,7 +1174,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 23 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevInputServic.cs ====
+//==== File 23 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevInputServic.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -1185,7 +1204,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 24 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevLevelExportService.cs ====
+//==== File 24 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevLevelExportService.cs ====
 using System;
 using System.Collections.Generic;
 using UniRx;
@@ -1288,7 +1307,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 25 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevModeService.cs ====
+//==== File 25 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevModeService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -1324,7 +1343,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 26 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\IShadowDensityService.cs ====
+//==== File 26 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\IShadowDensityService.cs ====
 using System;
 using UniRx;
 
@@ -1339,7 +1358,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 27 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ShadowDensityService.cs ====
+//==== File 27 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ShadowDensityService.cs ====
 using System;
 using UniRx;
 
@@ -1372,7 +1391,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 28 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
+//==== File 28 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -1469,7 +1488,7 @@ namespace Game.Services.Grid
     }
 }
 
-//==== File 29 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\BlockHistoryService.cs ====
+//==== File 29 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\BlockHistoryService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -1535,7 +1554,7 @@ namespace Game.Services.History
     }
 }
 
-//==== File 30 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputContextService.cs ====
+//==== File 30 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputContextService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -1565,7 +1584,7 @@ namespace Game.Services.Input
     }
 }
 
-//==== File 31 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
+//==== File 31 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
 using Game.Services.Input;
 using System;
 using UniRx;
@@ -1619,7 +1638,7 @@ public class InputService : IInputService, ITickable, IDisposable
     public void Dispose() => _disposables?.Dispose();
 }
 
-//==== File 32 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
+//==== File 32 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
 using System;
 using System.Collections.Generic;
 using UniRx;
@@ -1802,7 +1821,7 @@ namespace Game.Services.Placement
     }
 }
 
-//==== File 33 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
+//==== File 33 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -1905,7 +1924,7 @@ namespace Game.Services.Pool
     }
 }
 
-//==== File 34 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
+//==== File 34 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -1967,7 +1986,7 @@ namespace Game.Services.Raycast
     }
 }
 
-//==== File 35 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Registry\ObjectRegistryService.cs ====
+//==== File 35 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Registry\ObjectRegistryService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -2021,7 +2040,7 @@ namespace Game.Services.Registry
     }
 }
 
-//==== File 36 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Rotation\RotationService.cs ====
+//==== File 36 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Rotation\RotationService.cs ====
 using System;
 using DG.Tweening;
 using UniRx;
@@ -2114,7 +2133,7 @@ namespace Game.Services.Rotation
     }
 }
 
-//==== File 37 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\IShadowCalculationService.cs ====
+//==== File 37 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\IShadowCalculationService.cs ====
 using UnityEngine;
 using Game.Services.Grid;
 
@@ -2182,7 +2201,7 @@ namespace Game.Services.Shadow
     }
 }
 
-//==== File 38 of 38: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
+//==== File 38 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -2238,7 +2257,7 @@ namespace Game.Services.Shadow
         private readonly IGridService _gridService;
         private readonly IShadowCalculationService _calculationService;
         private readonly IRotationService _rotationService;
-        private readonly LevelConfig _levelConfig;
+        private readonly ITargetDensityProjectionService _projectionService;
 
         private readonly bool[] _hasShadow1 = new bool[CellCount];
         private readonly bool[] _hasShadow2 = new bool[CellCount];
@@ -2254,22 +2273,19 @@ namespace Game.Services.Shadow
             IBlockPlacementService placementService,
             IShadowCalculationService calculationService,
             IRotationService rotationService,
-            LevelConfig levelConfig)
+            ITargetDensityProjectionService projectionService)
         {
             _gridService = gridService;
             _calculationService = calculationService;
             _rotationService = rotationService;
-            _levelConfig = levelConfig;
+            _projectionService = projectionService;
 
             placementService.OnGridChanged
                 .Subscribe(_ => ValidateAndPublish())
                 .AddTo(_disposables);
         }
 
-        public void Initialize()
-        {
-            ValidateAndPublish();
-        }
+        public void Initialize() => ValidateAndPublish();
 
         private void ValidateAndPublish()
         {
@@ -2290,17 +2306,22 @@ namespace Game.Services.Shadow
                     {
                         _cellCoord.z = z;
                         if (!_gridService.IsCellOccupied(_cellCoord)) continue;
+
                         _hasShadow1[y * GridSize + z] = true;
                         _hasShadow2[x * GridSize + y] = true;
                     }
                 }
             }
 
+            var yzDensities = _projectionService.GetCurrentDensities(0);
+            var xyDensities = _projectionService.GetCurrentDensities(1);
+
             var isLevelCompleted = true;
+
             for (var i = 0; i < CellCount; i++)
             {
-                var yzData = GetDensityData(_levelConfig.WallYZ, i);
-                var xyData = GetDensityData(_levelConfig.WallXY, i);
+                var yzData = GetDensityData(yzDensities, i);
+                var xyData = GetDensityData(xyDensities, i);
 
                 isLevelCompleted &= EvaluateAndPublish(0, i, _hasShadow1[i], _targetWall1[i], yzData, ref _wall1States[i]);
                 isLevelCompleted &= EvaluateAndPublish(1, i, _hasShadow2[i], _targetWall2[i], xyData, ref _wall2States[i]);
@@ -2310,12 +2331,11 @@ namespace Game.Services.Shadow
                 _onLevelCompleted.OnNext(Unit.Default);
         }
 
-        private WallCellDensityData GetDensityData(WallData wallData, int index)
+        private WallCellDensityData GetDensityData(WallCellDensityData[] densities, int index)
         {
-            if (wallData?.CellDensities is null || index >= wallData.CellDensities.Length)
+            if (densities is null || index >= densities.Length)
                 return default;
-
-            return wallData.CellDensities[index];
+            return densities[index];
         }
 
         private bool EvaluateAndPublish(int wallIndex, int cellIndex, bool hasShadow, bool isTarget, WallCellDensityData densityData, ref ShadowCellState currentState)
@@ -2366,12 +2386,111 @@ namespace Game.Services.Shadow
     }
 }
 
+//==== File 39 of 39: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\TargetDensityProjectionService.cs ====
+using System;
+using UniRx;
+using Zenject;
+using Game.Data;
+using Game.Services.Rotation;
+
+namespace Game.Services.Shadow
+{
+    public interface ITargetDensityProjectionService
+    {
+        IObservable<(int WallIndex, WallCellDensityData[] Densities)> OnDensitiesProjected { get; }
+        WallCellDensityData[] GetCurrentDensities(int wallIndex);
+    }
+
+    public class TargetDensityProjectionService : ITargetDensityProjectionService, IInitializable, IDisposable
+    {
+        public IObservable<(int WallIndex, WallCellDensityData[] Densities)> OnDensitiesProjected => _onDensitiesProjected;
+
+        private const int GridSize = 5;
+        private const int CellCount = 25;
+
+        private readonly Subject<(int WallIndex, WallCellDensityData[] Densities)> _onDensitiesProjected = new();
+        private readonly CompositeDisposable _disposables = new();
+
+        private readonly WallCellDensityData[] _baseWallYZ;
+        private readonly WallCellDensityData[] _baseWallXY;
+
+        private readonly WallCellDensityData[] _currentWallYZ = new WallCellDensityData[CellCount];
+        private readonly WallCellDensityData[] _currentWallXY = new WallCellDensityData[CellCount];
+
+        private int _currentAngle;
+
+        public TargetDensityProjectionService(LevelConfig levelConfig, IRotationService rotationService)
+        {
+            _baseWallYZ = levelConfig.WallYZ?.CellDensities ?? Array.Empty<WallCellDensityData>();
+            _baseWallXY = levelConfig.WallXY?.CellDensities ?? Array.Empty<WallCellDensityData>();
+
+            rotationService.OnRotationCompleted
+                .Subscribe(Rotate)
+                .AddTo(_disposables);
+        }
+
+        public void Initialize()
+        {
+            _currentAngle = 0;
+            ProjectDensities();
+        }
+
+        public WallCellDensityData[] GetCurrentDensities(int wallIndex) =>
+            wallIndex == 0 ? _currentWallYZ : _currentWallXY;
+
+        private void Rotate(int angle)
+        {
+            _currentAngle = (_currentAngle + angle + 360) % 360;
+            ProjectDensities();
+        }
+
+        private void ProjectDensities()
+        {
+            var yzSource = _currentAngle is 90 or 270 ? _baseWallXY : _baseWallYZ;
+            var xySource = _currentAngle is 90 or 270 ? _baseWallYZ : _baseWallXY;
+
+            ApplyRotation(yzSource, _currentWallYZ, _currentAngle);
+            ApplyRotation(xySource, _currentWallXY, _currentAngle);
+
+            _onDensitiesProjected.OnNext((0, _currentWallYZ));
+            _onDensitiesProjected.OnNext((1, _currentWallXY));
+        }
+
+        private void ApplyRotation(WallCellDensityData[] source, WallCellDensityData[] target, int angle)
+        {
+            if (source.Length != CellCount) return;
+
+            Array.Clear(target, 0, CellCount);
+
+            var normalizedAngle = (angle % 360 + 360) % 360;
+
+            for (var i = 0; i < CellCount; i++)
+            {
+                var row = i / GridSize;
+                var col = i % GridSize;
+
+                var (newRow, newCol) = normalizedAngle switch
+                {
+                    90 => (col, GridSize - 1 - row),
+                    180 => (GridSize - 1 - row, GridSize - 1 - col),
+                    270 => (GridSize - 1 - col, row),
+                    _ => (row, col)
+                };
+
+                target[newRow * GridSize + newCol] = source[i];
+            }
+        }
+
+        public void Dispose() => _disposables?.Dispose();
+    }
+}
+
 
 // ============ Statistics =============
-// Total Files: 38
-// Total Size: 76,39 KB
-// Total Lines: 2286
-// Classes: 39
-// Methods: 162
+// Total Files: 39
+// Total Size: 80,51 KB
+// Total Lines: 2403
+// Classes: 40
+// Methods: 173
 // Comments (Blocks): 0
 // =====================================
