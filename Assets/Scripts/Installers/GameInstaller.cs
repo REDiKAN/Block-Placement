@@ -5,6 +5,7 @@ using Game.Services.History;
 using Game.Services.Input;
 using Game.Services.Placement;
 using Game.Services.Pool;
+using Game.Services.Progression;
 using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
@@ -27,6 +28,7 @@ namespace Game.Installers
         [field: SerializeField] public Transform RotationPivot { get; private set; }
         [field: SerializeField] public RotationConfig RotationConfig { get; private set; }
         [field: SerializeField] public bool IsDeveloperMode { get; private set; }
+        [field: SerializeField] public LevelCatalog LevelCatalog { get; private set; }
 
         public override void InstallBindings()
         {
@@ -39,6 +41,7 @@ namespace Game.Installers
             Container.BindInstance(LevelConfig);
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
+            Container.BindInstance(LevelCatalog);
 
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
@@ -60,6 +63,7 @@ namespace Game.Installers
             Bind<RotationService>();
             Bind<ShadowDensityService>();
             Bind<CellHoverService>();
+            Bind<LevelProgressionService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

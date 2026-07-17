@@ -79,6 +79,12 @@ namespace Game.Services.Placement
 
         private void UpdatePreview(Vector2 mousePosition)
         {
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted)
+            {
+                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
+                return;
+            }
+
             if (_previewBlock is null) return;
 
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock)
@@ -100,6 +106,12 @@ namespace Game.Services.Placement
 
         private void PlaceBlock(Vector2 mousePosition)
         {
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted)
+            {
+                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
+                return;
+            }
+
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
             if (!_raycastService.TryGetTargetCell(mousePosition, out var cell, out _)) return;
 
@@ -133,6 +145,12 @@ namespace Game.Services.Placement
 
         private void RemoveLastBlock()
         {
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted)
+            {
+                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
+                return;
+            }
+
             if (!_historyService.TryPeek(out var targetCell)) return;
             if (_gridService.IsCellOccupied(targetCell + Vector3Int.up)) return;
 

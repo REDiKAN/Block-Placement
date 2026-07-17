@@ -22,6 +22,7 @@ namespace Game.Services.Rotation
         private const int GridSize = 5;
         private readonly Subject<int> _onRotationCompleted = new();
         private readonly IInputService _inputService;
+        private readonly IInputContextService _contextService;
         private readonly RotationConfig _config;
         private readonly Transform _pivot;
         private readonly CompositeDisposable _disposables = new();
@@ -32,11 +33,13 @@ namespace Game.Services.Rotation
 
         public RotationService(
             IInputService inputService,
+            IInputContextService contextService,
             RotationConfig config,
             [Inject(Id = "RotationPivot")] Transform pivot,
             LevelConfig levelConfig)
         {
             _inputService = inputService;
+            _contextService = contextService;
             _config = config;
             _pivot = pivot;
             _currentInitialBlocks = (Vector3Int[])levelConfig.InitialBlocks.Clone();
@@ -47,6 +50,7 @@ namespace Game.Services.Rotation
             _inputService.OnRotateLeft
                 .Subscribe(_ => Rotate(-90))
                 .AddTo(_disposables);
+
             _inputService.OnRotateRight
                 .Subscribe(_ => Rotate(90))
                 .AddTo(_disposables);
@@ -55,9 +59,12 @@ namespace Game.Services.Rotation
         private void Rotate(int angle)
         {
             if (_isRotating) return;
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted) return;
+
             _isRotating = true;
             _lastAngle = angle;
             RotateInitialBlocks(angle);
+
             var targetRotation = _pivot.eulerAngles + new Vector3(0f, angle, 0f);
             _rotationTween = _pivot.DORotate(targetRotation, _config.Duration)
                 .SetEase(Ease.Linear)
