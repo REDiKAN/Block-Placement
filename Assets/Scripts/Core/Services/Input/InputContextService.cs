@@ -10,7 +10,8 @@ namespace Game.Services.Input
         PlaceBlock,
         PlaceFloor,
         RemoveFloor,
-        LevelCompleted
+        LevelCompleted,
+        Generating
     }
 
     public interface IInputContextService

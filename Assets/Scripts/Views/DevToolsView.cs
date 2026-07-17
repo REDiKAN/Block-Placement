@@ -17,6 +17,7 @@ namespace Game.Views
         [field: SerializeField] private GameObject _densityEditorPanel;
         [field: SerializeField] private Transform _blockListContent;
         [field: SerializeField] private Button _blockItemPrefab;
+        [field: SerializeField] private GameObject _levelGeneratorPanel;
 
         [Inject] private IDevModeService _devModeService;
         [Inject] private IInputContextService _contextService;
@@ -45,6 +46,17 @@ namespace Game.Views
                 button.onClick.AddListener(() => SelectBlock(capturedConfig));
                 _spawnedBlockButtons.Add(button);
             }
+        }
+
+
+        public void OpenLevelGenerator()
+        {
+            _mainMenu.SetActive(false);
+            _blockSubMenu.SetActive(false);
+            _floorEditorPanel.SetActive(false);
+            _densityEditorPanel.SetActive(false);
+            if (_levelGeneratorPanel is not null) _levelGeneratorPanel.SetActive(true);
+            _contextService.SetContext(InputContext.None);
         }
 
         public void OpenBlockMode()
@@ -78,6 +90,7 @@ namespace Game.Views
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
             _densityEditorPanel.SetActive(false);
+            _levelGeneratorPanel.SetActive(false);
             _mainMenu.SetActive(true);
         }
 

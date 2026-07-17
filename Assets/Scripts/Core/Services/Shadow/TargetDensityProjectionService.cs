@@ -10,6 +10,7 @@ namespace Game.Services.Shadow
     {
         IObservable<(int WallIndex, WallCellDensityData[] Densities)> OnDensitiesProjected { get; }
         WallCellDensityData[] GetCurrentDensities(int wallIndex);
+        void SetDensities(WallCellDensityData[] wallYZ, WallCellDensityData[] wallXY);
     }
 
     public class TargetDensityProjectionService : ITargetDensityProjectionService, IInitializable, IDisposable
@@ -22,8 +23,9 @@ namespace Game.Services.Shadow
         private readonly Subject<(int WallIndex, WallCellDensityData[] Densities)> _onDensitiesProjected = new();
         private readonly CompositeDisposable _disposables = new();
 
-        private readonly WallCellDensityData[] _baseWallYZ;
-        private readonly WallCellDensityData[] _baseWallXY;
+        private WallCellDensityData[] _baseWallYZ;
+        private WallCellDensityData[] _baseWallXY;
+
         private readonly WallCellDensityData[] _currentWallYZ = new WallCellDensityData[CellCount];
         private readonly WallCellDensityData[] _currentWallXY = new WallCellDensityData[CellCount];
 
@@ -48,6 +50,13 @@ namespace Game.Services.Shadow
         public WallCellDensityData[] GetCurrentDensities(int wallIndex) =>
             wallIndex == 0 ? _currentWallYZ : _currentWallXY;
 
+        public void SetDensities(WallCellDensityData[] wallYZ, WallCellDensityData[] wallXY)
+        {
+            _baseWallYZ = wallYZ ?? Array.Empty<WallCellDensityData>();
+            _baseWallXY = wallXY ?? Array.Empty<WallCellDensityData>();
+            ProjectDensities();
+        }
+
         private void Rotate(int angle)
         {
             _currentAngle = (_currentAngle + angle + 360) % 360;
@@ -69,6 +78,7 @@ namespace Game.Services.Shadow
         private void ApplyRotation(WallCellDensityData[] source, WallCellDensityData[] target, int angle, int wallIndex)
         {
             if (source.Length != CellCount) return;
+
             Array.Clear(target, 0, CellCount);
             var normalizedAngle = (angle % 360 + 360) % 360;
 

@@ -64,6 +64,7 @@ namespace Game.Installers
             Bind<ShadowDensityService>();
             Bind<CellHoverService>();
             Bind<LevelProgressionService>();
+            Bind<LevelGeneratorService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>
