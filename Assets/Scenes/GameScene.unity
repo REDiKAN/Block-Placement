@@ -1025,11 +1025,7 @@ MonoBehaviour:
   <StrategyDropdown>k__BackingField: {fileID: 343270975}
   <GenerateButton>k__BackingField: {fileID: 959811524}
   <ValidateButton>k__BackingField: {fileID: 492632724}
-  <BackButton>k__BackingField: {fileID: 973569631}
   <ProgressView>k__BackingField: {fileID: 903138726}
-  _onBack:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &160323261
 GameObject:
   m_ObjectHideFlags: 0
@@ -11067,7 +11063,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09011214, g: 0.7075472, b: 0.10390509, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
