@@ -1,3 +1,4 @@
+using Game.Core;
 using Game.Data;
 using Game.Services.Dev;
 using Game.Services.Grid;
@@ -38,7 +39,15 @@ namespace Game.Installers
             Container.BindInstance(PreviewBlock).WithId("PreviewBlock");
             Container.BindInstance(BlocksParent);
             Container.BindInstance(GameCamera);
-            Container.BindInstance(LevelConfig);
+
+            var activeConfig = LevelConfig;
+            if (LevelCatalog is not null && LevelCatalog.Levels is not null &&
+                LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < LevelCatalog.Levels.Length)
+            {
+                activeConfig = LevelCatalog.Levels[LevelContext.SelectedLevelId];
+            }
+            Container.BindInstance(activeConfig);
+
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
             Container.BindInstance(LevelCatalog);

@@ -10,6 +10,8 @@ namespace Game.Views.Menu
     {
         [field: SerializeField] private Button PlayButton { get; set; }
         [field: SerializeField] private Button DevModeButton { get; set; }
+        [field: SerializeField] private Button FeedbackButton { get; set; }
+        [field: SerializeField] private string FeedbackUrl { get; set; } = "https://docs.google.com/forms/";
 
         [Inject] private IMenuNavigationService _navigationService;
         private readonly CompositeDisposable _disposables = new();
@@ -28,6 +30,13 @@ namespace Game.Views.Menu
             {
                 PlayButton.OnClickAsObservable()
                     .Subscribe(_ => _navigationService.NavigateTo(MenuView.LevelList))
+                    .AddTo(_disposables);
+            }
+
+            if (FeedbackButton is not null && !string.IsNullOrWhiteSpace(FeedbackUrl))
+            {
+                FeedbackButton.OnClickAsObservable()
+                    .Subscribe(_ => Application.OpenURL(FeedbackUrl))
                     .AddTo(_disposables);
             }
 

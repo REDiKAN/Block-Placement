@@ -79,7 +79,9 @@ namespace Game.Services.Placement
 
         private void UpdatePreview(Vector2 mousePosition)
         {
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted)
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
+                _contextService.CurrentContext.Value == InputContext.Paused)
+
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -92,21 +94,18 @@ namespace Game.Services.Placement
                 _previewBlock.gameObject.SetActive(false);
                 return;
             }
-
             if (_raycastService.TryGetTargetCell(mousePosition, out var cell, out _))
             {
                 _previewBlock.gameObject.SetActive(true);
                 _previewBlock.SetPosition(cell);
             }
-            else
-            {
-                _previewBlock.gameObject.SetActive(false);
-            }
+            else _previewBlock.gameObject.SetActive(false);
         }
 
         private void PlaceBlock(Vector2 mousePosition)
         {
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted)
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
+                _contextService.CurrentContext.Value == InputContext.Paused)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -125,10 +124,7 @@ namespace Game.Services.Placement
                 block = _poolService.Get(config);
                 identifier = config.DisplayName;
             }
-            else
-            {
-                block = _poolService.GetDefault();
-            }
+            else block = _poolService.GetDefault();
 
             if (block is null) return;
 
@@ -145,7 +141,8 @@ namespace Game.Services.Placement
 
         private void RemoveLastBlock()
         {
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted)
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
+                _contextService.CurrentContext.Value == InputContext.Paused)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -155,7 +152,6 @@ namespace Game.Services.Placement
             if (_gridService.IsCellOccupied(targetCell + Vector3Int.up)) return;
 
             _historyService.TryPop(out _);
-
             _gridService.SetCellOccupied(targetCell, false);
 
             if (_activeBlocks.TryGetValue(targetCell, out var block))

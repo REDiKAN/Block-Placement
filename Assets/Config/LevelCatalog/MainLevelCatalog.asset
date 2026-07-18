@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 563def57512cc3f4397c7580a6909da3, type: 3}
-  m_Name: LevelCatalog
+  m_Name: MainLevelCatalog
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelCatalog
   <Levels>k__BackingField:
-  - {fileID: 11400000, guid: fe9ffcc1d65960c4990ae994936c5521, type: 2}
-  - {fileID: 11400000, guid: 0698044b62e1b1244bca73dab953de8a, type: 2}
+  - {fileID: 11400000, guid: cd256a6a010476141bbbefbaf692e247, type: 2}
+  - {fileID: 11400000, guid: 4f779b26abea05048b8c165bd51c788e, type: 2}
+  - {fileID: 11400000, guid: c422be559a1212d48aab74f2d978c8e3, type: 2}

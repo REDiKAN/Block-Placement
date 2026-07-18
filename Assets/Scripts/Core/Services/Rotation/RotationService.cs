@@ -59,13 +59,15 @@ namespace Game.Services.Rotation
         private void Rotate(int angle)
         {
             if (_isRotating) return;
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted) return;
+
+            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
+                _contextService.CurrentContext.Value == InputContext.Paused) return;
 
             _isRotating = true;
             _lastAngle = angle;
             RotateInitialBlocks(angle);
-
             var targetRotation = _pivot.eulerAngles + new Vector3(0f, angle, 0f);
+
             _rotationTween = _pivot.DORotate(targetRotation, _config.Duration)
                 .SetEase(Ease.Linear)
                 .SetAutoKill(true)
