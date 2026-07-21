@@ -13,19 +13,23 @@ MonoBehaviour:
   m_Name: LevelConfig
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelConfig
   <InitialBlocks>k__BackingField:
-  - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 4}
-  - {x: 1, y: 0, z: 1}
+  - {x: 1, y: 0, z: 0}
   - {x: 1, y: 0, z: 3}
+  - {x: 1, y: 1, z: 0}
+  - {x: 1, y: 2, z: 0}
+  - {x: 1, y: 3, z: 0}
+  - {x: 2, y: 0, z: 0}
   - {x: 2, y: 0, z: 2}
+  - {x: 2, y: 1, z: 0}
+  - {x: 2, y: 2, z: 0}
+  - {x: 2, y: 3, z: 0}
+  - {x: 2, y: 4, z: 0}
+  - {x: 3, y: 0, z: 0}
   - {x: 3, y: 0, z: 1}
-  - {x: 3, y: 0, z: 2}
-  - {x: 3, y: 0, z: 3}
+  - {x: 3, y: 1, z: 0}
+  - {x: 3, y: 2, z: 0}
   - {x: 4, y: 0, z: 0}
-  - {x: 4, y: 0, z: 1}
-  - {x: 4, y: 0, z: 2}
-  - {x: 4, y: 0, z: 3}
-  - {x: 4, y: 0, z: 4}
   <FloorMatrix>k__BackingField: 01010101010101010101010101010101010101010101010101
   <WallYZ>k__BackingField:
     <CellDensities>k__BackingField:
@@ -132,4 +136,6 @@ MonoBehaviour:
     - <IsDensityEnabled>k__BackingField: 0
       <TargetDensity>k__BackingField: 0
   <IsBlockLimitEnabled>k__BackingField: 1
-  <MaxBlocks>k__BackingField: 13
+  <MaxBlocks>k__BackingField: 17
+  <IsTimeLimitEnabled>k__BackingField: 1
+  <TimeLimitSeconds>k__BackingField: 80

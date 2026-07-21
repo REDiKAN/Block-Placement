@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -20,6 +21,7 @@ namespace Game.Services.Dev
         private const int GridSize = 5;
         private const int FloorCellCount = 25;
         private const string SavePath = "Assets/LevelConfig.asset";
+        private const float DefaultTimeLimit = 60f;
 
         private readonly CompositeDisposable _disposables = new();
         private readonly IDevInputService _devInputService;
@@ -92,22 +94,32 @@ namespace Game.Services.Dev
             var config = ScriptableObject.CreateInstance<LevelConfig>();
             config.SetData(blocks.ToArray(), floorMatrix, wallYZData, wallXYData);
 
-            var isLimitEnabled = _devModeService.IsBlockLimitEnabled.Value;
-            var maxBlocks = isLimitEnabled ? blocks.Count : -1;
+            var isBlockLimitEnabled = _devModeService.IsBlockLimitEnabled.Value;
+            var maxBlocks = isBlockLimitEnabled ? blocks.Count : -1;
 
-            if (config.InitialBlocks?.Length > maxBlocks && isLimitEnabled)
+            if (config.InitialBlocks is not null && config.InitialBlocks.Length > maxBlocks && isBlockLimitEnabled)
             {
                 Debug.LogError($"[DevLevelExport] InitialBlocks ({config.InitialBlocks.Length}) exceeds MaxBlocks ({maxBlocks}). Export aborted.");
                 return;
             }
 
-            config.SetBlockLimit(isLimitEnabled, maxBlocks);
+            config.SetBlockLimit(isBlockLimitEnabled, maxBlocks);
+
+            var isTimeLimitEnabled = _devModeService.IsTimeLimitEnabled.Value;
+            var timeLimit = isTimeLimitEnabled ? ResolveTimeLimit() : -1f;
+            config.SetTimeLimit(isTimeLimitEnabled, timeLimit);
 
 #if UNITY_EDITOR
             AssetDatabase.CreateAsset(config, SavePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 #endif
+        }
+
+        private float ResolveTimeLimit()
+        {
+            var value = _devModeService.TimeLimitSeconds.Value;
+            return value > 0f ? value : DefaultTimeLimit;
         }
 
         public void Dispose() => _disposables?.Dispose();

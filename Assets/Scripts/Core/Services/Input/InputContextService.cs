@@ -8,11 +8,10 @@ namespace Game.Services.Input
     {
         None,
         PlaceBlock,
-        PlaceFloor,
-        RemoveFloor,
         LevelCompleted,
+        Paused,
         Generating,
-        Paused
+        TimeExpired
     }
 
     public interface IInputContextService

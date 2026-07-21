@@ -110,7 +110,7 @@ namespace Game.Services.Placement
 
         private void UpdatePreview(Vector2 mousePosition)
         {
-            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused)
+            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -149,7 +149,7 @@ namespace Game.Services.Placement
 
         private void PlaceBlock(Vector2 mousePosition)
         {
-            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused)
+            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -197,7 +197,7 @@ namespace Game.Services.Placement
 
         private void RemoveLastBlock()
         {
-            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused)
+            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;

@@ -10,17 +10,25 @@ namespace Game.Services.Dev
     {
         IReadOnlyReactiveProperty<BlockConfig> ActiveBlockConfig { get; }
         IReadOnlyReactiveProperty<bool> IsBlockLimitEnabled { get; }
+        IReadOnlyReactiveProperty<bool> IsTimeLimitEnabled { get; }
+        IReadOnlyReactiveProperty<float> TimeLimitSeconds { get; }
         void SetActiveBlockConfig(BlockConfig config);
         void SetBlockLimitEnabled(bool enabled);
+        void SetTimeLimitEnabled(bool enabled);
+        void SetTimeLimitSeconds(float seconds);
     }
 
     public class DevModeService : IDevModeService
     {
         public IReadOnlyReactiveProperty<BlockConfig> ActiveBlockConfig => _activeBlockConfig;
         public IReadOnlyReactiveProperty<bool> IsBlockLimitEnabled => _isBlockLimitEnabled;
+        public IReadOnlyReactiveProperty<bool> IsTimeLimitEnabled => _isTimeLimitEnabled;
+        public IReadOnlyReactiveProperty<float> TimeLimitSeconds => _timeLimitSeconds;
 
         private readonly ReactiveProperty<BlockConfig> _activeBlockConfig = new();
         private readonly ReactiveProperty<bool> _isBlockLimitEnabled = new(false);
+        private readonly ReactiveProperty<bool> _isTimeLimitEnabled = new(false);
+        private readonly ReactiveProperty<float> _timeLimitSeconds = new(60f);
         private readonly IInputContextService _contextService;
 
         public DevModeService(IInputContextService contextService, [InjectOptional] BlockConfig[] configs)
@@ -37,5 +45,9 @@ namespace Game.Services.Dev
         }
 
         public void SetBlockLimitEnabled(bool enabled) => _isBlockLimitEnabled.Value = enabled;
+
+        public void SetTimeLimitEnabled(bool enabled) => _isTimeLimitEnabled.Value = enabled;
+
+        public void SetTimeLimitSeconds(float seconds) => _timeLimitSeconds.Value = seconds;
     }
 }

@@ -39,6 +39,10 @@ namespace Game.Data
         [field: SerializeField] public bool IsBlockLimitEnabled { get; private set; }
         [field: SerializeField] public int MaxBlocks { get; private set; } = -1;
 
+        [field: Title("Time Limit", CustomColor.Green, CustomColor.Red)]
+        [field: SerializeField] public bool IsTimeLimitEnabled { get; private set; }
+        [field: SerializeField] public float TimeLimitSeconds { get; private set; } = -1f;
+
         public void SetData(Vector3Int[] initialBlocks, bool[] floorMatrix, WallData wallYZ, WallData wallXY)
         {
             InitialBlocks = initialBlocks;
@@ -57,6 +61,12 @@ namespace Game.Data
         {
             IsBlockLimitEnabled = isEnabled;
             MaxBlocks = maxBlocks;
+        }
+
+        public void SetTimeLimit(bool isEnabled, float seconds)
+        {
+            IsTimeLimitEnabled = isEnabled;
+            TimeLimitSeconds = seconds;
         }
     }
 }

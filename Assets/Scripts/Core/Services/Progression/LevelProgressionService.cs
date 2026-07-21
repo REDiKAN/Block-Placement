@@ -5,6 +5,7 @@ using Game.Core;
 using Game.Data;
 using Game.Services.Input;
 using Game.Services.Shadow;
+using Game.Services.Time;
 
 namespace Game.Services.Progression
 {
@@ -20,22 +21,26 @@ namespace Game.Services.Progression
         private readonly IShadowValidationService _validationService;
         private readonly IInputService _inputService;
         private readonly IInputContextService _contextService;
+        private readonly ITimeLimitService _timeLimitService;
         private readonly LevelCatalog _catalog;
         private readonly bool _isDeveloperMode;
 
         private const string NextLevelMessage = "Press Space to continue to the next level";
         private const string CatalogCompletedMessage = "Press Space to return to the main menu, you have completely completed the level catalog";
+        private const string TimeExpiredMessage = "Time's up, press Space to restart";
 
         public LevelProgressionService(
             IShadowValidationService validationService,
             IInputService inputService,
             IInputContextService contextService,
+            ITimeLimitService timeLimitService,
             LevelCatalog catalog,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
             _validationService = validationService;
             _inputService = inputService;
             _contextService = contextService;
+            _timeLimitService = timeLimitService;
             _catalog = catalog;
             _isDeveloperMode = isDeveloperMode;
         }
@@ -48,15 +53,17 @@ namespace Game.Services.Progression
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
 
+            _timeLimitService.OnTimeExpired
+                .Subscribe(_ => HandleTimeExpired())
+                .AddTo(_disposables);
+
             _inputService.OnNextLevelRequested
                 .Subscribe(_ => HandleTransitionRequest())
                 .AddTo(_disposables);
         }
 
-        public void RequestRestart()
-        {
+        public void RequestRestart() =>
             _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
-        }
 
         private void HandleLevelCompleted()
         {
@@ -69,22 +76,31 @@ namespace Game.Services.Progression
             _onLevelCompletedMessage.OnNext(message);
         }
 
+        private void HandleTimeExpired()
+        {
+            _contextService.SetContext(InputContext.TimeExpired);
+            _onLevelCompletedMessage.OnNext(TimeExpiredMessage);
+        }
+
         private void HandleTransitionRequest()
         {
-            if (_contextService.CurrentContext.Value != InputContext.LevelCompleted) return;
+            var currentContext = _contextService.CurrentContext.Value;
+
+            if (currentContext == InputContext.TimeExpired)
+            {
+                RequestRestart();
+                return;
+            }
+
+            if (currentContext != InputContext.LevelCompleted) return;
 
             var isLastLevel = _catalog is null || _catalog.Levels is null ||
                               LevelContext.SelectedLevelId >= _catalog.Levels.Length - 1;
 
             if (isLastLevel)
-            {
                 _onTransitionRequested.OnNext(new LevelTransitionData("MenuScene", -1));
-            }
             else
-            {
-                var nextId = LevelContext.SelectedLevelId + 1;
-                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", nextId));
-            }
+                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId + 1));
         }
 
         public void Dispose() => _disposables?.Dispose();

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UniRx;
-using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -17,14 +17,17 @@ namespace Game.Views
         [field: SerializeField] private GameObject _blockSubMenu;
         [field: SerializeField] private GameObject _floorEditorPanel;
         [field: SerializeField] private GameObject _densityEditorPanel;
+        [field: SerializeField] private GameObject _timeLimitPanel;
         [field: SerializeField] private Transform _blockListContent;
         [field: SerializeField] private Button _blockItemPrefab;
         [field: SerializeField] private GameObject _levelGeneratorPanel;
         [field: SerializeField] private Toggle _blockLimitToggle;
+        [field: SerializeField] private Toggle _timeLimitToggle;
+        [field: SerializeField] private TMP_InputField _timeLimitInput;
 
-        [Inject] private IDevModeService _devModeService;
-        [Inject] private IInputContextService _contextService;
-        [Inject] private BlockConfig[] _blockConfigs;
+        [Inject] private readonly IDevModeService _devModeService;
+        [Inject] private readonly IInputContextService _contextService;
+        [Inject] private readonly BlockConfig[] _blockConfigs;
 
         private readonly List<Button> _spawnedBlockButtons = new();
         private readonly CompositeDisposable _disposables = new();
@@ -42,6 +45,37 @@ namespace Game.Views
 
                 _blockLimitToggle.OnValueChangedAsObservable()
                     .Subscribe(value => _devModeService.SetBlockLimitEnabled(value))
+                    .AddTo(_disposables);
+            }
+
+            if (_timeLimitToggle is not null)
+            {
+                _devModeService.IsTimeLimitEnabled
+                    .Subscribe(value => _timeLimitToggle.isOn = value)
+                    .AddTo(_disposables);
+
+                _timeLimitToggle.OnValueChangedAsObservable()
+                    .Subscribe(value => _devModeService.SetTimeLimitEnabled(value))
+                    .AddTo(_disposables);
+            }
+
+            if (_timeLimitInput is not null)
+            {
+                _devModeService.TimeLimitSeconds
+                    .Subscribe(value =>
+                    {
+                        var newText = value.ToString("F1", CultureInfo.InvariantCulture);
+                        if (_timeLimitInput.text != newText)
+                            _timeLimitInput.text = newText;
+                    })
+                    .AddTo(_disposables);
+
+                _timeLimitInput.onEndEdit.AsObservable()
+                    .Subscribe(text =>
+                    {
+                        if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds) && seconds > 0f)
+                            _devModeService.SetTimeLimitSeconds(seconds);
+                    })
                     .AddTo(_disposables);
             }
         }
@@ -69,6 +103,7 @@ namespace Game.Views
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
             _densityEditorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
             if (_levelGeneratorPanel is not null) _levelGeneratorPanel.SetActive(true);
             _contextService.SetContext(InputContext.None);
         }
@@ -78,6 +113,7 @@ namespace Game.Views
             _mainMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
             _densityEditorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
             _blockSubMenu.SetActive(true);
         }
 
@@ -86,6 +122,7 @@ namespace Game.Views
             _mainMenu.SetActive(false);
             _blockSubMenu.SetActive(false);
             _densityEditorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
             _floorEditorPanel.SetActive(true);
             _contextService.SetContext(InputContext.None);
         }
@@ -95,7 +132,18 @@ namespace Game.Views
             _mainMenu.SetActive(false);
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
             _densityEditorPanel.SetActive(true);
+            _contextService.SetContext(InputContext.None);
+        }
+
+        public void OpenTimeLimitSettings()
+        {
+            _mainMenu.SetActive(false);
+            _blockSubMenu.SetActive(false);
+            _floorEditorPanel.SetActive(false);
+            _densityEditorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(true);
             _contextService.SetContext(InputContext.None);
         }
 
@@ -104,7 +152,8 @@ namespace Game.Views
             _blockSubMenu.SetActive(false);
             _floorEditorPanel.SetActive(false);
             _densityEditorPanel.SetActive(false);
-            _levelGeneratorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
+            if (_levelGeneratorPanel is not null) _levelGeneratorPanel.SetActive(false);
             _mainMenu.SetActive(true);
         }
 
@@ -124,7 +173,6 @@ namespace Game.Views
         {
             foreach (var button in _spawnedBlockButtons)
                 if (button is not null) Destroy(button.gameObject);
-            _disposables?.Dispose();
         }
     }
 }

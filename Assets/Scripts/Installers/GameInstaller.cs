@@ -12,8 +12,10 @@ using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
 using Game.Services.Shadow;
+using Game.Services.Time;
 using Game.Views;
 using UnityEngine;
+using UnityEngine.Audio;
 using Zenject;
 
 namespace Game.Installers
@@ -56,6 +58,7 @@ namespace Game.Installers
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
 
+
             Bind<InputService>();
             Bind<InputContextService>();
             Bind<GridService>();
@@ -73,6 +76,7 @@ namespace Game.Installers
             Bind<RotationService>();
             Bind<ShadowDensityService>();
             Bind<CellHoverService>();
+            Bind<TimeLimitService>();
             Bind<LevelProgressionService>();
             Bind<LevelGeneratorService>();
             Bind<ShakeAnimationService>();
