@@ -1,44 +1,35 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Game.Data;
 
 namespace Game.Services.History
 {
+    public readonly struct PlacementRecord
+    {
+        public Vector3Int Cell { get; }
+        public BlockConfig Config { get; }
+
+        public PlacementRecord(Vector3Int cell, BlockConfig config) => (Cell, Config) = (cell, config);
+    }
+
     public interface IBlockHistoryService
     {
-        void RecordPlacement(Vector3Int cell);
-        bool TryPop(out Vector3Int cell);
-        bool TryPeek(out Vector3Int cell);
+        bool CanUndo { get; }
+        void RecordPlacement(PlacementRecord record);
+        bool TryPop(out PlacementRecord record);
         void Rotate(int angle, int gridSize);
         void Clear();
     }
 
     public class BlockHistoryService : IBlockHistoryService
     {
-        private readonly Stack<Vector3Int> _history = new();
+        private readonly Stack<PlacementRecord> _history = new();
 
-        public void RecordPlacement(Vector3Int cell) => _history.Push(cell);
+        public bool CanUndo => _history.Count > 0;
 
-        public bool TryPop(out Vector3Int cell)
-        {
-            if (_history.Count == 0)
-            {
-                cell = default;
-                return false;
-            }
-            cell = _history.Pop();
-            return true;
-        }
+        public void RecordPlacement(PlacementRecord record) => _history.Push(record);
 
-        public bool TryPeek(out Vector3Int cell)
-        {
-            if (_history.Count == 0)
-            {
-                cell = default;
-                return false;
-            }
-            cell = _history.Peek();
-            return true;
-        }
+        public bool TryPop(out PlacementRecord record) => _history.TryPop(out record);
 
         public void Rotate(int angle, int gridSize)
         {
@@ -49,10 +40,12 @@ namespace Game.Services.History
 
             for (var i = 0; i < items.Length; i++)
             {
-                var cell = items[i];
-                items[i] = angle == 90
+                var cell = items[i].Cell;
+                var newCell = angle == 90
                     ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
                     : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
+
+                items[i] = new PlacementRecord(newCell, items[i].Config);
             }
 
             for (var i = items.Length - 1; i >= 0; i--)

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Zenject;
 using Game.Core;
 using Game.Services.Input;
+using Game.Services.Progression;
 using UnityEngine.SceneManagement;
 
 namespace Game.Views.UI
@@ -14,11 +15,13 @@ namespace Game.Views.UI
         [field: SerializeField] private CanvasGroup CanvasGroup { get; set; }
         [field: SerializeField] private TextMeshProUGUI LevelLabel { get; set; }
         [field: SerializeField] private Button ReturnToMenuButton { get; set; }
+        [field: SerializeField] private Button RestartButton { get; set; }
         [field: SerializeField] private Vector3 PausedCameraPosition { get; set; }
         [field: SerializeField] private float PausedCameraSize { get; set; } = 5f;
 
         [Inject] private Camera _gameCamera;
         [Inject] private IInputContextService _contextService;
+        [Inject] private ILevelProgressionService _progressionService;
 
         private const float CameraMoveDuration = 0.6f;
         private const Ease CameraMoveEase = Ease.OutCubic;
@@ -29,6 +32,7 @@ namespace Game.Views.UI
         private bool _isOrthographic;
         private bool _isPaused;
         private bool _isAnimating;
+
         private Sequence _cameraSequence;
         private Sequence _uiSequence;
 
@@ -52,6 +56,9 @@ namespace Game.Views.UI
 
             if (ReturnToMenuButton is not null)
                 ReturnToMenuButton.onClick.AddListener(ReturnToMenu);
+
+            if (RestartButton is not null)
+                RestartButton.onClick.AddListener(HandleRestart);
         }
 
         private void Update()
@@ -88,6 +95,7 @@ namespace Game.Views.UI
                 var sizeTween = _isOrthographic
                     ? _gameCamera.DOOrthoSize(PausedCameraSize, CameraMoveDuration)
                     : _gameCamera.DOFieldOfView(PausedCameraSize, CameraMoveDuration);
+
                 _cameraSequence.Join(sizeTween.SetEase(CameraMoveEase));
             }
 
@@ -127,10 +135,17 @@ namespace Game.Views.UI
                 var sizeTween = _isOrthographic
                     ? _gameCamera.DOOrthoSize(_originalCameraSize, CameraMoveDuration)
                     : _gameCamera.DOFieldOfView(_originalCameraSize, CameraMoveDuration);
+
                 _cameraSequence.Join(sizeTween.SetEase(CameraMoveEase));
             }
 
             _cameraSequence.OnComplete(() => _isAnimating = false);
+        }
+
+        private void HandleRestart()
+        {
+            Time.timeScale = 1f;
+            _progressionService.RequestRestart();
         }
 
         private void ReturnToMenu()

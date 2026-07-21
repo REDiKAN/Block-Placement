@@ -53,6 +53,11 @@ namespace Game.Services.Progression
                 .AddTo(_disposables);
         }
 
+        public void RequestRestart()
+        {
+            _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
+        }
+
         private void HandleLevelCompleted()
         {
             _contextService.SetContext(InputContext.LevelCompleted);

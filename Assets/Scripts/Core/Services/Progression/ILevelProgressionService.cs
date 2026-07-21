@@ -19,5 +19,6 @@ namespace Game.Services.Progression
     {
         IObservable<string> OnLevelCompletedMessage { get; }
         IObservable<LevelTransitionData> OnTransitionRequested { get; }
+        void RequestRestart();
     }
 }

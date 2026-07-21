@@ -4,6 +4,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Services.Grid;
+using Game.Services.History;
 using Game.Services.Pool;
 using Game.Services.Registry;
 using Game.Services.Shadow;
@@ -30,7 +31,7 @@ namespace Game.Services.Dev
         private readonly IShadowDensityService _densityService;
         private readonly ITargetDensityProjectionService _projectionService;
         private readonly IDevModeService _devModeService;
-
+        private readonly IBlockHistoryService _historyService;
         private readonly List<BlockView> _spawnedBlocks = new();
 
         private const int GridSize = 5;
@@ -43,7 +44,8 @@ namespace Game.Services.Dev
             IShadowCalculationService calculationService,
             IShadowDensityService densityService,
             ITargetDensityProjectionService projectionService,
-            IDevModeService devModeService)
+            IDevModeService devModeService,
+            IBlockHistoryService historyService)
         {
             _gridService = gridService;
             _poolService = poolService;
@@ -52,6 +54,7 @@ namespace Game.Services.Dev
             _densityService = densityService;
             _projectionService = projectionService;
             _devModeService = devModeService;
+            _historyService = historyService;
         }
 
         public void Generate(int difficulty, int strategy)
@@ -71,6 +74,8 @@ namespace Game.Services.Dev
 
         private void ClearLevel()
         {
+            _historyService.Clear();
+
             for (var x = 0; x < GridSize; x++)
                 for (var y = 0; y < GridSize; y++)
                     for (var z = 0; z < GridSize; z++)
@@ -88,6 +93,7 @@ namespace Game.Services.Dev
                 if (block is not null)
                     _poolService.Return(block);
             }
+
             _spawnedBlocks.Clear();
         }
 
@@ -125,6 +131,7 @@ namespace Game.Services.Dev
                     neighbors.Add(new Vector3Int(current.x, current.y + 1, current.z));
 
                 var horizontalNeighbors = new List<Vector3Int>();
+
                 if (current.x + 1 < GridSize && !visited.Contains(new Vector3Int(current.x + 1, current.y, current.z)))
                     horizontalNeighbors.Add(new Vector3Int(current.x + 1, current.y, current.z));
                 if (current.x - 1 >= 0 && !visited.Contains(new Vector3Int(current.x - 1, current.y, current.z)))
@@ -135,6 +142,7 @@ namespace Game.Services.Dev
                     horizontalNeighbors.Add(new Vector3Int(current.x, current.y, current.z - 1));
 
                 Vector3Int? nextCell = null;
+
                 if (neighbors.Count > 0 && UnityEngine.Random.value < verticalBias)
                     nextCell = neighbors[0];
                 else if (horizontalNeighbors.Count > 0)
@@ -270,7 +278,6 @@ namespace Game.Services.Dev
                         {
                             var cell = new Vector3Int(x, y, z);
                             _gridService.SetCellOccupied(cell, true);
-
                             var block = activeConfig is not null ? _poolService.Get(activeConfig) : _poolService.GetDefault();
                             if (block is not null)
                             {
@@ -289,13 +296,10 @@ namespace Game.Services.Dev
             {
                 var yzDensity = _calculationService.CalculateDensity(0, i, _gridService, GridSize);
                 var xyDensity = _calculationService.CalculateDensity(1, i, _gridService, GridSize);
-
                 var isYZEnabled = yzDensity > 0;
                 var isXYEnabled = xyDensity > 0;
-
                 yzDensities[i] = new WallCellDensityData(isYZEnabled, yzDensity);
                 xyDensities[i] = new WallCellDensityData(isXYEnabled, xyDensity);
-
                 _densityService.SetDensityEnabled(0, i, isYZEnabled);
                 _densityService.SetDensityEnabled(1, i, isXYEnabled);
             }
