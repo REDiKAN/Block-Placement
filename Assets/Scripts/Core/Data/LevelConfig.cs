@@ -35,6 +35,10 @@ namespace Game.Data
         [field: SerializeField] public WallData WallYZ { get; private set; }
         [field: SerializeField] public WallData WallXY { get; private set; }
 
+        [field: Title("Block Limit", CustomColor.Yellow, CustomColor.Orange)]
+        [field: SerializeField] public bool IsBlockLimitEnabled { get; private set; }
+        [field: SerializeField] public int MaxBlocks { get; private set; } = -1;
+
         public void SetData(Vector3Int[] initialBlocks, bool[] floorMatrix, WallData wallYZ, WallData wallXY)
         {
             InitialBlocks = initialBlocks;
@@ -47,6 +51,12 @@ namespace Game.Data
         {
             InitialBlocks = initialBlocks;
             FloorMatrix = floorMatrix;
+        }
+
+        public void SetBlockLimit(bool isEnabled, int maxBlocks)
+        {
+            IsBlockLimitEnabled = isEnabled;
+            MaxBlocks = maxBlocks;
         }
     }
 }

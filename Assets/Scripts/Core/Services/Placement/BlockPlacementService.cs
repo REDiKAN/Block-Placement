@@ -19,13 +19,16 @@ namespace Game.Services.Placement
     public interface IBlockPlacementService
     {
         IObservable<Unit> OnGridChanged { get; }
+        IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks { get; }
     }
 
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
+        public IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks => _remainingBlocks;
 
         private readonly Subject<Unit> _onGridChanged = new();
+        private readonly ReactiveProperty<(bool IsEnabled, int Remaining)> _remainingBlocks = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly Dictionary<Vector3Int, BlockView> _activeBlocks = new();
 
@@ -39,7 +42,16 @@ namespace Game.Services.Placement
         private readonly IDevModeService _devModeService;
         private readonly IObjectRegistryService _registryService;
         private readonly BlockView _previewBlock;
+        private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
+
+        private Renderer _previewRenderer;
+        private Color _previewDefaultColor;
+        private MaterialPropertyBlock _materialPropertyBlock;
+        private int _remainingBlocksCount;
+        private bool _isLimitEnabled;
+
+        private static readonly Color BlockedPreviewColor = new(1f, 0f, 0f, 0.4f);
 
         public BlockPlacementService(
             IInputService inputService,
@@ -51,6 +63,7 @@ namespace Game.Services.Placement
             IInputContextService contextService,
             IDevModeService devModeService,
             IObjectRegistryService registryService,
+            LevelConfig levelConfig,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
             [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
@@ -63,19 +76,36 @@ namespace Game.Services.Placement
             _contextService = contextService;
             _devModeService = devModeService;
             _registryService = registryService;
+            _levelConfig = levelConfig;
             _isDeveloperMode = isDeveloperMode;
             _previewBlock = previewBlock;
         }
 
         public void Initialize()
         {
+            _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
+            _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
+
+            _materialPropertyBlock = new MaterialPropertyBlock();
+
+            if (_previewBlock is not null)
+            {
+                _previewRenderer = _previewBlock.GetComponentInChildren<Renderer>();
+                if (_previewRenderer is not null && _previewRenderer.sharedMaterial is not null)
+                {
+                    _previewDefaultColor = _previewRenderer.sharedMaterial.color;
+                    _materialPropertyBlock.SetColor("_Color", _previewDefaultColor);
+                    _previewRenderer.SetPropertyBlock(_materialPropertyBlock);
+                }
+                _previewBlock.gameObject.SetActive(false);
+            }
+
             _inputService.OnMouseMoved.Subscribe(UpdatePreview).AddTo(_disposables);
             _inputService.OnPrimaryClick.Subscribe(PlaceBlock).AddTo(_disposables);
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastBlock()).AddTo(_disposables);
             _rotationService.OnRotationCompleted.Subscribe(RotateActiveBlocks).AddTo(_disposables);
 
-            if (_previewBlock is not null)
-                _previewBlock.gameObject.SetActive(false);
+            PublishRemainingBlocks();
         }
 
         private void UpdatePreview(Vector2 mousePosition)
@@ -98,11 +128,23 @@ namespace Game.Services.Placement
             {
                 _previewBlock.gameObject.SetActive(true);
                 _previewBlock.SetPosition(cell);
+                UpdatePreviewColor();
             }
             else
             {
                 _previewBlock.gameObject.SetActive(false);
             }
+        }
+
+        private void UpdatePreviewColor()
+        {
+            if (_previewRenderer is null || _materialPropertyBlock is null) return;
+
+            var isBlocked = _isLimitEnabled && _remainingBlocksCount <= 0;
+            var targetColor = isBlocked ? BlockedPreviewColor : _previewDefaultColor;
+
+            _materialPropertyBlock.SetColor("_Color", targetColor);
+            _previewRenderer.SetPropertyBlock(_materialPropertyBlock);
         }
 
         private void PlaceBlock(Vector2 mousePosition)
@@ -114,6 +156,7 @@ namespace Game.Services.Placement
             }
 
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
+            if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
             if (!_raycastService.TryGetTargetCell(mousePosition, out var cell, out _)) return;
 
             BlockView block;
@@ -142,6 +185,13 @@ namespace Game.Services.Placement
             if (_isDeveloperMode)
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
 
+            if (_isLimitEnabled)
+            {
+                _remainingBlocksCount--;
+                PublishRemainingBlocks();
+                UpdatePreviewColor();
+            }
+
             _onGridChanged.OnNext(Unit.Default);
         }
 
@@ -165,6 +215,13 @@ namespace Game.Services.Placement
 
             if (_isDeveloperMode)
                 _registryService.Unregister(record.Cell, PlacedObjectType.Block);
+
+            if (_isLimitEnabled)
+            {
+                _remainingBlocksCount++;
+                PublishRemainingBlocks();
+                UpdatePreviewColor();
+            }
 
             _onGridChanged.OnNext(Unit.Default);
         }
@@ -192,6 +249,9 @@ namespace Game.Services.Placement
             _historyService.Rotate(angle, gridSize);
             _onGridChanged.OnNext(Unit.Default);
         }
+
+        private void PublishRemainingBlocks() =>
+            _remainingBlocks.Value = (_isLimitEnabled, _remainingBlocksCount);
 
         public void Dispose() => _disposables?.Dispose();
     }

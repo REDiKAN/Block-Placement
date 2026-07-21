@@ -9,13 +9,18 @@ namespace Game.Services.Dev
     public interface IDevModeService
     {
         IReadOnlyReactiveProperty<BlockConfig> ActiveBlockConfig { get; }
+        IReadOnlyReactiveProperty<bool> IsBlockLimitEnabled { get; }
         void SetActiveBlockConfig(BlockConfig config);
+        void SetBlockLimitEnabled(bool enabled);
     }
 
     public class DevModeService : IDevModeService
     {
         public IReadOnlyReactiveProperty<BlockConfig> ActiveBlockConfig => _activeBlockConfig;
+        public IReadOnlyReactiveProperty<bool> IsBlockLimitEnabled => _isBlockLimitEnabled;
+
         private readonly ReactiveProperty<BlockConfig> _activeBlockConfig = new();
+        private readonly ReactiveProperty<bool> _isBlockLimitEnabled = new(false);
         private readonly IInputContextService _contextService;
 
         public DevModeService(IInputContextService contextService, [InjectOptional] BlockConfig[] configs)
@@ -30,5 +35,7 @@ namespace Game.Services.Dev
             _activeBlockConfig.Value = config;
             _contextService.SetContext(InputContext.PlaceBlock);
         }
+
+        public void SetBlockLimitEnabled(bool enabled) => _isBlockLimitEnabled.Value = enabled;
     }
 }

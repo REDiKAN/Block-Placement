@@ -26,17 +26,20 @@ namespace Game.Services.Dev
         private readonly IGridService _gridService;
         private readonly IShadowDensityService _densityService;
         private readonly IShadowCalculationService _calculationService;
+        private readonly IDevModeService _devModeService;
 
         public DevLevelExportService(
             IDevInputService devInputService,
             IGridService gridService,
             IShadowDensityService densityService,
-            IShadowCalculationService calculationService)
+            IShadowCalculationService calculationService,
+            IDevModeService devModeService)
         {
             _devInputService = devInputService;
             _gridService = gridService;
             _densityService = densityService;
             _calculationService = calculationService;
+            _devModeService = devModeService;
         }
 
         public void Initialize()
@@ -88,6 +91,17 @@ namespace Game.Services.Dev
 
             var config = ScriptableObject.CreateInstance<LevelConfig>();
             config.SetData(blocks.ToArray(), floorMatrix, wallYZData, wallXYData);
+
+            var isLimitEnabled = _devModeService.IsBlockLimitEnabled.Value;
+            var maxBlocks = isLimitEnabled ? blocks.Count : -1;
+
+            if (config.InitialBlocks?.Length > maxBlocks && isLimitEnabled)
+            {
+                Debug.LogError($"[DevLevelExport] InitialBlocks ({config.InitialBlocks.Length}) exceeds MaxBlocks ({maxBlocks}). Export aborted.");
+                return;
+            }
+
+            config.SetBlockLimit(isLimitEnabled, maxBlocks);
 
 #if UNITY_EDITOR
             AssetDatabase.CreateAsset(config, SavePath);

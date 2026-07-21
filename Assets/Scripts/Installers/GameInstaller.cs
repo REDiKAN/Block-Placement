@@ -1,5 +1,6 @@
 using Game.Core;
 using Game.Data;
+using Game.Services.Animation;
 using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -46,8 +47,8 @@ namespace Game.Installers
             {
                 activeConfig = LevelCatalog.Levels[LevelContext.SelectedLevelId];
             }
-            Container.BindInstance(activeConfig);
 
+            Container.BindInstance(activeConfig);
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
             Container.BindInstance(LevelCatalog);
@@ -74,6 +75,7 @@ namespace Game.Installers
             Bind<CellHoverService>();
             Bind<LevelProgressionService>();
             Bind<LevelGeneratorService>();
+            Bind<ShakeAnimationService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
+using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -18,17 +20,30 @@ namespace Game.Views
         [field: SerializeField] private Transform _blockListContent;
         [field: SerializeField] private Button _blockItemPrefab;
         [field: SerializeField] private GameObject _levelGeneratorPanel;
+        [field: SerializeField] private Toggle _blockLimitToggle;
 
         [Inject] private IDevModeService _devModeService;
         [Inject] private IInputContextService _contextService;
         [Inject] private BlockConfig[] _blockConfigs;
 
         private readonly List<Button> _spawnedBlockButtons = new();
+        private readonly CompositeDisposable _disposables = new();
 
         private void Start()
         {
             PopulateBlockMenu();
             ShowMainMenu();
+
+            if (_blockLimitToggle is not null)
+            {
+                _devModeService.IsBlockLimitEnabled
+                    .Subscribe(value => _blockLimitToggle.isOn = value)
+                    .AddTo(_disposables);
+
+                _blockLimitToggle.OnValueChangedAsObservable()
+                    .Subscribe(value => _devModeService.SetBlockLimitEnabled(value))
+                    .AddTo(_disposables);
+            }
         }
 
         private void PopulateBlockMenu()
@@ -47,7 +62,6 @@ namespace Game.Views
                 _spawnedBlockButtons.Add(button);
             }
         }
-
 
         public void OpenLevelGenerator()
         {
@@ -110,6 +124,7 @@ namespace Game.Views
         {
             foreach (var button in _spawnedBlockButtons)
                 if (button is not null) Destroy(button.gameObject);
+            _disposables?.Dispose();
         }
     }
 }

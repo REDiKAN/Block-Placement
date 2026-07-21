@@ -20,9 +20,13 @@ namespace Game.Views
             AssignIndices();
             SyncAllCells();
 
+            if (_gridService is null) return;
+
             _gridService.OnFloorCellChanged
                 .Subscribe(UpdateCell)
                 .AddTo(_disposables);
+
+            if (_cellHoverService is null) return;
 
             _cellHoverService.OnFloorCellHovered
                 .Subscribe(SetCellHover)
@@ -51,7 +55,7 @@ namespace Game.Views
 
         private void SyncAllCells()
         {
-            if (Cells is null) return;
+            if (Cells is null || _gridService is null) return;
             foreach (var cell in Cells)
             {
                 if (cell is null) continue;
@@ -63,6 +67,7 @@ namespace Game.Views
 
         private void UpdateCell(Vector2Int cellCoord)
         {
+            if (_gridService is null) return;
             var index = cellCoord.x * 5 + cellCoord.y;
             if (index >= 0 && index < Cells.Length && Cells[index] is not null)
                 Cells[index].SetVisible(_gridService.IsFloorExists(cellCoord));

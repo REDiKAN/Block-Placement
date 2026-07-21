@@ -1,5 +1,5 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 21.07.2026 2:59:08
+// Generation Time: 21.07.2026 17:41:03
 // Encoding: Unicode (UTF-8)
 // Total Files: 64
 // =====================================
@@ -1856,6 +1856,7 @@ using UnityEngine.UI;
 using Zenject;
 using Game.Core;
 using Game.Services.Input;
+using Game.Services.Progression;
 using UnityEngine.SceneManagement;
 
 namespace Game.Views.UI
@@ -1865,11 +1866,13 @@ namespace Game.Views.UI
         [field: SerializeField] private CanvasGroup CanvasGroup { get; set; }
         [field: SerializeField] private TextMeshProUGUI LevelLabel { get; set; }
         [field: SerializeField] private Button ReturnToMenuButton { get; set; }
+        [field: SerializeField] private Button RestartButton { get; set; }
         [field: SerializeField] private Vector3 PausedCameraPosition { get; set; }
         [field: SerializeField] private float PausedCameraSize { get; set; } = 5f;
 
         [Inject] private Camera _gameCamera;
         [Inject] private IInputContextService _contextService;
+        [Inject] private ILevelProgressionService _progressionService;
 
         private const float CameraMoveDuration = 0.6f;
         private const Ease CameraMoveEase = Ease.OutCubic;
@@ -1880,6 +1883,7 @@ namespace Game.Views.UI
         private bool _isOrthographic;
         private bool _isPaused;
         private bool _isAnimating;
+
         private Sequence _cameraSequence;
         private Sequence _uiSequence;
 
@@ -1903,6 +1907,9 @@ namespace Game.Views.UI
 
             if (ReturnToMenuButton is not null)
                 ReturnToMenuButton.onClick.AddListener(ReturnToMenu);
+
+            if (RestartButton is not null)
+                RestartButton.onClick.AddListener(HandleRestart);
         }
 
         private void Update()
@@ -1939,6 +1946,7 @@ namespace Game.Views.UI
                 var sizeTween = _isOrthographic
                     ? _gameCamera.DOOrthoSize(PausedCameraSize, CameraMoveDuration)
                     : _gameCamera.DOFieldOfView(PausedCameraSize, CameraMoveDuration);
+
                 _cameraSequence.Join(sizeTween.SetEase(CameraMoveEase));
             }
 
@@ -1978,10 +1986,17 @@ namespace Game.Views.UI
                 var sizeTween = _isOrthographic
                     ? _gameCamera.DOOrthoSize(_originalCameraSize, CameraMoveDuration)
                     : _gameCamera.DOFieldOfView(_originalCameraSize, CameraMoveDuration);
+
                 _cameraSequence.Join(sizeTween.SetEase(CameraMoveEase));
             }
 
             _cameraSequence.OnComplete(() => _isAnimating = false);
+        }
+
+        private void HandleRestart()
+        {
+            Time.timeScale = 1f;
+            _progressionService.RequestRestart();
         }
 
         private void ReturnToMenu()
@@ -2270,6 +2285,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Services.Grid;
+using Game.Services.History;
 using Game.Services.Pool;
 using Game.Services.Registry;
 using Game.Services.Shadow;
@@ -2296,7 +2312,7 @@ namespace Game.Services.Dev
         private readonly IShadowDensityService _densityService;
         private readonly ITargetDensityProjectionService _projectionService;
         private readonly IDevModeService _devModeService;
-
+        private readonly IBlockHistoryService _historyService;
         private readonly List<BlockView> _spawnedBlocks = new();
 
         private const int GridSize = 5;
@@ -2309,7 +2325,8 @@ namespace Game.Services.Dev
             IShadowCalculationService calculationService,
             IShadowDensityService densityService,
             ITargetDensityProjectionService projectionService,
-            IDevModeService devModeService)
+            IDevModeService devModeService,
+            IBlockHistoryService historyService)
         {
             _gridService = gridService;
             _poolService = poolService;
@@ -2318,6 +2335,7 @@ namespace Game.Services.Dev
             _densityService = densityService;
             _projectionService = projectionService;
             _devModeService = devModeService;
+            _historyService = historyService;
         }
 
         public void Generate(int difficulty, int strategy)
@@ -2337,6 +2355,8 @@ namespace Game.Services.Dev
 
         private void ClearLevel()
         {
+            _historyService.Clear();
+
             for (var x = 0; x < GridSize; x++)
                 for (var y = 0; y < GridSize; y++)
                     for (var z = 0; z < GridSize; z++)
@@ -2354,6 +2374,7 @@ namespace Game.Services.Dev
                 if (block is not null)
                     _poolService.Return(block);
             }
+
             _spawnedBlocks.Clear();
         }
 
@@ -2391,6 +2412,7 @@ namespace Game.Services.Dev
                     neighbors.Add(new Vector3Int(current.x, current.y + 1, current.z));
 
                 var horizontalNeighbors = new List<Vector3Int>();
+
                 if (current.x + 1 < GridSize && !visited.Contains(new Vector3Int(current.x + 1, current.y, current.z)))
                     horizontalNeighbors.Add(new Vector3Int(current.x + 1, current.y, current.z));
                 if (current.x - 1 >= 0 && !visited.Contains(new Vector3Int(current.x - 1, current.y, current.z)))
@@ -2401,6 +2423,7 @@ namespace Game.Services.Dev
                     horizontalNeighbors.Add(new Vector3Int(current.x, current.y, current.z - 1));
 
                 Vector3Int? nextCell = null;
+
                 if (neighbors.Count > 0 && UnityEngine.Random.value < verticalBias)
                     nextCell = neighbors[0];
                 else if (horizontalNeighbors.Count > 0)
@@ -2536,7 +2559,6 @@ namespace Game.Services.Dev
                         {
                             var cell = new Vector3Int(x, y, z);
                             _gridService.SetCellOccupied(cell, true);
-
                             var block = activeConfig is not null ? _poolService.Get(activeConfig) : _poolService.GetDefault();
                             if (block is not null)
                             {
@@ -2555,13 +2577,10 @@ namespace Game.Services.Dev
             {
                 var yzDensity = _calculationService.CalculateDensity(0, i, _gridService, GridSize);
                 var xyDensity = _calculationService.CalculateDensity(1, i, _gridService, GridSize);
-
                 var isYZEnabled = yzDensity > 0;
                 var isXYEnabled = xyDensity > 0;
-
                 yzDensities[i] = new WallCellDensityData(isYZEnabled, yzDensity);
                 xyDensities[i] = new WallCellDensityData(isXYEnabled, xyDensity);
-
                 _densityService.SetDensityEnabled(0, i, isYZEnabled);
                 _densityService.SetDensityEnabled(1, i, isXYEnabled);
             }
@@ -2706,45 +2725,36 @@ namespace Game.Services.Grid
 //==== File 45 of 64: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\BlockHistoryService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
+using Game.Data;
 
 namespace Game.Services.History
 {
+    public readonly struct PlacementRecord
+    {
+        public Vector3Int Cell { get; }
+        public BlockConfig Config { get; }
+
+        public PlacementRecord(Vector3Int cell, BlockConfig config) => (Cell, Config) = (cell, config);
+    }
+
     public interface IBlockHistoryService
     {
-        void RecordPlacement(Vector3Int cell);
-        bool TryPop(out Vector3Int cell);
-        bool TryPeek(out Vector3Int cell);
+        bool CanUndo { get; }
+        void RecordPlacement(PlacementRecord record);
+        bool TryPop(out PlacementRecord record);
         void Rotate(int angle, int gridSize);
         void Clear();
     }
 
     public class BlockHistoryService : IBlockHistoryService
     {
-        private readonly Stack<Vector3Int> _history = new();
+        private readonly Stack<PlacementRecord> _history = new();
 
-        public void RecordPlacement(Vector3Int cell) => _history.Push(cell);
+        public bool CanUndo => _history.Count > 0;
 
-        public bool TryPop(out Vector3Int cell)
-        {
-            if (_history.Count == 0)
-            {
-                cell = default;
-                return false;
-            }
-            cell = _history.Pop();
-            return true;
-        }
+        public void RecordPlacement(PlacementRecord record) => _history.Push(record);
 
-        public bool TryPeek(out Vector3Int cell)
-        {
-            if (_history.Count == 0)
-            {
-                cell = default;
-                return false;
-            }
-            cell = _history.Peek();
-            return true;
-        }
+        public bool TryPop(out PlacementRecord record) => _history.TryPop(out record);
 
         public void Rotate(int angle, int gridSize)
         {
@@ -2755,10 +2765,12 @@ namespace Game.Services.History
 
             for (var i = 0; i < items.Length; i++)
             {
-                var cell = items[i];
-                items[i] = angle == 90
+                var cell = items[i].Cell;
+                var newCell = angle == 90
                     ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
                     : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
+
+                items[i] = new PlacementRecord(newCell, items[i].Config);
             }
 
             for (var i = items.Length - 1; i >= 0; i--)
@@ -2956,6 +2968,7 @@ namespace Game.Services.Placement
         private readonly Subject<Unit> _onGridChanged = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly Dictionary<Vector3Int, BlockView> _activeBlocks = new();
+
         private readonly IInputService _inputService;
         private readonly IRaycastService _raycastService;
         private readonly IGridService _gridService;
@@ -3007,9 +3020,7 @@ namespace Game.Services.Placement
 
         private void UpdatePreview(Vector2 mousePosition)
         {
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
-                _contextService.CurrentContext.Value == InputContext.Paused)
-
+            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -3022,18 +3033,21 @@ namespace Game.Services.Placement
                 _previewBlock.gameObject.SetActive(false);
                 return;
             }
+
             if (_raycastService.TryGetTargetCell(mousePosition, out var cell, out _))
             {
                 _previewBlock.gameObject.SetActive(true);
                 _previewBlock.SetPosition(cell);
             }
-            else _previewBlock.gameObject.SetActive(false);
+            else
+            {
+                _previewBlock.gameObject.SetActive(false);
+            }
         }
 
         private void PlaceBlock(Vector2 mousePosition)
         {
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
-                _contextService.CurrentContext.Value == InputContext.Paused)
+            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -3044,22 +3058,26 @@ namespace Game.Services.Placement
 
             BlockView block;
             var identifier = "DefaultBlock";
+            BlockConfig config = null;
 
             if (_isDeveloperMode)
             {
-                var config = _devModeService.ActiveBlockConfig.Value;
+                config = _devModeService.ActiveBlockConfig.Value;
                 if (config is null) return;
                 block = _poolService.Get(config);
                 identifier = config.DisplayName;
             }
-            else block = _poolService.GetDefault();
+            else
+            {
+                block = _poolService.GetDefault();
+            }
 
             if (block is null) return;
 
             _gridService.SetCellOccupied(cell, true);
             block.SetPosition(cell);
             _activeBlocks[cell] = block;
-            _historyService.RecordPlacement(cell);
+            _historyService.RecordPlacement(new PlacementRecord(cell, config));
 
             if (_isDeveloperMode)
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
@@ -3069,27 +3087,24 @@ namespace Game.Services.Placement
 
         private void RemoveLastBlock()
         {
-            if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
-                _contextService.CurrentContext.Value == InputContext.Paused)
+            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
             }
 
-            if (!_historyService.TryPeek(out var targetCell)) return;
-            if (_gridService.IsCellOccupied(targetCell + Vector3Int.up)) return;
+            if (!_historyService.TryPop(out var record)) return;
 
-            _historyService.TryPop(out _);
-            _gridService.SetCellOccupied(targetCell, false);
+            _gridService.SetCellOccupied(record.Cell, false);
 
-            if (_activeBlocks.TryGetValue(targetCell, out var block))
+            if (_activeBlocks.TryGetValue(record.Cell, out var block))
             {
                 _poolService.Return(block);
-                _activeBlocks.Remove(targetCell);
+                _activeBlocks.Remove(record.Cell);
             }
 
             if (_isDeveloperMode)
-                _registryService.Unregister(targetCell, PlacedObjectType.Block);
+                _registryService.Unregister(record.Cell, PlacedObjectType.Block);
 
             _onGridChanged.OnNext(Unit.Default);
         }
@@ -3104,6 +3119,7 @@ namespace Game.Services.Placement
                 var newCell = angle == 90
                     ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
                     : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
+
                 block.SetPosition(newCell);
                 newActiveBlocks[newCell] = block;
             }
@@ -3114,7 +3130,6 @@ namespace Game.Services.Placement
 
             _gridService.Rotate(angle);
             _historyService.Rotate(angle, gridSize);
-
             _onGridChanged.OnNext(Unit.Default);
         }
 
@@ -3389,6 +3404,7 @@ namespace Game.Services.Progression
     {
         IObservable<string> OnLevelCompletedMessage { get; }
         IObservable<LevelTransitionData> OnTransitionRequested { get; }
+        void RequestRestart();
     }
 }
 
@@ -3446,6 +3462,11 @@ namespace Game.Services.Progression
             _inputService.OnNextLevelRequested
                 .Subscribe(_ => HandleTransitionRequest())
                 .AddTo(_disposables);
+        }
+
+        public void RequestRestart()
+        {
+            _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
         }
 
         private void HandleLevelCompleted()
@@ -4072,9 +4093,9 @@ namespace Game.Services.Shadow
 
 // ============ Statistics =============
 // Total Files: 64
-// Total Size: 133,89 KB
-// Total Lines: 3937
+// Total Size: 134,60 KB
+// Total Lines: 3958
 // Classes: 62
-// Methods: 276
+// Methods: 277
 // Comments (Blocks): 0
 // =====================================
