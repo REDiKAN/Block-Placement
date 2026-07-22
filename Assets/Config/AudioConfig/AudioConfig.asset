@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdedaa22178e55a4bbde8f28ad52349e, type: 3}
+  m_Name: AudioConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.AudioConfig
+  <SfxMixerGroup>k__BackingField: {fileID: 8515011366476984884, guid: 0682ba60b1784c04f9d2782deb569813, type: 2}
+  <MusicMixerGroup>k__BackingField: {fileID: 6194183247451293190, guid: 0682ba60b1784c04f9d2782deb569813, type: 2}
+  <SfxPoolSize>k__BackingField: 11
+  <DefaultSfxVolume>k__BackingField: 0.5
+  <DefaultPlaceClip>k__BackingField: {fileID: 8300000, guid: b6a2dd974aebd734594e05a1fbfbbae4, type: 3}
+  <DefaultRemoveClip>k__BackingField: {fileID: 8300000, guid: fdbf80b4051360f42a821bc0d8180ff9, type: 3}
+  <DefaultMusicVolume>k__BackingField: 0.1
+  <CrossfadeDuration>k__BackingField: 1.5

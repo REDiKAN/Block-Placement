@@ -1,6 +1,7 @@
 using Game.Core;
 using Game.Data;
 using Game.Services.Animation;
+using Game.Services.Audio;
 using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -15,7 +16,6 @@ using Game.Services.Shadow;
 using Game.Services.Time;
 using Game.Views;
 using UnityEngine;
-using UnityEngine.Audio;
 using Zenject;
 
 namespace Game.Installers
@@ -33,6 +33,9 @@ namespace Game.Installers
         [field: SerializeField] public RotationConfig RotationConfig { get; private set; }
         [field: SerializeField] public bool IsDeveloperMode { get; private set; }
         [field: SerializeField] public LevelCatalog LevelCatalog { get; private set; }
+
+        [field: SerializeField] public AudioConfig AudioConfig { get; private set; }
+        [field: SerializeField] public AudioClip StartMusicClip { get; private set; }
 
         public override void InstallBindings()
         {
@@ -58,6 +61,11 @@ namespace Game.Installers
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
 
+            if (AudioConfig is not null)
+                Container.BindInstance(AudioConfig);
+
+            if (StartMusicClip is not null)
+                Container.BindInstance(StartMusicClip);
 
             Bind<InputService>();
             Bind<InputContextService>();
@@ -80,6 +88,9 @@ namespace Game.Installers
             Bind<LevelProgressionService>();
             Bind<LevelGeneratorService>();
             Bind<ShakeAnimationService>();
+
+            Bind<SfxService>();
+            Bind<MusicService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

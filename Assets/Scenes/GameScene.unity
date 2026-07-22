@@ -1127,6 +1127,7 @@ GameObject:
   - component: {fileID: 114461249}
   - component: {fileID: 114461252}
   - component: {fileID: 114461251}
+  - component: {fileID: 114461253}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1173,6 +1174,8 @@ MonoBehaviour:
   <RotationConfig>k__BackingField: {fileID: 11400000, guid: c193fee9883b5914dafe3a20b65eecda, type: 2}
   <IsDeveloperMode>k__BackingField: 0
   <LevelCatalog>k__BackingField: {fileID: 11400000, guid: 933fa9b4586170142a425afc86d6d067, type: 2}
+  <AudioConfig>k__BackingField: {fileID: 11400000, guid: b4390b69e0e295f4c8bff1e7b6b57369, type: 2}
+  <StartMusicClip>k__BackingField: {fileID: 8300000, guid: c5a6af7adb029df4ba0967bc4de9e7ac, type: 3}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1205,6 +1208,20 @@ MonoBehaviour:
   _parentNewObjectsUnderSceneContext: 0
   _contractNames: []
   _parentContractNames: []
+--- !u!114 &114461253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114461248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e646ed9958a5155439576c55b1592f0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Installers.AudioInstaller
+  <AudioConfig>k__BackingField: {fileID: 11400000, guid: b4390b69e0e295f4c8bff1e7b6b57369, type: 2}
+  <StartMusicClip>k__BackingField: {fileID: 8300000, guid: c5a6af7adb029df4ba0967bc4de9e7ac, type: 3}
 --- !u!1 &122828061
 GameObject:
   m_ObjectHideFlags: 0

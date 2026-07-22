@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.BlockConfig
   <DisplayName>k__BackingField: Standard Block
   <Prefab>k__BackingField: {fileID: 229738514984466294, guid: 3c20647d27160114a84a4fdb96c06590, type: 3}
+  <PlaceClip>k__BackingField: {fileID: 8300000, guid: b6a2dd974aebd734594e05a1fbfbbae4, type: 3}
+  <RemoveClip>k__BackingField: {fileID: 8300000, guid: fdbf80b4051360f42a821bc0d8180ff9, type: 3}

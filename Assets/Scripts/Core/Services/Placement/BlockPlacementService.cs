@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using UniRx;
-using UnityEngine;
-using Zenject;
 using Game.Data;
+using Game.Services.Audio;
 using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -13,6 +9,11 @@ using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
 using Game.Views;
+using System;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
+using Zenject;
 
 namespace Game.Services.Placement
 {
@@ -21,6 +22,8 @@ namespace Game.Services.Placement
         IObservable<Unit> OnGridChanged { get; }
         IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks { get; }
     }
+
+
 
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
     {
@@ -44,6 +47,8 @@ namespace Game.Services.Placement
         private readonly BlockView _previewBlock;
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
+        private readonly ISfxService _sfxService;
+        private readonly AudioConfig _audioConfig;
 
         private Renderer _previewRenderer;
         private Color _previewDefaultColor;
@@ -54,18 +59,20 @@ namespace Game.Services.Placement
         private static readonly Color BlockedPreviewColor = new(1f, 0f, 0f, 0.4f);
 
         public BlockPlacementService(
-            IInputService inputService,
-            IRaycastService raycastService,
-            IGridService gridService,
-            IBlockPoolService poolService,
-            IBlockHistoryService historyService,
-            IRotationService rotationService,
-            IInputContextService contextService,
-            IDevModeService devModeService,
-            IObjectRegistryService registryService,
-            LevelConfig levelConfig,
-            [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
-            [Inject(Id = "PreviewBlock")] BlockView previewBlock)
+    IInputService inputService,
+    IRaycastService raycastService,
+    IGridService gridService,
+    IBlockPoolService poolService,
+    IBlockHistoryService historyService,
+    IRotationService rotationService,
+    IInputContextService contextService,
+    IDevModeService devModeService,
+    IObjectRegistryService registryService,
+    ISfxService sfxService,
+    AudioConfig audioConfig,
+    LevelConfig levelConfig,
+    [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
+    [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
             _inputService = inputService;
             _raycastService = raycastService;
@@ -76,6 +83,8 @@ namespace Game.Services.Placement
             _contextService = contextService;
             _devModeService = devModeService;
             _registryService = registryService;
+            _sfxService = sfxService;
+            _audioConfig = audioConfig;
             _levelConfig = levelConfig;
             _isDeveloperMode = isDeveloperMode;
             _previewBlock = previewBlock;
@@ -156,7 +165,9 @@ namespace Game.Services.Placement
             }
 
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
+
             if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
+
             if (!_raycastService.TryGetTargetCell(mousePosition, out var cell, out _)) return;
 
             BlockView block;
@@ -184,6 +195,10 @@ namespace Game.Services.Placement
 
             if (_isDeveloperMode)
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
+
+            var placeClip = config?.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
+            if (placeClip is not null)
+                _sfxService.Play(placeClip);
 
             if (_isLimitEnabled)
             {
@@ -216,6 +231,10 @@ namespace Game.Services.Placement
             if (_isDeveloperMode)
                 _registryService.Unregister(record.Cell, PlacedObjectType.Block);
 
+            var removeClip = record.Config?.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
+            if (removeClip is not null)
+                _sfxService.Play(removeClip);
+
             if (_isLimitEnabled)
             {
                 _remainingBlocksCount++;
@@ -225,7 +244,6 @@ namespace Game.Services.Placement
 
             _onGridChanged.OnNext(Unit.Default);
         }
-
         private void RotateActiveBlocks(int angle)
         {
             var gridSize = _gridService.GridSize;
