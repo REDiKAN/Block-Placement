@@ -22,6 +22,7 @@ namespace Game.Services.Progression
         private readonly IInputService _inputService;
         private readonly IInputContextService _contextService;
         private readonly ITimeLimitService _timeLimitService;
+        private readonly IProgressionService _progressionService;
         private readonly LevelCatalog _catalog;
         private readonly bool _isDeveloperMode;
 
@@ -34,6 +35,7 @@ namespace Game.Services.Progression
             IInputService inputService,
             IInputContextService contextService,
             ITimeLimitService timeLimitService,
+            IProgressionService progressionService,
             LevelCatalog catalog,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
@@ -41,6 +43,7 @@ namespace Game.Services.Progression
             _inputService = inputService;
             _contextService = contextService;
             _timeLimitService = timeLimitService;
+            _progressionService = progressionService;
             _catalog = catalog;
             _isDeveloperMode = isDeveloperMode;
         }
@@ -48,15 +51,12 @@ namespace Game.Services.Progression
         public void Initialize()
         {
             if (_isDeveloperMode) return;
-
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
-
             _timeLimitService.OnTimeExpired
                 .Subscribe(_ => HandleTimeExpired())
                 .AddTo(_disposables);
-
             _inputService.OnNextLevelRequested
                 .Subscribe(_ => HandleTransitionRequest())
                 .AddTo(_disposables);
@@ -68,13 +68,10 @@ namespace Game.Services.Progression
         private void HandleLevelCompleted()
         {
             _contextService.SetContext(InputContext.LevelCompleted);
-
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null ||
-                              LevelContext.SelectedLevelId >= category.Levels.Length - 1;
-
-            var message = isLastLevel ? CatalogCompletedMessage : NextLevelMessage;
-            _onLevelCompletedMessage.OnNext(message);
+                LevelContext.SelectedLevelId >= category.Levels.Length - 1;
+            _onLevelCompletedMessage.OnNext(isLastLevel ? CatalogCompletedMessage : NextLevelMessage);
         }
 
         private void HandleTimeExpired()
@@ -91,12 +88,13 @@ namespace Game.Services.Progression
                 RequestRestart();
                 return;
             }
-
             if (currentContext != InputContext.LevelCompleted) return;
+
+            _progressionService.MarkLevelCompleted(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId);
 
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null ||
-                              LevelContext.SelectedLevelId >= category.Levels.Length - 1;
+                LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 
             if (isLastLevel)
             {
@@ -115,9 +113,7 @@ namespace Game.Services.Progression
             if (_catalog?.Categories is null ||
                 LevelContext.SelectedCategoryId < 0 ||
                 LevelContext.SelectedCategoryId >= _catalog.Categories.Length)
-            {
                 return null;
-            }
             return _catalog.Categories[LevelContext.SelectedCategoryId];
         }
 

@@ -95,6 +95,7 @@ namespace Game.Installers
             Bind<ShakeAnimationService>();
             Bind<SfxService>();
             Bind<MusicService>();
+            Bind<ProgressionService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

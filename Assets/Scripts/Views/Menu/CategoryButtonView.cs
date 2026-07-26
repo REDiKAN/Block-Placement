@@ -10,7 +10,6 @@ namespace Game.Views.Menu
     public class CategoryButtonView : MonoBehaviour
     {
         [field: SerializeField] private TextMeshProUGUI Label { get; set; }
-        [field: SerializeField] private Image IconImage { get; set; }
         [field: SerializeField] private Button Button { get; set; }
 
         private readonly Subject<CategoryConfig> _onClick = new();
@@ -22,7 +21,6 @@ namespace Game.Views.Menu
         {
             _config = config;
             if (Label is not null) Label.text = config.Title;
-            if (IconImage is not null && config.Icon is not null) IconImage.sprite = config.Icon;
 
             Button.OnClickAsObservable()
                 .Subscribe(_ => _onClick.OnNext(_config))

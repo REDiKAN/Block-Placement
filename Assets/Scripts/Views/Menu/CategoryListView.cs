@@ -5,6 +5,7 @@ using Zenject;
 using UniRx;
 using Game.Data;
 using Game.Services.Menu;
+using Game.Services.Progression;
 
 namespace Game.Views.Menu
 {
@@ -12,13 +13,15 @@ namespace Game.Views.Menu
     {
         [field: SerializeField] private Transform Content { get; set; }
         [field: SerializeField] private CategoryButtonView ButtonPrefab { get; set; }
+        [field: SerializeField] private CategoryButtonProgressView ButtonProgressPrefab { get; set; }
         [field: SerializeField] private Button BackButton { get; set; }
 
         [Inject] private LevelCatalog _catalog;
         [Inject] private IMenuNavigationService _navigationService;
         [Inject] private ICategoryContextService _categoryContextService;
+        [Inject] private IProgressionService _progressionService;
 
-        private readonly List<CategoryButtonView> _buttons = new();
+        private readonly List<MonoBehaviour> _buttons = new();
         private readonly CompositeDisposable _disposables = new();
 
         private void Start()
@@ -39,20 +42,33 @@ namespace Game.Views.Menu
 
         private void PopulateCategories()
         {
-            if (_catalog?.Categories is null || ButtonPrefab is null || Content is null) return;
+            if (_catalog?.Categories is null || Content is null) return;
 
-            foreach (var config in _catalog.Categories)
+            for (var i = 0; i < _catalog.Categories.Length; i++)
             {
+                var config = _catalog.Categories[i];
                 if (config is null) continue;
 
-                var button = Instantiate(ButtonPrefab, Content);
-                button.Initialize(config);
-                _buttons.Add(button);
+                var capturedIndex = i;
 
-                var capturedConfig = config;
-                button.OnClick
-                    .Subscribe(_ => SelectCategory(capturedConfig))
-                    .AddTo(_disposables);
+                if (config.IsSequential && ButtonProgressPrefab is not null)
+                {
+                    var button = Instantiate(ButtonProgressPrefab, Content);
+                    button.Initialize(config, capturedIndex, _progressionService);
+                    _buttons.Add(button);
+                    button.OnClick
+                        .Subscribe(_ => SelectCategory(config))
+                        .AddTo(_disposables);
+                }
+                else if (ButtonPrefab is not null)
+                {
+                    var button = Instantiate(ButtonPrefab, Content);
+                    button.Initialize(config);
+                    _buttons.Add(button);
+                    button.OnClick
+                        .Subscribe(_ => SelectCategory(config))
+                        .AddTo(_disposables);
+                }
             }
         }
 

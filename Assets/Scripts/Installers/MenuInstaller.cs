@@ -2,6 +2,7 @@ using UnityEngine;
 using Zenject;
 using Game.Data;
 using Game.Services.Menu;
+using Game.Services.Progression;
 
 namespace Game.Installers
 {
@@ -15,6 +16,7 @@ namespace Game.Installers
             Bind<MenuNavigationService>();
             Bind<PreviewService>();
             Bind<CategoryContextService>();
+            Bind<ProgressionService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>
