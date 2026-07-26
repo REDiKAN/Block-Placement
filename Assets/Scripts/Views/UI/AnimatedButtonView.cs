@@ -10,20 +10,18 @@ namespace Game.Views.UI
     public class AnimatedButtonView : MonoBehaviour
     {
         [SerializeField] private Image _targetImage;
-        [SerializeField] private Image _backgroundUpBar, _backgroundLowBar;
+        [SerializeField] private Image _backgroundUpBar;
+        [SerializeField] private Image _backgroundLowBar;
 
         private Sequence _hoverSequence;
         private Sequence _clickSequence;
         private Button _button;
-
         private Color _baseColorTargetImage;
-
 
         private void Awake()
         {
             _button = GetComponent<Button>();
-
-            _baseColorTargetImage = _targetImage.color;
+            _baseColorTargetImage = _targetImage is not null ? _targetImage.color : Color.white;
         }
 
         private void Start()
@@ -47,23 +45,68 @@ namespace Game.Views.UI
                 .AddTo(this);
         }
 
+        private void OnEnable() => ResetState();
+
+        private void OnDisable()
+        {
+            _hoverSequence?.Kill();
+            _clickSequence?.Kill();
+            ResetState();
+        }
+
+        private void ResetState()
+        {
+            if (_backgroundUpBar is not null) _backgroundUpBar.fillAmount = 0f;
+            if (_backgroundLowBar is not null) _backgroundLowBar.fillAmount = 0f;
+            if (_targetImage is not null)
+            {
+                var resetColor = new Color(
+                    _baseColorTargetImage.r,
+                    _baseColorTargetImage.g,
+                    _baseColorTargetImage.b,
+                    0.5f);
+                _targetImage.color = resetColor;
+            }
+        }
+
         private void AnimateHoverEnter()
         {
             _hoverSequence?.Kill();
             _hoverSequence = DOTween.Sequence();
 
-            _hoverSequence.Join(_backgroundUpBar.DOFillAmount(1f, 0.2f).SetEase(Ease.OutBack));
-            _hoverSequence.Join(_backgroundLowBar.DOFillAmount(1f, 0.2f).SetEase(Ease.OutBack));
-            _hoverSequence.Join(_targetImage.DOColor(new Color(_baseColorTargetImage.r, _baseColorTargetImage.g, _baseColorTargetImage.b, 1f), 0.2f));
+            if (_backgroundUpBar is not null)
+                _hoverSequence.Join(_backgroundUpBar.DOFillAmount(1f, 0.2f).SetEase(Ease.OutBack));
+            if (_backgroundLowBar is not null)
+                _hoverSequence.Join(_backgroundLowBar.DOFillAmount(1f, 0.2f).SetEase(Ease.OutBack));
+            if (_targetImage is not null)
+            {
+                var targetColor = new Color(
+                    _baseColorTargetImage.r,
+                    _baseColorTargetImage.g,
+                    _baseColorTargetImage.b,
+                    1f);
+                _hoverSequence.Join(_targetImage.DOColor(targetColor, 0.2f));
+            }
         }
+
         private void AnimateHoverExit()
         {
             _hoverSequence?.Kill();
             _hoverSequence = DOTween.Sequence();
 
-            _hoverSequence.Join(_backgroundUpBar.DOFillAmount(0f, 0.2f).SetEase(Ease.OutBack));
-            _hoverSequence.Join(_backgroundLowBar.DOFillAmount(0f, 0.2f).SetEase(Ease.OutBack));
-            _hoverSequence.Join(_targetImage.DOColor(new Color(_baseColorTargetImage.r, _baseColorTargetImage.g, _baseColorTargetImage.b, 0.5f), 0.2f));
+            if (_backgroundUpBar is not null)
+                _hoverSequence.Join(_backgroundUpBar.DOFillAmount(0f, 0.2f).SetEase(Ease.OutBack));
+            if (_backgroundLowBar is not null)
+                _hoverSequence.Join(_backgroundLowBar.DOFillAmount(0f, 0.2f).SetEase(Ease.OutBack));
+            if (_targetImage is not null)
+            {
+                var targetColor = new Color(
+                    _baseColorTargetImage.r,
+                    _baseColorTargetImage.g,
+                    _baseColorTargetImage.b,
+                    0.5f);
+                _hoverSequence.Join(_targetImage.DOColor(targetColor, 0.2f));
+            }
         }
 
         private void AnimatePress()
@@ -76,12 +119,6 @@ namespace Game.Views.UI
         {
             _clickSequence?.Kill();
             _clickSequence = DOTween.Sequence();
-        }
-
-        private void OnDisable()
-        {
-            _hoverSequence?.Kill();
-            _clickSequence?.Kill();
         }
     }
 }
