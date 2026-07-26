@@ -14,6 +14,7 @@ namespace Game.Views.Menu
         [field: SerializeField] private string FeedbackUrl { get; set; } = "https://docs.google.com/forms/";
 
         [Inject] private IMenuNavigationService _navigationService;
+
         private readonly CompositeDisposable _disposables = new();
 
         private void Start()
@@ -29,7 +30,7 @@ namespace Game.Views.Menu
             if (PlayButton is not null && _navigationService is not null)
             {
                 PlayButton.OnClickAsObservable()
-                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.LevelList))
+                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.CategoryList))
                     .AddTo(_disposables);
             }
 

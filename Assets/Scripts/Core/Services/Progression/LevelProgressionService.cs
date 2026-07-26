@@ -69,8 +69,9 @@ namespace Game.Services.Progression
         {
             _contextService.SetContext(InputContext.LevelCompleted);
 
-            var isLastLevel = _catalog is null || _catalog.Levels is null ||
-                              LevelContext.SelectedLevelId >= _catalog.Levels.Length - 1;
+            var category = GetActiveCategory();
+            var isLastLevel = category is null || category.Levels is null ||
+                              LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 
             var message = isLastLevel ? CatalogCompletedMessage : NextLevelMessage;
             _onLevelCompletedMessage.OnNext(message);
@@ -85,7 +86,6 @@ namespace Game.Services.Progression
         private void HandleTransitionRequest()
         {
             var currentContext = _contextService.CurrentContext.Value;
-
             if (currentContext == InputContext.TimeExpired)
             {
                 RequestRestart();
@@ -94,13 +94,31 @@ namespace Game.Services.Progression
 
             if (currentContext != InputContext.LevelCompleted) return;
 
-            var isLastLevel = _catalog is null || _catalog.Levels is null ||
-                              LevelContext.SelectedLevelId >= _catalog.Levels.Length - 1;
+            var category = GetActiveCategory();
+            var isLastLevel = category is null || category.Levels is null ||
+                              LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 
             if (isLastLevel)
+            {
+                LevelContext.SelectedCategoryId = 0;
+                LevelContext.SelectedLevelId = 0;
                 _onTransitionRequested.OnNext(new LevelTransitionData("MenuScene", -1));
+            }
             else
+            {
                 _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId + 1));
+            }
+        }
+
+        private CategoryConfig GetActiveCategory()
+        {
+            if (_catalog?.Categories is null ||
+                LevelContext.SelectedCategoryId < 0 ||
+                LevelContext.SelectedCategoryId >= _catalog.Categories.Length)
+            {
+                return null;
+            }
+            return _catalog.Categories[LevelContext.SelectedCategoryId];
         }
 
         public void Dispose() => _disposables?.Dispose();

@@ -19,6 +19,7 @@ namespace Game.Views.Menu
         [Inject] private LevelCatalog _catalog;
         [Inject] private IMenuNavigationService _navigationService;
         [Inject] private IPreviewService _previewService;
+        [Inject] private ICategoryContextService _categoryContextService;
 
         private readonly List<LevelButtonView> _buttons = new();
         private readonly CompositeDisposable _disposables = new();
@@ -28,7 +29,7 @@ namespace Game.Views.Menu
             if (BackButton is not null)
             {
                 BackButton.OnClickAsObservable()
-                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.MainMenu))
+                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.CategoryList))
                     .AddTo(_disposables);
             }
 
@@ -36,16 +37,24 @@ namespace Game.Views.Menu
                 .Subscribe(view => gameObject.SetActive(view == MenuView.LevelList))
                 .AddTo(_disposables);
 
-            PopulateLevels();
+            _categoryContextService.SelectedCategory
+                .Subscribe(PopulateLevels)
+                .AddTo(_disposables);
         }
 
-        private void PopulateLevels()
+        private void PopulateLevels(CategoryConfig category)
         {
-            if (_catalog?.Levels is null || ButtonPrefab is null || Content is null) return;
-
-            for (var i = 0; i < _catalog.Levels.Length; i++)
+            foreach (var button in _buttons)
             {
-                var config = _catalog.Levels[i];
+                if (button is not null) Destroy(button.gameObject);
+            }
+            _buttons.Clear();
+
+            if (category?.Levels is null || ButtonPrefab is null || Content is null) return;
+
+            for (var i = 0; i < category.Levels.Length; i++)
+            {
+                var config = category.Levels[i];
                 if (config is null) continue;
 
                 var button = Instantiate(ButtonPrefab, Content);
@@ -56,11 +65,9 @@ namespace Game.Views.Menu
                 button.OnClick
                     .Subscribe(_ => LoadLevel(capturedIndex))
                     .AddTo(_disposables);
-
                 button.OnHover
                     .Subscribe(level => _previewService.ShowLevelPreview(level))
                     .AddTo(_disposables);
-
                 button.OnHoverExit
                     .Subscribe(_ => _previewService.ClearPreview())
                     .AddTo(_disposables);
@@ -69,6 +76,19 @@ namespace Game.Views.Menu
 
         private void LoadLevel(int index)
         {
+            var category = _categoryContextService.SelectedCategory.Value;
+            if (_catalog?.Categories is not null && category is not null)
+            {
+                for (var i = 0; i < _catalog.Categories.Length; i++)
+                {
+                    if (_catalog.Categories[i] == category)
+                    {
+                        LevelContext.SelectedCategoryId = i;
+                        break;
+                    }
+                }
+            }
+
             LevelContext.SelectedLevelId = index;
             SceneManager.LoadScene("GameScene");
         }

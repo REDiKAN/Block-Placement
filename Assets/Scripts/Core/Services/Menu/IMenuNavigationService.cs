@@ -1,4 +1,3 @@
-using System;
 using UniRx;
 
 namespace Game.Services.Menu
@@ -6,6 +5,7 @@ namespace Game.Services.Menu
     public enum MenuView
     {
         MainMenu,
+        CategoryList,
         LevelList
     }
 

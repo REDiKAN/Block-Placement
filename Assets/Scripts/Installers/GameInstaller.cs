@@ -33,7 +33,6 @@ namespace Game.Installers
         [field: SerializeField] public RotationConfig RotationConfig { get; private set; }
         [field: SerializeField] public bool IsDeveloperMode { get; private set; }
         [field: SerializeField] public LevelCatalog LevelCatalog { get; private set; }
-
         [field: SerializeField] public AudioConfig AudioConfig { get; private set; }
         [field: SerializeField] public AudioClip StartMusicClip { get; private set; }
 
@@ -47,10 +46,16 @@ namespace Game.Installers
             Container.BindInstance(GameCamera);
 
             var activeConfig = LevelConfig;
-            if (LevelCatalog is not null && LevelCatalog.Levels is not null &&
-                LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < LevelCatalog.Levels.Length)
+
+            if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
+                LevelContext.SelectedCategoryId >= 0 && LevelContext.SelectedCategoryId < LevelCatalog.Categories.Length)
             {
-                activeConfig = LevelCatalog.Levels[LevelContext.SelectedLevelId];
+                var activeCategory = LevelCatalog.Categories[LevelContext.SelectedCategoryId];
+                if (activeCategory is not null && activeCategory.Levels is not null &&
+                    LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < activeCategory.Levels.Length)
+                {
+                    activeConfig = activeCategory.Levels[LevelContext.SelectedLevelId];
+                }
             }
 
             Container.BindInstance(activeConfig);
@@ -88,7 +93,6 @@ namespace Game.Installers
             Bind<LevelProgressionService>();
             Bind<LevelGeneratorService>();
             Bind<ShakeAnimationService>();
-
             Bind<SfxService>();
             Bind<MusicService>();
         }

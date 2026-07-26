@@ -14,6 +14,7 @@ namespace Game.Installers
             Container.BindInstance(Catalog);
             Bind<MenuNavigationService>();
             Bind<PreviewService>();
+            Bind<CategoryContextService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

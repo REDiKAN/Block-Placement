@@ -1,5 +1,5 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 22.07.2026 15:56:42
+// Generation Time: 22.07.2026 17:04:32
 // Encoding: Unicode (UTF-8)
 // Total Files: 76
 // =====================================
@@ -1260,7 +1260,11 @@ namespace Game.Data
         [field: SerializeField, Range(1, 50)] public int SfxPoolSize { get; private set; } = 10;
         [field: SerializeField, Range(0f, 1f)] public float DefaultSfxVolume { get; private set; } = 1f;
 
-        [field: Title("Music Settings", CustomColor.Green, CustomColor.DarkGreen)]
+        [field: Title("Default Gameplay SFX", CustomColor.Green, CustomColor.DarkGreen)]
+        [field: SerializeField] public AudioClip DefaultPlaceClip { get; private set; }
+        [field: SerializeField] public AudioClip DefaultRemoveClip { get; private set; }
+
+        [field: Title("Music Settings", CustomColor.Cyan, CustomColor.Blue)]
         [field: SerializeField, Range(0f, 1f)] public float DefaultMusicVolume { get; private set; } = 0.8f;
         [field: SerializeField, Range(0.1f, 5f)] public float CrossfadeDuration { get; private set; } = 1.5f;
     }
@@ -1530,19 +1534,23 @@ namespace Game.Views.Audio
         private IDisposable _timerDisposable;
         private Action _onCompleteCallback;
 
+        public void Setup(AudioSource source)
+        {
+            _source = source;
+        }
+
         private void Awake()
         {
-            _source = GetComponent<AudioSource>();
             if (_source is null)
-                _source = gameObject.AddComponent<AudioSource>();
-
-            _source.spatialBlend = 0f;
-            _source.playOnAwake = false;
+                _source = GetComponent<AudioSource>();
         }
 
         public void Play(AudioClip clip, float volume, AudioMixerGroup mixerGroup, Action onComplete)
         {
             StopInternal();
+
+            if (clip == null || _source is null)
+                return;
 
             _source.clip = clip;
             _source.volume = volume;
@@ -1573,13 +1581,13 @@ namespace Game.Views.Audio
             _timerDisposable?.Dispose();
             _timerDisposable = null;
 
-            if (_source is not null && _source.isPlaying)
+            if (_source != null && _source.isPlaying)
                 _source.Stop();
         }
 
         private void ResetState()
         {
-            if (_source is not null)
+            if (_source != null)
             {
                 _source.clip = null;
                 _source.outputAudioMixerGroup = null;
@@ -1590,6 +1598,8 @@ namespace Game.Views.Audio
         private void OnDestroy()
         {
             _timerDisposable?.Dispose();
+            _timerDisposable = null;
+            _onCompleteCallback = null;
         }
     }
 }
@@ -2467,13 +2477,15 @@ using Game.Data;
 
 namespace Game.Services.Audio
 {
-    public class MusicService : IMusicService, IInitializable
+    public class MusicService : IMusicService, IInitializable, System.IDisposable
     {
         private readonly AudioConfig _config;
         private readonly AudioClip _startMusicClip;
 
         private AudioSource _currentSource;
         private AudioSource _nextSource;
+        private GameObject _currentObject;
+        private GameObject _nextObject;
         private Sequence _crossfadeSequence;
 
         public MusicService(AudioConfig config, [InjectOptional] AudioClip startMusicClip)
@@ -2486,7 +2498,7 @@ namespace Game.Services.Audio
         {
             InitializeAudioSources();
 
-            if (_startMusicClip is not null && _config is not null)
+            if (_startMusicClip != null && _config is not null)
                 Play(_startMusicClip);
         }
 
@@ -2495,17 +2507,17 @@ namespace Game.Services.Audio
             if (_config is null)
                 return;
 
-            var currentObject = new GameObject("MusicSource_Current");
-            Object.DontDestroyOnLoad(currentObject);
-            _currentSource = currentObject.AddComponent<AudioSource>();
+            _currentObject = new GameObject("MusicSource_Current");
+            Object.DontDestroyOnLoad(_currentObject);
+            _currentSource = _currentObject.AddComponent<AudioSource>();
             _currentSource.loop = true;
             _currentSource.spatialBlend = 0f;
             _currentSource.playOnAwake = false;
             _currentSource.outputAudioMixerGroup = _config.MusicMixerGroup;
 
-            var nextObject = new GameObject("MusicSource_Next");
-            Object.DontDestroyOnLoad(nextObject);
-            _nextSource = nextObject.AddComponent<AudioSource>();
+            _nextObject = new GameObject("MusicSource_Next");
+            Object.DontDestroyOnLoad(_nextObject);
+            _nextSource = _nextObject.AddComponent<AudioSource>();
             _nextSource.loop = true;
             _nextSource.spatialBlend = 0f;
             _nextSource.playOnAwake = false;
@@ -2514,7 +2526,7 @@ namespace Game.Services.Audio
 
         public void Play(AudioClip clip)
         {
-            if (clip is null || _config is null || _currentSource is null || _nextSource is null)
+            if (clip == null || _config is null || _currentSource is null || _nextSource is null)
                 return;
 
             _crossfadeSequence?.Kill();
@@ -2530,10 +2542,10 @@ namespace Game.Services.Audio
             _crossfadeSequence?.Kill();
             _crossfadeSequence = null;
 
-            if (_currentSource is not null && _currentSource.isPlaying)
+            if (_currentSource != null && _currentSource.isPlaying)
                 _currentSource.Stop();
 
-            if (_nextSource is not null && _nextSource.isPlaying)
+            if (_nextSource != null && _nextSource.isPlaying)
                 _nextSource.Stop();
         }
 
@@ -2568,6 +2580,24 @@ namespace Game.Services.Audio
             _nextSource.Stop();
             _nextSource.clip = null;
         }
+
+        public void Dispose()
+        {
+            _crossfadeSequence?.Kill();
+            _crossfadeSequence = null;
+
+            if (_currentSource != null)
+                _currentSource.Stop();
+
+            if (_nextSource != null)
+                _nextSource.Stop();
+
+            if (_currentObject != null)
+                Object.Destroy(_currentObject);
+
+            if (_nextObject != null)
+                Object.Destroy(_nextObject);
+        }
     }
 }
 
@@ -2580,10 +2610,11 @@ using Game.Views.Audio;
 
 namespace Game.Services.Audio
 {
-    public class SfxService : ISfxService, IInitializable
+    public class SfxService : ISfxService, IInitializable, System.IDisposable
     {
         private readonly Queue<PooledAudioSource> _availablePool = new();
         private readonly LinkedList<PooledAudioSource> _activeSources = new();
+        private readonly List<GameObject> _poolObjects = new();
         private readonly AudioConfig _config;
 
         public SfxService(AudioConfig config)
@@ -2605,7 +2636,15 @@ namespace Game.Services.Audio
             {
                 var gameObject = new GameObject($"PooledAudioSource_{i}");
                 Object.DontDestroyOnLoad(gameObject);
+                _poolObjects.Add(gameObject);
+
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.spatialBlend = 0f;
+                audioSource.playOnAwake = false;
+
                 var pooledSource = gameObject.AddComponent<PooledAudioSource>();
+                pooledSource.Setup(audioSource);
+
                 _availablePool.Enqueue(pooledSource);
             }
         }
@@ -2614,7 +2653,7 @@ namespace Game.Services.Audio
 
         public void Play(AudioClip clip, float volume)
         {
-            if (clip is null || _config is null)
+            if (clip == null || _config is null)
                 return;
 
             var source = GetAvailableSource();
@@ -2645,6 +2684,23 @@ namespace Game.Services.Audio
         {
             _activeSources.Remove(source);
             _availablePool.Enqueue(source);
+        }
+
+        public void Dispose()
+        {
+            foreach (var source in _activeSources)
+                source.Stop();
+
+            _activeSources.Clear();
+            _availablePool.Clear();
+
+            foreach (var gameObject in _poolObjects)
+            {
+                if (gameObject != null)
+                    Object.Destroy(gameObject);
+            }
+
+            _poolObjects.Clear();
         }
     }
 }
@@ -3667,6 +3723,7 @@ namespace Game.Services.Placement
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
         private readonly ISfxService _sfxService;
+        private readonly AudioConfig _audioConfig;
 
         private Renderer _previewRenderer;
         private Color _previewDefaultColor;
@@ -3677,19 +3734,20 @@ namespace Game.Services.Placement
         private static readonly Color BlockedPreviewColor = new(1f, 0f, 0f, 0.4f);
 
         public BlockPlacementService(
-            IInputService inputService,
-            IRaycastService raycastService,
-            IGridService gridService,
-            IBlockPoolService poolService,
-            IBlockHistoryService historyService,
-            IRotationService rotationService,
-            IInputContextService contextService,
-            IDevModeService devModeService,
-            IObjectRegistryService registryService,
-            ISfxService sfxService,
-            LevelConfig levelConfig,
-            [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
-            [Inject(Id = "PreviewBlock")] BlockView previewBlock)
+    IInputService inputService,
+    IRaycastService raycastService,
+    IGridService gridService,
+    IBlockPoolService poolService,
+    IBlockHistoryService historyService,
+    IRotationService rotationService,
+    IInputContextService contextService,
+    IDevModeService devModeService,
+    IObjectRegistryService registryService,
+    ISfxService sfxService,
+    AudioConfig audioConfig,
+    LevelConfig levelConfig,
+    [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
+    [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
             _inputService = inputService;
             _raycastService = raycastService;
@@ -3701,6 +3759,7 @@ namespace Game.Services.Placement
             _devModeService = devModeService;
             _registryService = registryService;
             _sfxService = sfxService;
+            _audioConfig = audioConfig;
             _levelConfig = levelConfig;
             _isDeveloperMode = isDeveloperMode;
             _previewBlock = previewBlock;
@@ -3812,8 +3871,9 @@ namespace Game.Services.Placement
             if (_isDeveloperMode)
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
 
-            if (_isDeveloperMode && config?.PlaceClip is not null)
-                _sfxService.Play(config.PlaceClip);
+            var placeClip = config?.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
+            if (placeClip is not null)
+                _sfxService.Play(placeClip);
 
             if (_isLimitEnabled)
             {
@@ -3846,8 +3906,9 @@ namespace Game.Services.Placement
             if (_isDeveloperMode)
                 _registryService.Unregister(record.Cell, PlacedObjectType.Block);
 
-            if (record.Config?.RemoveClip is not null)
-                _sfxService.Play(record.Config.RemoveClip);
+            var removeClip = record.Config?.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
+            if (removeClip is not null)
+                _sfxService.Play(removeClip);
 
             if (_isLimitEnabled)
             {
@@ -3858,7 +3919,6 @@ namespace Game.Services.Placement
 
             _onGridChanged.OnNext(Unit.Default);
         }
-
         private void RotateActiveBlocks(int angle)
         {
             var gridSize = _gridService.GridSize;
@@ -4967,9 +5027,9 @@ namespace Game.Services.Time
 
 // ============ Statistics =============
 // Total Files: 76
-// Total Size: 164,01 KB
-// Total Lines: 4808
+// Total Size: 165,82 KB
+// Total Lines: 4868
 // Classes: 72
-// Methods: 346
+// Methods: 349
 // Comments (Blocks): 0
 // =====================================
