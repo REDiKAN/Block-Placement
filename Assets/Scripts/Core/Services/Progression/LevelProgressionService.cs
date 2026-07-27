@@ -3,7 +3,9 @@ using UniRx;
 using Zenject;
 using Game.Core;
 using Game.Data;
+using Game.Services.Generation;
 using Game.Services.Input;
+using Game.Services.Placement;
 using Game.Services.Shadow;
 using Game.Services.Time;
 
@@ -24,11 +26,15 @@ namespace Game.Services.Progression
         private readonly ITimeLimitService _timeLimitService;
         private readonly IProgressionService _progressionService;
         private readonly LevelCatalog _catalog;
+        private readonly IGenerationContext _generationContext;
+        private readonly IEndlessGeneratorService _endlessGenerator;
+        private readonly IBlockPlacementService _placementService;
         private readonly bool _isDeveloperMode;
 
         private const string NextLevelMessage = "Press Space to continue to the next level";
         private const string CatalogCompletedMessage = "Press Space to return to the main menu, you have completely completed the level catalog";
         private const string TimeExpiredMessage = "Time's up, press Space to restart";
+        private const string EndlessLevelCompletedMessage = "Press Space to generate next level";
 
         public LevelProgressionService(
             IShadowValidationService validationService,
@@ -37,6 +43,9 @@ namespace Game.Services.Progression
             ITimeLimitService timeLimitService,
             IProgressionService progressionService,
             LevelCatalog catalog,
+            IGenerationContext generationContext,
+            IEndlessGeneratorService endlessGenerator,
+            IBlockPlacementService placementService,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
             _validationService = validationService;
@@ -45,18 +54,24 @@ namespace Game.Services.Progression
             _timeLimitService = timeLimitService;
             _progressionService = progressionService;
             _catalog = catalog;
+            _generationContext = generationContext;
+            _endlessGenerator = endlessGenerator;
+            _placementService = placementService;
             _isDeveloperMode = isDeveloperMode;
         }
 
         public void Initialize()
         {
             if (_isDeveloperMode) return;
+
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
+
             _timeLimitService.OnTimeExpired
                 .Subscribe(_ => HandleTimeExpired())
                 .AddTo(_disposables);
+
             _inputService.OnNextLevelRequested
                 .Subscribe(_ => HandleTransitionRequest())
                 .AddTo(_disposables);
@@ -68,9 +83,15 @@ namespace Game.Services.Progression
         private void HandleLevelCompleted()
         {
             _contextService.SetContext(InputContext.LevelCompleted);
+
+            if (_generationContext.IsEndlessModeActive.Value)
+            {
+                _onLevelCompletedMessage.OnNext(EndlessLevelCompletedMessage);
+                return;
+            }
+
             var category = GetActiveCategory();
-            var isLastLevel = category is null || category.Levels is null ||
-                LevelContext.SelectedLevelId >= category.Levels.Length - 1;
+            var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
             _onLevelCompletedMessage.OnNext(isLastLevel ? CatalogCompletedMessage : NextLevelMessage);
         }
 
@@ -83,18 +104,27 @@ namespace Game.Services.Progression
         private void HandleTransitionRequest()
         {
             var currentContext = _contextService.CurrentContext.Value;
+
             if (currentContext == InputContext.TimeExpired)
             {
                 RequestRestart();
                 return;
             }
+
             if (currentContext != InputContext.LevelCompleted) return;
 
-            _progressionService.MarkLevelCompleted(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId);
+            if (_generationContext.IsEndlessModeActive.Value)
+            {
+                _placementService.ClearAll();
+                _endlessGenerator.GenerateNext();
+                _validationService.ForceRevalidate();
+                _contextService.SetContext(InputContext.None);
+                return;
+            }
 
+            _progressionService.MarkLevelCompleted(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId);
             var category = GetActiveCategory();
-            var isLastLevel = category is null || category.Levels is null ||
-                LevelContext.SelectedLevelId >= category.Levels.Length - 1;
+            var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 
             if (isLastLevel)
             {
@@ -114,6 +144,7 @@ namespace Game.Services.Progression
                 LevelContext.SelectedCategoryId < 0 ||
                 LevelContext.SelectedCategoryId >= _catalog.Categories.Length)
                 return null;
+
             return _catalog.Categories[LevelContext.SelectedCategoryId];
         }
 

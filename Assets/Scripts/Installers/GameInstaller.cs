@@ -3,6 +3,7 @@ using Game.Data;
 using Game.Services.Animation;
 using Game.Services.Audio;
 using Game.Services.Dev;
+using Game.Services.Generation;
 using Game.Services.Grid;
 using Game.Services.History;
 using Game.Services.Input;
@@ -96,6 +97,8 @@ namespace Game.Installers
             Bind<SfxService>();
             Bind<MusicService>();
             Bind<ProgressionService>();
+            Bind<GenerationContext>();
+            Bind<EndlessGeneratorService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

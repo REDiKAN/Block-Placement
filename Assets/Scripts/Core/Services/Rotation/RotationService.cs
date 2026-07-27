@@ -10,6 +10,7 @@ namespace Game.Services.Rotation
 {
     public interface IRotationService
     {
+        void SetTargetBlocks(Vector3Int[] blocks);
         IObservable<int> OnRotationCompleted { get; }
         Vector3Int[] CurrentInitialBlocks { get; }
     }
@@ -84,6 +85,9 @@ namespace Game.Services.Rotation
                     : new Vector3Int(GridSize - 1 - block.z, block.y, block.x);
             }
         }
+
+        public void SetTargetBlocks(Vector3Int[] blocks)
+            => _currentInitialBlocks = (Vector3Int[])blocks.Clone();
 
         private void OnRotationComplete()
         {

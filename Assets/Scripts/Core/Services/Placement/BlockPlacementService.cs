@@ -21,6 +21,7 @@ namespace Game.Services.Placement
     {
         IObservable<Unit> OnGridChanged { get; }
         IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks { get; }
+        void ClearAll();
     }
 
 
@@ -265,6 +266,20 @@ namespace Game.Services.Placement
 
             _gridService.Rotate(angle);
             _historyService.Rotate(angle, gridSize);
+            _onGridChanged.OnNext(Unit.Default);
+        }
+
+        public void ClearAll()
+        {
+            foreach (var kvp in _activeBlocks)
+            {
+                _gridService.SetCellOccupied(kvp.Key, false);
+                _poolService.Return(kvp.Value);
+
+                if (_isDeveloperMode) _registryService.Unregister(kvp.Key, PlacedObjectType.Block);
+            }
+            _activeBlocks.Clear();
+            _historyService.Clear();
             _onGridChanged.OnNext(Unit.Default);
         }
 

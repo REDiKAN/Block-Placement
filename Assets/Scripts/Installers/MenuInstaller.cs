@@ -1,8 +1,9 @@
-using UnityEngine;
-using Zenject;
 using Game.Data;
+using Game.Services.Generation;
 using Game.Services.Menu;
 using Game.Services.Progression;
+using UnityEngine;
+using Zenject;
 
 namespace Game.Installers
 {
@@ -17,6 +18,7 @@ namespace Game.Installers
             Bind<PreviewService>();
             Bind<CategoryContextService>();
             Bind<ProgressionService>();
+            Bind<GenerationContext>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

@@ -74,6 +74,11 @@ namespace Game.Views.Menu
 
         private void SelectCategory(CategoryConfig config)
         {
+            if (config.IsCustomGenerator)
+            {
+                _navigationService.NavigateTo(MenuView.CustomSettings);
+                return;
+            }
             _categoryContextService.SetCategory(config);
             _navigationService.NavigateTo(MenuView.LevelList);
         }

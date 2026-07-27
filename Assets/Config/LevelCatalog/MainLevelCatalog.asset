@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelCatalog
   <Categories>k__BackingField:
   - {fileID: 11400000, guid: 76e3de21843ed294a97f1ff55c9e8a0f, type: 2}
+  - {fileID: 11400000, guid: 1eafd2a6ee29d394d92fb51c0d42d9fe, type: 2}
