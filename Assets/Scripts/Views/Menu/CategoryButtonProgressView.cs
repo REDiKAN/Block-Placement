@@ -27,12 +27,28 @@ namespace Game.Views.Menu
         private int _categoryId;
         private IProgressionService _progressionService;
 
+        private void Awake()
+        {
+            if (ProgressImage is not null)
+            {
+                ProgressImage.type = Image.Type.Filled;
+                ProgressImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+                ProgressImage.raycastTarget = false;
+            }
+
+            if (IconImage is not null)
+            {
+                IconImage.raycastTarget = false;
+            }
+        }
+
         public void Initialize(CategoryConfig config, int categoryId, IProgressionService progressionService)
         {
             _categoryId = categoryId;
             _progressionService = progressionService;
 
-            if (Label is not null) Label.text = config.Title;
+            if (Label is not null)
+                Label.text = config.Title;
 
             if (IconImage is not null)
             {
@@ -68,6 +84,7 @@ namespace Game.Views.Menu
                     .Where(data => data.CategoryId == _categoryId)
                     .Subscribe(UpdateProgress)
                     .AddTo(_disposables);
+
                 UpdateProgress(_progressionService.GetProgression(_categoryId));
             }
         }
