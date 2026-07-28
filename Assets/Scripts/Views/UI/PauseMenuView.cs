@@ -147,6 +147,7 @@ namespace Game.Views.UI
             Time.timeScale = 1f;
             LevelContext.SelectedLevelId = 0;
             LevelContext.SelectedCategoryId = 0;
+            EndlessContext.IsEndlessModeActive = false;
             SceneManager.LoadScene("MenuScene");
         }
 

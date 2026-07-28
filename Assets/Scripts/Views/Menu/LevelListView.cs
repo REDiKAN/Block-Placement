@@ -92,9 +92,10 @@ namespace Game.Views.Menu
         {
             var category = _categoryContextService.SelectedCategory.Value;
             var categoryId = FindCategoryId(category);
-
             if (category is not null && category.IsSequential && !_progressionService.IsLevelUnlocked(categoryId, index))
                 return;
+
+            EndlessContext.IsEndlessModeActive = false;
 
             if (_catalog?.Categories is not null && category is not null)
             {
@@ -107,7 +108,6 @@ namespace Game.Views.Menu
                     }
                 }
             }
-
             LevelContext.SelectedLevelId = index;
             SceneManager.LoadScene("GameScene");
         }

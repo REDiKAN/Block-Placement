@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Zenject;
 using UniRx;
 using Game.Data;
+using Game.Core;
 using Game.Services.Menu;
 using Game.Services.Progression;
 
@@ -48,7 +49,6 @@ namespace Game.Views.Menu
             {
                 var config = _catalog.Categories[i];
                 if (config is null) continue;
-
                 var capturedIndex = i;
 
                 if (config.IsSequential && ButtonProgressPrefab is not null)
@@ -79,6 +79,8 @@ namespace Game.Views.Menu
                 _navigationService.NavigateTo(MenuView.CustomSettings);
                 return;
             }
+
+            EndlessContext.IsEndlessModeActive = false;
             _categoryContextService.SetCategory(config);
             _navigationService.NavigateTo(MenuView.LevelList);
         }
