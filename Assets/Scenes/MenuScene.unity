@@ -2902,31 +2902,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.Preview.PreviewFloorGridView
   <Cells>k__BackingField:
-  - {fileID: 5108450029207100257}
-  - {fileID: 7356767955322913356}
-  - {fileID: 7356767954954043638}
-  - {fileID: 7356767956378886114}
-  - {fileID: 7356767955829206280}
-  - {fileID: 7356767955590157675}
-  - {fileID: 7356767954535325095}
-  - {fileID: 7356767955898527469}
-  - {fileID: 7356767954568405612}
-  - {fileID: 7356767955605480898}
-  - {fileID: 7356767956124378693}
-  - {fileID: 7356767956370876747}
-  - {fileID: 7356767955844723901}
-  - {fileID: 7356767954324993449}
-  - {fileID: 7356767956276574802}
-  - {fileID: 7356767955711817281}
-  - {fileID: 7356767954844013038}
-  - {fileID: 7356767956249922625}
-  - {fileID: 7356767955336988723}
-  - {fileID: 7356767955954886581}
-  - {fileID: 7356767955585628487}
   - {fileID: 7356767955479840647}
   - {fileID: 7356767955114812131}
   - {fileID: 7356767955242035119}
   - {fileID: 7356767955453158507}
+  - {fileID: 7356767954324993449}
+  - {fileID: 7356767955585628487}
+  - {fileID: 7356767954535325095}
+  - {fileID: 7356767955898527469}
+  - {fileID: 7356767956124378693}
+  - {fileID: 7356767955844723901}
+  - {fileID: 7356767955954886581}
+  - {fileID: 7356767955590157675}
+  - {fileID: 7356767954568405612}
+  - {fileID: 7356767955605480898}
+  - {fileID: 7356767956370876747}
+  - {fileID: 7356767955336988723}
+  - {fileID: 7356767955829206280}
+  - {fileID: 7356767956378886114}
+  - {fileID: 7356767954954043638}
+  - {fileID: 7356767955322913356}
+  - {fileID: 7356767956249922625}
+  - {fileID: 7356767954844013038}
+  - {fileID: 7356767955711817281}
+  - {fileID: 7356767956276574802}
+  - {fileID: 5108450029207100257}
 --- !u!1001 &341566861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12028,7 +12028,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.00082693656}
-  m_SizeDelta: {x: 0, y: 750.11}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1809511331
 MonoBehaviour:
@@ -12043,7 +12043,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 0
-  m_VerticalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &1809511332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12066,8 +12066,8 @@ MonoBehaviour:
   m_StartAxis: 1
   m_CellSize: {x: 300, y: 45}
   m_Spacing: {x: 0, y: 5}
-  m_Constraint: 0
-  m_ConstraintCount: 2
+  m_Constraint: 1
+  m_ConstraintCount: 1
 --- !u!1 &1814127397
 GameObject:
   m_ObjectHideFlags: 0

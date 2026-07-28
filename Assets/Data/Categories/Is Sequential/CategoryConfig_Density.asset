@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 116da8e372f45504580de47d0a75368d, type: 3}
+  m_Name: CategoryConfig_Density
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.CategoryConfig
+  <Title>k__BackingField: Density
+  <Icon>k__BackingField: {fileID: -1745884203, guid: 8a2857679f7427a44a6e641dcd935c39, type: 3}
+  <Levels>k__BackingField:
+  - {fileID: 11400000, guid: b9cdd9da766a6084ba1cd2a4ef9169c1, type: 2}
+  - {fileID: 11400000, guid: f0ee0e2aac18f1b46a66e1d501495828, type: 2}
+  - {fileID: 11400000, guid: 32995b21c6271f642b500c0bbc02dfe4, type: 2}
+  - {fileID: 11400000, guid: f86ac9145364ea74785a680d277a4d6d, type: 2}
+  <IsSequential>k__BackingField: 1
+  <IsCustomGenerator>k__BackingField: 0
