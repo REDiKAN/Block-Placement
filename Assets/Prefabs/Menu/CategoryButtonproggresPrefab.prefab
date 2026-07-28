@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 4358373322566183648}
   - component: {fileID: 7519691703729782038}
   m_Layer: 5
-  m_Name: CategoryButtonproggresPrefab
+  m_Name: CategoryButtonProggresPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -307,6 +307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.Menu.CategoryButtonProgressView
   <Label>k__BackingField: {fileID: 313835496620553893}
+  <IconImage>k__BackingField: {fileID: 5766899970225055837}
   <Button>k__BackingField: {fileID: 7519691703729782038}
   <ProgressImage>k__BackingField: {fileID: 4541606219819247978}
   <ProgressLabel>k__BackingField: {fileID: 6300721991989330328}

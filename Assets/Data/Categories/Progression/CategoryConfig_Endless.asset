@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CategoryConfig_Endless
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.CategoryConfig
   <Title>k__BackingField: Endless Mode
+  <Icon>k__BackingField: {fileID: -1291992687, guid: b1f4ef6612676e74c9a1741c5b5a0f27, type: 3}
   <Levels>k__BackingField: []
   <IsSequential>k__BackingField: 0
   <IsCustomGenerator>k__BackingField: 1

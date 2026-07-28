@@ -394,6 +394,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.Menu.CategoryButtonView
   <Label>k__BackingField: {fileID: 6626458104913216238}
+  <IconImage>k__BackingField: {fileID: 6816772536989329564}
   <Button>k__BackingField: {fileID: 2936690243529143280}
 --- !u!114 &7135378411225881860
 MonoBehaviour:

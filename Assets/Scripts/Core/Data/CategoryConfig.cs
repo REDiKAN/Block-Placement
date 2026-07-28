@@ -8,12 +8,11 @@ namespace Game.Data
     {
         [field: Title("Category Settings", CustomColor.Cyan, CustomColor.Blue)]
         [field: SerializeField] public string Title { get; private set; }
+        [field: SerializeField] public Sprite Icon { get; private set; }
         [field: SerializeField] public LevelConfig[] Levels { get; private set; }
 
         [field: Title("Progression", CustomColor.Green, CustomColor.DarkGreen)]
         [field: SerializeField] public bool IsSequential { get; private set; }
-
-        [field: Title("Custom Generation", CustomColor.Red, CustomColor.Orange)]
         [field: SerializeField] public bool IsCustomGenerator { get; private set; }
     }
 }

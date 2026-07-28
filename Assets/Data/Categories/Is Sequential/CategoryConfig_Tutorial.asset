@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CategoryConfig_Tutorial
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.CategoryConfig
   <Title>k__BackingField: Tutorial
+  <Icon>k__BackingField: {fileID: 325744451, guid: db17110d4a7f22d499e956891f316057, type: 3}
   <Levels>k__BackingField:
   - {fileID: 11400000, guid: cd256a6a010476141bbbefbaf692e247, type: 2}
   - {fileID: 11400000, guid: 4f779b26abea05048b8c165bd51c788e, type: 2}
@@ -27,3 +28,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 72be4fe1830b2654bb7fa5b2b183cbe7, type: 2}
   - {fileID: 11400000, guid: d231d1a488aa46247bdd460cda83a608, type: 2}
   <IsSequential>k__BackingField: 1
+  <IsCustomGenerator>k__BackingField: 0
