@@ -3,6 +3,7 @@ using UniRx;
 using Zenject;
 using Game.Core;
 using Game.Data;
+using Game.Services.Animation;
 using Game.Services.Generation;
 using Game.Services.Input;
 using Game.Services.Placement;
@@ -29,7 +30,10 @@ namespace Game.Services.Progression
         private readonly IGenerationContext _generationContext;
         private readonly IEndlessGeneratorService _endlessGenerator;
         private readonly IBlockPlacementService _placementService;
+        private readonly ILevelIntroAnimationService _levelIntroAnimationService;
         private readonly bool _isDeveloperMode;
+
+        private bool _isLevelReady;
 
         private const string NextLevelMessage = "Press Space to continue to the next level";
         private const string CatalogCompletedMessage = "Press Space to return to the main menu, you have completely completed the level catalog";
@@ -46,6 +50,7 @@ namespace Game.Services.Progression
             IGenerationContext generationContext,
             IEndlessGeneratorService endlessGenerator,
             IBlockPlacementService placementService,
+            ILevelIntroAnimationService levelIntroAnimationService,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
             _validationService = validationService;
@@ -57,12 +62,17 @@ namespace Game.Services.Progression
             _generationContext = generationContext;
             _endlessGenerator = endlessGenerator;
             _placementService = placementService;
+            _levelIntroAnimationService = levelIntroAnimationService;
             _isDeveloperMode = isDeveloperMode;
         }
 
         public void Initialize()
         {
-            if (_isDeveloperMode) return;
+            if (_isDeveloperMode)
+            {
+                _isLevelReady = true;
+                return;
+            }
 
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
@@ -75,6 +85,16 @@ namespace Game.Services.Progression
             _inputService.OnNextLevelRequested
                 .Subscribe(_ => HandleTransitionRequest())
                 .AddTo(_disposables);
+
+            _levelIntroAnimationService.OnAnimationCompleted
+                .Subscribe(_ =>
+                {
+                    _isLevelReady = true;
+                    _validationService.ForceRevalidate();
+                })
+                .AddTo(_disposables);
+
+            _levelIntroAnimationService.Play();
         }
 
         public void RequestRestart() =>
@@ -82,6 +102,8 @@ namespace Game.Services.Progression
 
         private void HandleLevelCompleted()
         {
+            if (!_isLevelReady) return;
+
             _contextService.SetContext(InputContext.LevelCompleted);
 
             if (_generationContext.IsEndlessModeActive.Value)
@@ -97,6 +119,8 @@ namespace Game.Services.Progression
 
         private void HandleTimeExpired()
         {
+            if (!_isLevelReady) return;
+
             _contextService.SetContext(InputContext.TimeExpired);
             _onLevelCompletedMessage.OnNext(TimeExpiredMessage);
         }
@@ -123,6 +147,7 @@ namespace Game.Services.Progression
             }
 
             _progressionService.MarkLevelCompleted(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId);
+
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 

@@ -1176,6 +1176,10 @@ MonoBehaviour:
   <LevelCatalog>k__BackingField: {fileID: 11400000, guid: 933fa9b4586170142a425afc86d6d067, type: 2}
   <AudioConfig>k__BackingField: {fileID: 11400000, guid: b4390b69e0e295f4c8bff1e7b6b57369, type: 2}
   <StartMusicClip>k__BackingField: {fileID: 8300000, guid: c5a6af7adb029df4ba0967bc4de9e7ac, type: 3}
+  <FloorGridView>k__BackingField: {fileID: 1449298649}
+  <WallViews>k__BackingField:
+  - {fileID: 272877422}
+  - {fileID: 284577660}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2670,6 +2674,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2323442424191128213, guid: 57e410a388c1e7d489e44609d283f78d, type: 3}
   m_PrefabInstance: {fileID: 272877420}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &272877422 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3862275940953456620, guid: 57e410a388c1e7d489e44609d283f78d, type: 3}
+  m_PrefabInstance: {fileID: 272877420}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd079f6f614e5445b55694146f5933b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Views.WallView
 --- !u!1001 &281113388
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3413,6 +3428,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2323442424191128213, guid: 57e410a388c1e7d489e44609d283f78d, type: 3}
   m_PrefabInstance: {fileID: 284577658}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &284577660 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3862275940953456620, guid: 57e410a388c1e7d489e44609d283f78d, type: 3}
+  m_PrefabInstance: {fileID: 284577658}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd079f6f614e5445b55694146f5933b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Views.WallView
 --- !u!1001 &287076523
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -25,6 +25,8 @@ namespace Game.Services.Input
         private readonly Subject<Unit> _onNextLevelRequested = new();
         private readonly CompositeDisposable _disposables = new();
 
+        private Vector3 _lastMousePosition;
+
         public IObservable<Vector2> OnMouseMoved => _onMouseMoved;
         public IObservable<Vector2> OnPrimaryClick => _onPrimaryClick;
         public IObservable<Vector2> OnSecondaryClick => _onSecondaryClick;
@@ -34,13 +36,19 @@ namespace Game.Services.Input
 
         public void Tick()
         {
-            _onMouseMoved.OnNext(UnityEngine.Input.mousePosition);
+            var currentPosition = UnityEngine.Input.mousePosition;
+
+            if (currentPosition != _lastMousePosition)
+            {
+                _onMouseMoved.OnNext((Vector2)currentPosition);
+                _lastMousePosition = currentPosition;
+            }
 
             if (UnityEngine.Input.GetMouseButtonDown(0))
-                _onPrimaryClick.OnNext(UnityEngine.Input.mousePosition);
+                _onPrimaryClick.OnNext((Vector2)currentPosition);
 
             if (UnityEngine.Input.GetMouseButtonDown(1))
-                _onSecondaryClick.OnNext(UnityEngine.Input.mousePosition);
+                _onSecondaryClick.OnNext((Vector2)currentPosition);
 
             if (UnityEngine.Input.GetKeyDown(KeyCode.A))
                 _onRotateLeft.OnNext(Unit.Default);

@@ -36,6 +36,8 @@ namespace Game.Installers
         [field: SerializeField] public LevelCatalog LevelCatalog { get; private set; }
         [field: SerializeField] public AudioConfig AudioConfig { get; private set; }
         [field: SerializeField] public AudioClip StartMusicClip { get; private set; }
+        [field: SerializeField] public FloorGridView FloorGridView { get; private set; }
+        [field: SerializeField] public WallView[] WallViews { get; private set; }
 
         public override void InstallBindings()
         {
@@ -45,6 +47,7 @@ namespace Game.Installers
             Container.BindInstance(PreviewBlock).WithId("PreviewBlock");
             Container.BindInstance(BlocksParent);
             Container.BindInstance(GameCamera);
+            Container.BindInstance(GameCamera).WithId("GameCamera");
 
             var activeConfig = LevelConfig;
 
@@ -73,6 +76,9 @@ namespace Game.Installers
             if (StartMusicClip is not null)
                 Container.BindInstance(StartMusicClip);
 
+            Container.BindInstance(FloorGridView);
+            Container.BindInstance(WallViews);
+
             Bind<InputService>();
             Bind<InputContextService>();
             Bind<GridService>();
@@ -99,6 +105,10 @@ namespace Game.Installers
             Bind<ProgressionService>();
             Bind<GenerationContext>();
             Bind<EndlessGeneratorService>();
+            Bind<LevelIntroAnimationService>();
+            Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
+            Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
+            Container.BindInterfacesTo<RowByRowStrategy>().AsSingle().Lazy();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

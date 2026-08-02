@@ -14,6 +14,7 @@ namespace Game.Views
 
         private ITargetDensityProjectionService _projectionService;
         private IShadowValidationService _validationService;
+        private readonly CompositeDisposable _disposables = new();
 
         [Inject]
         private void Construct(
@@ -27,42 +28,47 @@ namespace Game.Views
             _validationService.OnCellStateChanged
                 .Where(update => update.WallIndex == WallIndex)
                 .Subscribe(UpdateCell)
-                .AddTo(this);
+                .AddTo(_disposables);
 
             _projectionService.OnDensitiesProjected
                 .Where(update => update.WallIndex == WallIndex)
                 .Subscribe(UpdateDensities)
-                .AddTo(this);
+                .AddTo(_disposables);
 
             cellHoverService.OnCellHovered
                 .Where(data => data.WallIndex == WallIndex)
-                .Subscribe(data => Cells[data.CellIndex].SetHover(true))
-                .AddTo(this);
+                .Subscribe(data =>
+                {
+                    if (Cells is not null && data.CellIndex >= 0 && data.CellIndex < Cells.Length && Cells[data.CellIndex] is not null)
+                        Cells[data.CellIndex].SetHover(true);
+                })
+                .AddTo(_disposables);
 
             cellHoverService.OnCellUnhovered
                 .Subscribe(_ => ResetHovers())
-                .AddTo(this);
+                .AddTo(_disposables);
         }
 
         private void Start()
         {
-            var densities = _projectionService.GetCurrentDensities(WallIndex);
-            if (densities is not null)
-                UpdateDensities((WallIndex, densities));
+            if (_projectionService is not null)
+            {
+                var densities = _projectionService.GetCurrentDensities(WallIndex);
+                if (densities is not null)
+                    UpdateDensities((WallIndex, densities));
+            }
         }
 
         private void UpdateCell(ShadowCellUpdate update)
         {
             if (Cells is null || update.CellIndex < 0 || update.CellIndex >= Cells.Length || Cells[update.CellIndex] is null)
                 return;
-
             Cells[update.CellIndex].SetState(update.State);
         }
 
         private void UpdateDensities((int WallIndex, WallCellDensityData[] Densities) update)
         {
             if (Cells is null || update.Densities is null) return;
-
             for (var i = 0; i < Cells.Length; i++)
             {
                 if (Cells[i] is not null && i < update.Densities.Length)
@@ -73,10 +79,11 @@ namespace Game.Views
         private void ResetHovers()
         {
             if (Cells is null) return;
-
             foreach (var cell in Cells)
                 if (cell is not null)
                     cell.SetHover(false);
         }
+
+        private void OnDestroy() => _disposables?.Dispose();
     }
 }
