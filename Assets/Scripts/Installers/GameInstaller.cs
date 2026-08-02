@@ -38,6 +38,7 @@ namespace Game.Installers
         [field: SerializeField] public AudioClip StartMusicClip { get; private set; }
         [field: SerializeField] public FloorGridView FloorGridView { get; private set; }
         [field: SerializeField] public WallView[] WallViews { get; private set; }
+        [field: SerializeField] public BlockAnimationConfig BlockAnimationConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -79,6 +80,9 @@ namespace Game.Installers
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
 
+            if (BlockAnimationConfig is not null)
+                Container.BindInstance(BlockAnimationConfig);
+
             Bind<InputService>();
             Bind<InputContextService>();
             Bind<GridService>();
@@ -100,6 +104,7 @@ namespace Game.Installers
             Bind<LevelProgressionService>();
             Bind<LevelGeneratorService>();
             Bind<ShakeAnimationService>();
+            Bind<BlockAnimationService>();
             Bind<SfxService>();
             Bind<MusicService>();
             Bind<ProgressionService>();

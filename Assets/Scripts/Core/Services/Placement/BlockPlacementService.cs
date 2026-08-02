@@ -1,4 +1,5 @@
 using Game.Data;
+using Game.Services.Animation;
 using Game.Services.Audio;
 using Game.Services.Dev;
 using Game.Services.Grid;
@@ -24,8 +25,6 @@ namespace Game.Services.Placement
         void ClearAll();
     }
 
-
-
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
@@ -45,6 +44,7 @@ namespace Game.Services.Placement
         private readonly IInputContextService _contextService;
         private readonly IDevModeService _devModeService;
         private readonly IObjectRegistryService _registryService;
+        private readonly IBlockAnimationService _blockAnimationService;
         private readonly BlockView _previewBlock;
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
@@ -56,24 +56,26 @@ namespace Game.Services.Placement
         private MaterialPropertyBlock _materialPropertyBlock;
         private int _remainingBlocksCount;
         private bool _isLimitEnabled;
+        private bool _isAnimating;
 
         private static readonly Color BlockedPreviewColor = new(1f, 0f, 0f, 0.4f);
 
         public BlockPlacementService(
-    IInputService inputService,
-    IRaycastService raycastService,
-    IGridService gridService,
-    IBlockPoolService poolService,
-    IBlockHistoryService historyService,
-    IRotationService rotationService,
-    IInputContextService contextService,
-    IDevModeService devModeService,
-    IObjectRegistryService registryService,
-    ISfxService sfxService,
-    AudioConfig audioConfig,
-    LevelConfig levelConfig,
-    [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
-    [Inject(Id = "PreviewBlock")] BlockView previewBlock)
+            IInputService inputService,
+            IRaycastService raycastService,
+            IGridService gridService,
+            IBlockPoolService poolService,
+            IBlockHistoryService historyService,
+            IRotationService rotationService,
+            IInputContextService contextService,
+            IDevModeService devModeService,
+            IObjectRegistryService registryService,
+            IBlockAnimationService blockAnimationService,
+            ISfxService sfxService,
+            AudioConfig audioConfig,
+            LevelConfig levelConfig,
+            [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
+            [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
             _inputService = inputService;
             _raycastService = raycastService;
@@ -84,6 +86,7 @@ namespace Game.Services.Placement
             _contextService = contextService;
             _devModeService = devModeService;
             _registryService = registryService;
+            _blockAnimationService = blockAnimationService;
             _sfxService = sfxService;
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
@@ -95,7 +98,6 @@ namespace Game.Services.Placement
         {
             _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
             _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
-
             _materialPropertyBlock = new MaterialPropertyBlock();
 
             if (_previewBlock is not null)
@@ -152,7 +154,6 @@ namespace Game.Services.Placement
 
             var isBlocked = _isLimitEnabled && _remainingBlocksCount <= 0;
             var targetColor = isBlocked ? BlockedPreviewColor : _previewDefaultColor;
-
             _materialPropertyBlock.SetColor("_Color", targetColor);
             _previewRenderer.SetPropertyBlock(_materialPropertyBlock);
         }
@@ -166,8 +167,8 @@ namespace Game.Services.Placement
             }
 
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
-
             if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
+            if (_isAnimating) return;
 
             if (!_raycastService.TryGetTargetCell(mousePosition, out var cell, out _)) return;
 
@@ -208,6 +209,15 @@ namespace Game.Services.Placement
                 UpdatePreviewColor();
             }
 
+            _isAnimating = true;
+            _contextService.SetContext(InputContext.Generating);
+            _blockAnimationService.AnimateSpawn(block, () => OnBlockSpawned(cell));
+        }
+
+        private void OnBlockSpawned(Vector3Int cell)
+        {
+            _isAnimating = false;
+            _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);
         }
 
@@ -219,15 +229,23 @@ namespace Game.Services.Placement
                 return;
             }
 
+            if (_isAnimating) return;
             if (!_historyService.TryPop(out var record)) return;
 
             _gridService.SetCellOccupied(record.Cell, false);
 
             if (_activeBlocks.TryGetValue(record.Cell, out var block))
             {
-                _poolService.Return(block);
-                _activeBlocks.Remove(record.Cell);
+                _isAnimating = true;
+                _contextService.SetContext(InputContext.Generating);
+                _blockAnimationService.AnimateDespawn(block, () => OnBlockDespawned(record, block));
             }
+        }
+
+        private void OnBlockDespawned(PlacementRecord record, BlockView block)
+        {
+            _poolService.Return(block);
+            _activeBlocks.Remove(record.Cell);
 
             if (_isDeveloperMode)
                 _registryService.Unregister(record.Cell, PlacedObjectType.Block);
@@ -243,8 +261,11 @@ namespace Game.Services.Placement
                 UpdatePreviewColor();
             }
 
+            _isAnimating = false;
+            _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);
         }
+
         private void RotateActiveBlocks(int angle)
         {
             var gridSize = _gridService.GridSize;
@@ -255,7 +276,6 @@ namespace Game.Services.Placement
                 var newCell = angle == 90
                     ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
                     : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
-
                 block.SetPosition(newCell);
                 newActiveBlocks[newCell] = block;
             }
@@ -275,9 +295,9 @@ namespace Game.Services.Placement
             {
                 _gridService.SetCellOccupied(kvp.Key, false);
                 _poolService.Return(kvp.Value);
-
                 if (_isDeveloperMode) _registryService.Unregister(kvp.Key, PlacedObjectType.Block);
             }
+
             _activeBlocks.Clear();
             _historyService.Clear();
             _onGridChanged.OnNext(Unit.Default);

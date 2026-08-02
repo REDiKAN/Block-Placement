@@ -1180,6 +1180,7 @@ MonoBehaviour:
   <WallViews>k__BackingField:
   - {fileID: 272877422}
   - {fileID: 284577660}
+  <BlockAnimationConfig>k__BackingField: {fileID: 11400000, guid: 435257c9a6aa30b41a50ee87e190060f, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
