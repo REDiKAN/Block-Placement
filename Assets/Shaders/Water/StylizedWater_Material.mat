@@ -48,10 +48,19 @@ Material:
     - _RefractionSpeed: 0.5
     - _RefractionStrength: 0
     - _WaterDepth: 0.2
+    - _Wave1Amp: 0.02
+    - _Wave1Len: 10
+    - _Wave1Steep: 0.1
+    - _Wave2Amp: 0.02
+    - _Wave2Len: 8
+    - _Wave2Steep: 0.08
+    - _WaveSpeed: 0.7
     m_Colors:
-    - _DeepWater: {r: 0, g: 0.23336527, b: 1, a: 0.68235296}
+    - _DeepWater: {r: 0.8773585, g: 0.5053408, b: 0.028969401, a: 0.53}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShallowWaterColor: {r: 0.15566039, g: 0.5309224, b: 1, a: 0.2509804}
+    - _ShallowWaterColor: {r: 0.8301887, g: 0.06621731, b: 0, a: 0.25}
+    - _Wave1Dir: {r: 1, g: 0.3, b: 0, a: 0}
+    - _Wave2Dir: {r: -0.3, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &5852514053841131413

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7c48a28e876831438e512f88d8dd514, type: 3}
+  m_Name: WaterShaderConfig_3 1
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.WaterShaderConfig
+  <DisplayName>k__BackingField: 3
+  <WaterDepth>k__BackingField: 0.2
+  <ShallowWaterColor>k__BackingField: {r: 0.8301887, g: 0.06621731, b: 0, a: 0.25}
+  <DeepWater>k__BackingField: {r: 0.8773585, g: 0.5053408, b: 0.028969401, a: 0.53}
+  <FoamColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+  <RefractionSpeed>k__BackingField: 0.5
+  <RefractionScale>k__BackingField: 1
+  <RefractionStrength>k__BackingField: 0
+  <FoamAmount>k__BackingField: 1
+  <FoamCutOff>k__BackingField: 1
+  <FoamSpeed>k__BackingField: 1
+  <FoamScale>k__BackingField: 100
+  <Wave1Dir>k__BackingField: {x: 1, y: 0.3}
+  <Wave1Amp>k__BackingField: 0.03
+  <Wave1Len>k__BackingField: 10
+  <Wave1Steep>k__BackingField: 0.1
+  <Wave2Dir>k__BackingField: {x: -0.3, y: 1}
+  <Wave2Amp>k__BackingField: 0.02
+  <Wave2Len>k__BackingField: 8
+  <Wave2Steep>k__BackingField: 0.08
+  <WaveSpeed>k__BackingField: 0.4

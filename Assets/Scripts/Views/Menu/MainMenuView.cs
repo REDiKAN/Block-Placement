@@ -9,6 +9,7 @@ namespace Game.Views.Menu
     public class MainMenuView : MonoBehaviour
     {
         [field: SerializeField] private Button PlayButton { get; set; }
+        [field: SerializeField] private Button SettingsButton { get; set; }
         [field: SerializeField] private Button DevModeButton { get; set; }
         [field: SerializeField] private Button FeedbackButton { get; set; }
         [field: SerializeField] private string FeedbackUrl { get; set; } = "https://docs.google.com/forms/";
@@ -31,6 +32,13 @@ namespace Game.Views.Menu
             {
                 PlayButton.OnClickAsObservable()
                     .Subscribe(_ => _navigationService.NavigateTo(MenuView.CategoryList))
+                    .AddTo(_disposables);
+            }
+
+            if (SettingsButton is not null && _navigationService is not null)
+            {
+                SettingsButton.OnClickAsObservable()
+                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.Settings))
                     .AddTo(_disposables);
             }
 

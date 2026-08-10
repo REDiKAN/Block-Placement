@@ -7,7 +7,8 @@ namespace Game.Services.Menu
         MainMenu,
         CategoryList,
         LevelList,
-        CustomSettings
+        CustomSettings,
+        Settings
     }
 
     public interface IMenuNavigationService
