@@ -71,6 +71,7 @@ namespace Game.Services.Progression
             if (_isDeveloperMode)
             {
                 _isLevelReady = true;
+                _contextService.SetContext(InputContext.PlaceBlock);
                 return;
             }
 

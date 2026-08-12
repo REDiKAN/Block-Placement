@@ -19,6 +19,8 @@ namespace Game.Views.Menu
         [field: SerializeField] private TextMeshProUGUI FullscreenText { get; set; }
         [field: SerializeField] private Button WaterButton { get; set; }
         [field: SerializeField] private TextMeshProUGUI WaterText { get; set; }
+        [field: SerializeField] private Button PreviewButton { get; set; }
+        [field: SerializeField] private TextMeshProUGUI PreviewText { get; set; }
         [field: SerializeField] private Button BackButton { get; set; }
 
         [Inject] private ISettingsService _settingsService;
@@ -52,6 +54,11 @@ namespace Game.Views.Menu
             if (WaterButton is not null)
                 WaterButton.OnClickAsObservable()
                     .Subscribe(_ => _waterShaderService.CycleConfig())
+                    .AddTo(_disposables);
+
+            if (PreviewButton is not null)
+                PreviewButton.OnClickAsObservable()
+                    .Subscribe(_ => _settingsService.CyclePreview())
                     .AddTo(_disposables);
 
             if (BackButton is not null)
@@ -88,6 +95,14 @@ namespace Game.Views.Menu
                 {
                     if (WaterText is not null && config is not null)
                         WaterText.text = $"Water: {config.DisplayName}";
+                })
+                .AddTo(_disposables);
+
+            _settingsService.IsPreviewEnabled
+                .Subscribe(isEnabled =>
+                {
+                    if (PreviewText is not null)
+                        PreviewText.text = $"Preview: {(isEnabled ? "On" : "Off")}";
                 })
                 .AddTo(_disposables);
         }

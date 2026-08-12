@@ -8,9 +8,10 @@ namespace Game.Services.Settings
         IReadOnlyReactiveProperty<int> CurrentQualityLevel { get; }
         IReadOnlyReactiveProperty<ResolutionData> CurrentResolution { get; }
         IReadOnlyReactiveProperty<bool> IsFullscreen { get; }
-
+        IReadOnlyReactiveProperty<bool> IsPreviewEnabled { get; }
         void CycleQuality();
         void CycleResolution();
         void CycleFullscreen();
+        void CyclePreview();
     }
 }

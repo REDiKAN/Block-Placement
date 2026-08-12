@@ -1,7 +1,6 @@
 using Game.Core;
 using Game.Data;
 using Game.Services.Animation;
-using Game.Services.Audio;
 using Game.Services.Dev;
 using Game.Services.Generation;
 using Game.Services.Grid;
@@ -34,8 +33,6 @@ namespace Game.Installers
         [field: SerializeField] public RotationConfig RotationConfig { get; private set; }
         [field: SerializeField] public bool IsDeveloperMode { get; private set; }
         [field: SerializeField] public LevelCatalog LevelCatalog { get; private set; }
-        [field: SerializeField] public AudioConfig AudioConfig { get; private set; }
-        [field: SerializeField] public AudioClip StartMusicClip { get; private set; }
         [field: SerializeField] public FloorGridView FloorGridView { get; private set; }
         [field: SerializeField] public WallView[] WallViews { get; private set; }
         [field: SerializeField] public BlockAnimationConfig BlockAnimationConfig { get; private set; }
@@ -51,7 +48,6 @@ namespace Game.Installers
             Container.BindInstance(GameCamera).WithId("GameCamera");
 
             var activeConfig = LevelConfig;
-
             if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
                 LevelContext.SelectedCategoryId >= 0 && LevelContext.SelectedCategoryId < LevelCatalog.Categories.Length)
             {
@@ -70,12 +66,6 @@ namespace Game.Installers
 
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
-
-            if (AudioConfig is not null)
-                Container.BindInstance(AudioConfig);
-
-            if (StartMusicClip is not null)
-                Container.BindInstance(StartMusicClip);
 
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
@@ -105,12 +95,11 @@ namespace Game.Installers
             Bind<LevelGeneratorService>();
             Bind<ShakeAnimationService>();
             Bind<BlockAnimationService>();
-            Bind<SfxService>();
-            Bind<MusicService>();
             Bind<ProgressionService>();
             Bind<GenerationContext>();
             Bind<EndlessGeneratorService>();
             Bind<LevelIntroAnimationService>();
+
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<RowByRowStrategy>().AsSingle().Lazy();

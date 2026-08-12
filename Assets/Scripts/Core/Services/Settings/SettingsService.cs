@@ -11,16 +11,19 @@ namespace Game.Services.Settings
         public IReadOnlyReactiveProperty<int> CurrentQualityLevel => _currentQualityLevel;
         public IReadOnlyReactiveProperty<ResolutionData> CurrentResolution => _currentResolution;
         public IReadOnlyReactiveProperty<bool> IsFullscreen => _isFullscreen;
+        public IReadOnlyReactiveProperty<bool> IsPreviewEnabled => _isPreviewEnabled;
 
         private readonly ReactiveProperty<int> _currentQualityLevel = new();
         private readonly ReactiveProperty<ResolutionData> _currentResolution = new();
         private readonly ReactiveProperty<bool> _isFullscreen = new();
+        private readonly ReactiveProperty<bool> _isPreviewEnabled = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly SettingsConfig _config;
 
         private const string QualityKey = "settings_quality";
         private const string ResolutionKey = "settings_resolution";
         private const string FullscreenKey = "settings_fullscreen";
+        private const string PreviewEnabledKey = "settings_preview_enabled";
         private const int QualityLevelsCount = 3;
 
         public SettingsService(SettingsConfig config)
@@ -39,11 +42,14 @@ namespace Game.Services.Settings
                 ? savedResolutionIndex
                 : 0;
             _currentResolution.Value = _config.Resolutions[resolutionIndex];
-            ApplyResolution(_currentResolution.Value);
+            ApplyResolution(_config.Resolutions[resolutionIndex]);
 
             var savedFullscreen = PlayerPrefs.GetInt(FullscreenKey, 1) == 1;
             _isFullscreen.Value = savedFullscreen;
             ApplyFullscreen(savedFullscreen);
+
+            var savedPreviewEnabled = PlayerPrefs.GetInt(PreviewEnabledKey, 0) == 1;
+            _isPreviewEnabled.Value = savedPreviewEnabled;
         }
 
         public void CycleQuality()
@@ -74,6 +80,14 @@ namespace Game.Services.Settings
             PlayerPrefs.SetInt(FullscreenKey, next ? 1 : 0);
             PlayerPrefs.Save();
             ApplyFullscreen(next);
+        }
+
+        public void CyclePreview()
+        {
+            var next = !_isPreviewEnabled.Value;
+            _isPreviewEnabled.Value = next;
+            PlayerPrefs.SetInt(PreviewEnabledKey, next ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         private static void ApplyQuality(int level) =>

@@ -9,6 +9,7 @@ using Game.Services.Pool;
 using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
+using Game.Services.Settings;
 using Game.Views;
 using System;
 using System.Collections.Generic;
@@ -45,11 +46,12 @@ namespace Game.Services.Placement
         private readonly IDevModeService _devModeService;
         private readonly IObjectRegistryService _registryService;
         private readonly IBlockAnimationService _blockAnimationService;
-        private readonly BlockView _previewBlock;
-        private readonly LevelConfig _levelConfig;
-        private readonly bool _isDeveloperMode;
+        private readonly ISettingsService _settingsService;
         private readonly ISfxService _sfxService;
         private readonly AudioConfig _audioConfig;
+        private readonly LevelConfig _levelConfig;
+        private readonly bool _isDeveloperMode;
+        private readonly BlockView _previewBlock;
 
         private Renderer _previewRenderer;
         private Color _previewDefaultColor;
@@ -71,6 +73,7 @@ namespace Game.Services.Placement
             IDevModeService devModeService,
             IObjectRegistryService registryService,
             IBlockAnimationService blockAnimationService,
+            ISettingsService settingsService,
             ISfxService sfxService,
             AudioConfig audioConfig,
             LevelConfig levelConfig,
@@ -87,6 +90,7 @@ namespace Game.Services.Placement
             _devModeService = devModeService;
             _registryService = registryService;
             _blockAnimationService = blockAnimationService;
+            _settingsService = settingsService;
             _sfxService = sfxService;
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
@@ -98,8 +102,8 @@ namespace Game.Services.Placement
         {
             _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
             _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
-            _materialPropertyBlock = new MaterialPropertyBlock();
 
+            _materialPropertyBlock = new MaterialPropertyBlock();
             if (_previewBlock is not null)
             {
                 _previewRenderer = _previewBlock.GetComponentInChildren<Renderer>();
@@ -117,7 +121,17 @@ namespace Game.Services.Placement
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastBlock()).AddTo(_disposables);
             _rotationService.OnRotationCompleted.Subscribe(RotateActiveBlocks).AddTo(_disposables);
 
+            _settingsService.IsPreviewEnabled
+                .Subscribe(OnPreviewSettingChanged)
+                .AddTo(_disposables);
+
             PublishRemainingBlocks();
+        }
+
+        private void OnPreviewSettingChanged(bool isEnabled)
+        {
+            if (!isEnabled && _previewBlock is not null)
+                _previewBlock.gameObject.SetActive(false);
         }
 
         private void UpdatePreview(Vector2 mousePosition)
@@ -129,6 +143,12 @@ namespace Game.Services.Placement
             }
 
             if (_previewBlock is null) return;
+
+            if (!_settingsService.IsPreviewEnabled.Value)
+            {
+                _previewBlock.gameObject.SetActive(false);
+                return;
+            }
 
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock)
             {
@@ -154,6 +174,7 @@ namespace Game.Services.Placement
 
             var isBlocked = _isLimitEnabled && _remainingBlocksCount <= 0;
             var targetColor = isBlocked ? BlockedPreviewColor : _previewDefaultColor;
+
             _materialPropertyBlock.SetColor("_Color", targetColor);
             _previewRenderer.SetPropertyBlock(_materialPropertyBlock);
         }
@@ -169,7 +190,6 @@ namespace Game.Services.Placement
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
             if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
             if (_isAnimating) return;
-
             if (!_raycastService.TryGetTargetCell(mousePosition, out var cell, out _)) return;
 
             BlockView block;
@@ -276,6 +296,7 @@ namespace Game.Services.Placement
                 var newCell = angle == 90
                     ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
                     : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
+
                 block.SetPosition(newCell);
                 newActiveBlocks[newCell] = block;
             }
