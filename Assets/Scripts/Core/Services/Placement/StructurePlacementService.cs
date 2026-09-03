@@ -78,35 +78,28 @@ namespace Game.Services.Placement
         public void SelectStructure(StructureConfig config)
         {
             _selectedConfig = config;
-            if (_previewInstance is not null)
-            {
-                _previewInstance.SetInteractionEnabled(true);
-                _poolService.Return(_previewInstance);
-                _previewInstance = null;
-            }
+            ReturnPreviewToPool();
         }
 
         public void ClearSelection()
         {
             _selectedConfig = null;
-            if (_previewInstance is not null)
-            {
-                _previewInstance.SetInteractionEnabled(true);
-                _poolService.Return(_previewInstance);
-                _previewInstance = null;
-            }
+            ReturnPreviewToPool();
+        }
+
+        private void ReturnPreviewToPool()
+        {
+            if (_previewInstance is null) return;
+            _previewInstance.SetInteractionEnabled(true);
+            _poolService.Return(_previewInstance);
+            _previewInstance = null;
         }
 
         private void UpdatePreview(Vector2 mousePosition)
         {
             if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures)
             {
-                if (_previewInstance is not null)
-                {
-                    _previewInstance.SetInteractionEnabled(true);
-                    _poolService.Return(_previewInstance);
-                    _previewInstance = null;
-                }
+                ReturnPreviewToPool();
                 return;
             }
 
@@ -118,7 +111,7 @@ namespace Game.Services.Placement
 
             if (_selectedConfig is null)
             {
-                if (_previewInstance is not null) _previewInstance.gameObject.SetActive(false);
+                ReturnPreviewToPool();
                 return;
             }
 
@@ -140,6 +133,7 @@ namespace Game.Services.Placement
                 _previewInstance.gameObject.SetActive(false);
             }
         }
+
         private void PlaceStructure(Vector2 mousePosition)
         {
             if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures) return;
@@ -147,6 +141,9 @@ namespace Game.Services.Placement
             if (_isAnimating || _selectedConfig is null) return;
             if (!_raycastService.TryGetTargetCell(mousePosition, out var originCell, out _)) return;
             if (!ValidatePlacement(originCell, _selectedConfig.LocalCoordinates)) return;
+
+            var structure = _previewInstance ?? _poolService.Get(_selectedConfig);
+            if (structure is null) return;
 
             var worldCells = new Vector3Int[_selectedConfig.LocalCoordinates.Length];
             for (var i = 0; i < _selectedConfig.LocalCoordinates.Length; i++)
@@ -157,12 +154,9 @@ namespace Game.Services.Placement
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, worldCells[i], _selectedConfig.DisplayName));
             }
 
-            var structure = _previewInstance ?? _poolService.Get(_selectedConfig);
-            if (structure is null) return;
-
             structure.SetPosition(originCell);
             structure.SetInteractionEnabled(true);
-            _activeStructures[originCell] = structure;
+            _activeStructures[worldCells[0]] = structure;
             _previewInstance = null;
 
             _historyService.RecordPlacement(new PlacementRecord(worldCells, _selectedConfig));
@@ -201,9 +195,11 @@ namespace Game.Services.Placement
             if (_activeStructures.TryGetValue(record.Cells[0], out var structure))
             {
                 _activeStructures.Remove(record.Cells[0]);
+
+                structure.gameObject.SetActive(false);
+
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);
-
                 Observable.Timer(TimeSpan.FromSeconds(0.1f))
                     .Subscribe(_ => OnStructureDespawned(structure, config))
                     .AddTo(_disposables);
@@ -215,7 +211,6 @@ namespace Game.Services.Placement
             _poolService.Return(structure);
             var removeClip = config.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
             if (removeClip is not null) _sfxService.Play(removeClip);
-
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);
@@ -224,14 +219,12 @@ namespace Game.Services.Placement
         private bool ValidatePlacement(Vector3Int origin, Vector3Int[] localCoords)
         {
             if (localCoords is null || localCoords.Length == 0) return false;
-
             var hasSupport = false;
             foreach (var local in localCoords)
             {
                 var worldCell = origin + local;
                 if (!_gridService.IsWithinBounds(worldCell)) return false;
                 if (_gridService.IsCellOccupied(worldCell)) return false;
-
                 if (worldCell.y == 0)
                 {
                     var floorCoord = new Vector2Int(worldCell.x, worldCell.z);

@@ -57,8 +57,10 @@ namespace Game.Services.Pool
         public void Return(StructureView structure)
         {
             if (structure is null) return;
-            structure.SetInteractionEnabled(true);
+
             structure.gameObject.SetActive(false);
+            structure.SetInteractionEnabled(true);
+
             if (_activeStructures.TryGetValue(structure, out var config))
             {
                 if (_configPools.TryGetValue(config, out var pool))
