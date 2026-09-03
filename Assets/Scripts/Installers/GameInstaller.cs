@@ -23,6 +23,7 @@ namespace Game.Installers
     public class GameInstaller : MonoInstaller
     {
         [field: SerializeField] public BlockConfig[] BlockConfigs { get; private set; }
+        [field: SerializeField] public StructureConfig[] StructureConfigs { get; private set; }
         [field: SerializeField] public BlockView BlockPrefab { get; private set; }
         [field: SerializeField] public BlockView PreviewBlock { get; private set; }
         [field: SerializeField] public Transform BlocksParent { get; private set; }
@@ -67,6 +68,9 @@ namespace Game.Installers
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
 
+            if (StructureConfigs is not null && StructureConfigs.Length > 0)
+                Container.BindInstance(StructureConfigs);
+
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
 
@@ -79,9 +83,11 @@ namespace Game.Installers
             Bind<RaycastService>();
             Bind<ObjectRegistryService>();
             Bind<BlockPoolService>();
-            Bind<BlockHistoryService>();
+            Bind<StructurePoolService>();
+            Bind<PlacementHistoryService>();
             Bind<DevModeService>();
             Bind<BlockPlacementService>();
+            Bind<StructurePlacementService>();
             Bind<ShadowCalculationService>();
             Bind<TargetDensityProjectionService>();
             Bind<ShadowValidationService>();

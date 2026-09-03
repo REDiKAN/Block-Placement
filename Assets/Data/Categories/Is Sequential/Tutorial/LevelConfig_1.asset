@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d4671db7110ca4a8267c61af6105d5, type: 3}
   m_Name: LevelConfig_1
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelConfig
+  <Mode>k__BackingField: 1
+  <AvailableStructures>k__BackingField:
+  - {fileID: 11400000, guid: 93ae3c76714c070488cdfbb0ee271c30, type: 2}
   <InitialBlocks>k__BackingField:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 4}

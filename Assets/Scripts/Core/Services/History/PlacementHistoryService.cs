@@ -1,18 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Game.Data;
 
 namespace Game.Services.History
 {
     public readonly struct PlacementRecord
     {
-        public Vector3Int Cell { get; }
-        public BlockConfig Config { get; }
-
-        public PlacementRecord(Vector3Int cell, BlockConfig config) => (Cell, Config) = (cell, config);
+        public Vector3Int[] Cells { get; }
+        public ScriptableObject Config { get; }
+        public PlacementRecord(Vector3Int[] cells, ScriptableObject config) => (Cells, Config) = (cells, config);
     }
 
-    public interface IBlockHistoryService
+    public interface IPlacementHistoryService
     {
         bool CanUndo { get; }
         void RecordPlacement(PlacementRecord record);
@@ -21,7 +19,7 @@ namespace Game.Services.History
         void Clear();
     }
 
-    public class BlockHistoryService : IBlockHistoryService
+    public class PlacementHistoryService : IPlacementHistoryService
     {
         private readonly Stack<PlacementRecord> _history = new();
 
@@ -34,20 +32,21 @@ namespace Game.Services.History
         public void Rotate(int angle, int gridSize)
         {
             if (_history.Count == 0) return;
-
             var items = _history.ToArray();
             _history.Clear();
-
             for (var i = 0; i < items.Length; i++)
             {
-                var cell = items[i].Cell;
-                var newCell = angle == 90
-                    ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
-                    : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
-
-                items[i] = new PlacementRecord(newCell, items[i].Config);
+                var cells = items[i].Cells;
+                var newCells = new Vector3Int[cells.Length];
+                for (var j = 0; j < cells.Length; j++)
+                {
+                    var cell = cells[j];
+                    newCells[j] = angle == 90
+                        ? new Vector3Int(cell.z, cell.y, gridSize - 1 - cell.x)
+                        : new Vector3Int(gridSize - 1 - cell.z, cell.y, cell.x);
+                }
+                items[i] = new PlacementRecord(newCells, items[i].Config);
             }
-
             for (var i = items.Length - 1; i >= 0; i--)
                 _history.Push(items[i]);
         }

@@ -31,7 +31,7 @@ namespace Game.Services.Dev
         private readonly IShadowDensityService _densityService;
         private readonly ITargetDensityProjectionService _projectionService;
         private readonly IDevModeService _devModeService;
-        private readonly IBlockHistoryService _historyService;
+        private readonly IPlacementHistoryService _historyService;
         private readonly List<BlockView> _spawnedBlocks = new();
 
         private const int GridSize = 5;
@@ -45,7 +45,7 @@ namespace Game.Services.Dev
             IShadowDensityService densityService,
             ITargetDensityProjectionService projectionService,
             IDevModeService devModeService,
-            IBlockHistoryService historyService)
+            IPlacementHistoryService historyService)
         {
             _gridService = gridService;
             _poolService = poolService;

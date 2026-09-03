@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 192ad21e7e9d73549a92370d582459c3, type: 3}
+  m_Name: L-Structure
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
+  <DisplayName>k__BackingField: L-Structure
+  <Prefab>k__BackingField: {fileID: 1808610562715322392, guid: 03649d0ecce966543bd25bd852aa7b60, type: 3}
+  <LocalCoordinates>k__BackingField:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: -1}
+  - {x: 0, y: 0, z: -2}
+  - {x: 1, y: 0, z: 0}
+  <PlaceClip>k__BackingField: {fileID: 8300000, guid: b6a2dd974aebd734594e05a1fbfbbae4, type: 3}
+  <RemoveClip>k__BackingField: {fileID: 8300000, guid: fdbf80b4051360f42a821bc0d8180ff9, type: 3}

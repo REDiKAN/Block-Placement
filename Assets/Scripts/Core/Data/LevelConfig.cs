@@ -27,6 +27,10 @@ namespace Game.Data
     [CreateAssetMenu(fileName = nameof(LevelConfig), menuName = "Game/" + nameof(LevelConfig))]
     public class LevelConfig : ScriptableObject
     {
+        [field: Title("Game Mode", CustomColor.Red, CustomColor.Orange)]
+        [field: SerializeField] public GameMode Mode { get; private set; } = GameMode.Blocks;
+        [field: SerializeField] public StructureConfig[] AvailableStructures { get; private set; }
+
         [field: Title("Level", CustomColor.Cyan, CustomColor.Blue)]
         [field: SerializeField] public Vector3Int[] InitialBlocks { get; private set; }
         [field: SerializeField] public bool[] FloorMatrix { get; private set; }
@@ -42,6 +46,7 @@ namespace Game.Data
         [field: Title("Time Limit", CustomColor.Green, CustomColor.Red)]
         [field: SerializeField] public bool IsTimeLimitEnabled { get; private set; }
         [field: SerializeField] public float TimeLimitSeconds { get; private set; } = -1f;
+
 
         public void SetData(Vector3Int[] initialBlocks, bool[] floorMatrix, WallData wallYZ, WallData wallXY)
         {

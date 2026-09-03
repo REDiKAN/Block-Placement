@@ -40,7 +40,7 @@ namespace Game.Services.Placement
         private readonly IRaycastService _raycastService;
         private readonly IGridService _gridService;
         private readonly IBlockPoolService _poolService;
-        private readonly IBlockHistoryService _historyService;
+        private readonly IPlacementHistoryService _historyService;
         private readonly IRotationService _rotationService;
         private readonly IInputContextService _contextService;
         private readonly IDevModeService _devModeService;
@@ -67,7 +67,7 @@ namespace Game.Services.Placement
             IRaycastService raycastService,
             IGridService gridService,
             IBlockPoolService poolService,
-            IBlockHistoryService historyService,
+            IPlacementHistoryService historyService,
             IRotationService rotationService,
             IInputContextService contextService,
             IDevModeService devModeService,
@@ -136,6 +136,12 @@ namespace Game.Services.Placement
 
         private void UpdatePreview(Vector2 mousePosition)
         {
+            if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks)
+            {
+                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
+                return;
+            }
+
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
@@ -181,6 +187,8 @@ namespace Game.Services.Placement
 
         private void PlaceBlock(Vector2 mousePosition)
         {
+            if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
+
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
@@ -213,7 +221,7 @@ namespace Game.Services.Placement
             _gridService.SetCellOccupied(cell, true);
             block.SetPosition(cell);
             _activeBlocks[cell] = block;
-            _historyService.RecordPlacement(new PlacementRecord(cell, config));
+            _historyService.RecordPlacement(new PlacementRecord(new[] { cell }, config));
 
             if (_isDeveloperMode)
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
@@ -243,18 +251,19 @@ namespace Game.Services.Placement
 
         private void RemoveLastBlock()
         {
+            if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
+
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
             }
-
             if (_isAnimating) return;
             if (!_historyService.TryPop(out var record)) return;
 
-            _gridService.SetCellOccupied(record.Cell, false);
-
-            if (_activeBlocks.TryGetValue(record.Cell, out var block))
+            var cell = record.Cells[0];
+            _gridService.SetCellOccupied(cell, false);
+            if (_activeBlocks.TryGetValue(cell, out var block))
             {
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);
@@ -265,12 +274,12 @@ namespace Game.Services.Placement
         private void OnBlockDespawned(PlacementRecord record, BlockView block)
         {
             _poolService.Return(block);
-            _activeBlocks.Remove(record.Cell);
-
+            var cell = record.Cells[0];
+            _activeBlocks.Remove(cell);
             if (_isDeveloperMode)
-                _registryService.Unregister(record.Cell, PlacedObjectType.Block);
+                _registryService.Unregister(cell, PlacedObjectType.Block);
 
-            var removeClip = record.Config?.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
+            var removeClip = (record.Config as BlockConfig)?.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
             if (removeClip is not null)
                 _sfxService.Play(removeClip);
 
@@ -280,7 +289,6 @@ namespace Game.Services.Placement
                 PublishRemainingBlocks();
                 UpdatePreviewColor();
             }
-
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);
