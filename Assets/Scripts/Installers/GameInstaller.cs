@@ -1,5 +1,6 @@
 using Game.Core;
 using Game.Data;
+using Game.Services.Achievements;
 using Game.Services.Animation;
 using Game.Services.Dev;
 using Game.Services.Generation;
@@ -38,6 +39,7 @@ namespace Game.Installers
         [field: SerializeField] public WallView[] WallViews { get; private set; }
         [field: SerializeField] public BlockAnimationConfig BlockAnimationConfig { get; private set; }
         [field: SerializeField] public StructureAnimationConfig StructureAnimationConfig { get; private set; }
+        [field: SerializeField] public AchievementConfig[] AchievementConfigs { get; private set; }
 
         public override void InstallBindings()
         {
@@ -70,15 +72,19 @@ namespace Game.Installers
                 Container.BindInstance(BlockConfigs);
             if (StructureConfigs is not null && StructureConfigs.Length > 0)
                 Container.BindInstance(StructureConfigs);
+            if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
+                Container.BindInstance(AchievementConfigs);
 
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
 
             if (BlockAnimationConfig is not null)
                 Container.BindInstance(BlockAnimationConfig);
-
             if (StructureAnimationConfig is not null)
                 Container.BindInstance(StructureAnimationConfig);
+
+            Container.BindInterfacesTo<AchievementEventBus>().AsCached();
+            Container.BindInterfacesTo<AchievementService>().AsCached();
 
             Bind<InputService>();
             Bind<InputContextService>();

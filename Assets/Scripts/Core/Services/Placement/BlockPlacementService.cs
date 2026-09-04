@@ -10,6 +10,7 @@ using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
 using Game.Services.Settings;
+using Game.Services.Achievements;
 using Game.Views;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,7 @@ namespace Game.Services.Placement
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
         private readonly BlockView _previewBlock;
+        private readonly IAchievementEventBus _achievementEventBus;
 
         private Renderer _previewRenderer;
         private Color _previewDefaultColor;
@@ -77,6 +79,7 @@ namespace Game.Services.Placement
             ISfxService sfxService,
             AudioConfig audioConfig,
             LevelConfig levelConfig,
+            IAchievementEventBus achievementEventBus,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode,
             [Inject(Id = "PreviewBlock")] BlockView previewBlock)
         {
@@ -94,6 +97,7 @@ namespace Game.Services.Placement
             _sfxService = sfxService;
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
+            _achievementEventBus = achievementEventBus;
             _isDeveloperMode = isDeveloperMode;
             _previewBlock = previewBlock;
         }
@@ -102,8 +106,8 @@ namespace Game.Services.Placement
         {
             _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
             _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
-
             _materialPropertyBlock = new MaterialPropertyBlock();
+
             if (_previewBlock is not null)
             {
                 _previewRenderer = _previewBlock.GetComponentInChildren<Renderer>();
@@ -188,13 +192,11 @@ namespace Game.Services.Placement
         private void PlaceBlock(Vector2 mousePosition)
         {
             if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
-
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
             }
-
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
             if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
             if (_isAnimating) return;
@@ -247,12 +249,12 @@ namespace Game.Services.Placement
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);
+            _achievementEventBus.Publish(BlockPlacedEvent.Default);
         }
 
         private void RemoveLastBlock()
         {
             if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
-
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
@@ -263,6 +265,7 @@ namespace Game.Services.Placement
 
             var cell = record.Cells[0];
             _gridService.SetCellOccupied(cell, false);
+
             if (_activeBlocks.TryGetValue(cell, out var block))
             {
                 _isAnimating = true;
@@ -276,6 +279,7 @@ namespace Game.Services.Placement
             _poolService.Return(block);
             var cell = record.Cells[0];
             _activeBlocks.Remove(cell);
+
             if (_isDeveloperMode)
                 _registryService.Unregister(cell, PlacedObjectType.Block);
 
@@ -289,6 +293,7 @@ namespace Game.Services.Placement
                 PublishRemainingBlocks();
                 UpdatePreviewColor();
             }
+
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);

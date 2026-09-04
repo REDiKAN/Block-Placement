@@ -9,6 +9,7 @@ using Game.Services.Input;
 using Game.Services.Placement;
 using Game.Services.Shadow;
 using Game.Services.Time;
+using Game.Services.Achievements;
 
 namespace Game.Services.Progression
 {
@@ -31,6 +32,7 @@ namespace Game.Services.Progression
         private readonly IEndlessGeneratorService _endlessGenerator;
         private readonly IBlockPlacementService _placementService;
         private readonly ILevelIntroAnimationService _levelIntroAnimationService;
+        private readonly IAchievementEventBus _achievementEventBus;
         private readonly bool _isDeveloperMode;
 
         private bool _isLevelReady;
@@ -51,6 +53,7 @@ namespace Game.Services.Progression
             IEndlessGeneratorService endlessGenerator,
             IBlockPlacementService placementService,
             ILevelIntroAnimationService levelIntroAnimationService,
+            IAchievementEventBus achievementEventBus,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
             _validationService = validationService;
@@ -63,6 +66,7 @@ namespace Game.Services.Progression
             _endlessGenerator = endlessGenerator;
             _placementService = placementService;
             _levelIntroAnimationService = levelIntroAnimationService;
+            _achievementEventBus = achievementEventBus;
             _isDeveloperMode = isDeveloperMode;
         }
 
@@ -105,6 +109,7 @@ namespace Game.Services.Progression
         {
             if (!_isLevelReady) return;
 
+            _achievementEventBus.Publish(new LevelCompletedEvent(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId));
             _contextService.SetContext(InputContext.LevelCompleted);
 
             if (_generationContext.IsEndlessModeActive.Value)
@@ -121,7 +126,6 @@ namespace Game.Services.Progression
         private void HandleTimeExpired()
         {
             if (!_isLevelReady) return;
-
             _contextService.SetContext(InputContext.TimeExpired);
             _onLevelCompletedMessage.OnNext(TimeExpiredMessage);
         }

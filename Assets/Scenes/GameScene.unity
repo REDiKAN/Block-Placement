@@ -1184,6 +1184,9 @@ MonoBehaviour:
   - {fileID: 284577660}
   <BlockAnimationConfig>k__BackingField: {fileID: 11400000, guid: 435257c9a6aa30b41a50ee87e190060f, type: 2}
   <StructureAnimationConfig>k__BackingField: {fileID: 11400000, guid: f1f3183660c0324489f619c4fcd79bc2, type: 2}
+  <AchievementConfigs>k__BackingField:
+  - {fileID: 11400000, guid: 973d7800efb3d3b448d591ebe4ca15b0, type: 2}
+  - {fileID: 11400000, guid: 4390f2298bbed404dbc35fed8235dcde, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
