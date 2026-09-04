@@ -49,6 +49,13 @@ namespace Game.Services.Placement
         private int _localPreviewAngle;
         private Vector2 _lastMousePosition;
 
+        private static readonly Vector3Int[] _directions =
+        {
+            Vector3Int.up, Vector3Int.down,
+            Vector3Int.left, Vector3Int.right,
+            Vector3Int.forward, Vector3Int.back
+        };
+
         private int TotalPreviewAngle => (_currentAngle + _localPreviewAngle) % 360;
 
         public StructurePlacementService(
@@ -314,7 +321,8 @@ namespace Game.Services.Placement
         {
             if (localCoords is null || localCoords.Length == 0) return false;
 
-            var hasSupport = false;
+            var hasConnection = false;
+
             foreach (var local in localCoords)
             {
                 var worldCell = origin + local;
@@ -323,16 +331,25 @@ namespace Game.Services.Placement
 
                 if (worldCell.y == 0)
                 {
-                    var floorCoord = new Vector2Int(worldCell.x, worldCell.z);
-                    if (_gridService.IsFloorExists(floorCoord)) hasSupport = true;
+                    if (!_gridService.IsFloorExists(new Vector2Int(worldCell.x, worldCell.z))) return false;
+                    hasConnection = true;
                 }
-                else
+
+                if (!hasConnection)
                 {
-                    var belowCell = new Vector3Int(worldCell.x, worldCell.y - 1, worldCell.z);
-                    if (_gridService.IsCellOccupied(belowCell)) hasSupport = true;
+                    foreach (var dir in _directions)
+                    {
+                        var neighbor = worldCell + dir;
+                        if (_gridService.IsWithinBounds(neighbor) && _gridService.IsCellOccupied(neighbor))
+                        {
+                            hasConnection = true;
+                            break;
+                        }
+                    }
                 }
             }
-            return hasSupport;
+
+            return hasConnection;
         }
 
         public void Dispose() => _disposables?.Dispose();
