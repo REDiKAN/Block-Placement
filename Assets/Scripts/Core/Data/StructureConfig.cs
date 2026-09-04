@@ -9,6 +9,7 @@ namespace Game.Data
     {
         [field: Title("Basic Settings", CustomColor.Cyan, CustomColor.Blue)]
         [field: SerializeField] public string DisplayName { get; private set; }
+        [field: SerializeField] public Sprite Icon { get; private set; }
         [field: SerializeField] public StructureView Prefab { get; private set; }
         [field: SerializeField] public Vector3Int[] LocalCoordinates { get; private set; }
 

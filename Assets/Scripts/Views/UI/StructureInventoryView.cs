@@ -4,7 +4,6 @@ using UnityEngine;
 using Zenject;
 using Game.Data;
 using Game.Services.Placement;
-using TMPro;
 
 namespace Game.Views.UI
 {
@@ -43,11 +42,11 @@ namespace Game.Views.UI
                 if (spawnData is null || spawnData.Config is null) continue;
 
                 var item = Instantiate(ItemPrefab, Content);
-                var textComponent = item.Button.GetComponentInChildren<TextMeshProUGUI>();
-                if (textComponent is not null && textComponent != item.CountText)
-                {
-                    textComponent.text = spawnData.Config.DisplayName;
-                }
+
+                if (item.NameText is not null)
+                    item.NameText.text = spawnData.Config.DisplayName;
+
+                item.SetIcon(spawnData.Config.Icon);
 
                 var capturedConfig = spawnData.Config;
                 item.Button.onClick.AddListener(() => _placementService.SelectStructure(capturedConfig));
