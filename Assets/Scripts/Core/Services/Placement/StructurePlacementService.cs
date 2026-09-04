@@ -26,7 +26,6 @@ namespace Game.Services.Placement
     public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
-
         private readonly Subject<Unit> _onGridChanged = new();
         private readonly CompositeDisposable _disposables = new();
 
@@ -46,6 +45,7 @@ namespace Game.Services.Placement
         private StructureView _previewInstance;
         private readonly Dictionary<Vector3Int, StructureView> _activeStructures = new();
         private bool _isAnimating;
+        private int _currentAngle;
 
         public StructurePlacementService(
             IInputService inputService,
@@ -75,11 +75,36 @@ namespace Game.Services.Placement
 
         public void Initialize()
         {
+            _currentAngle = 0;
             _inputService.OnMouseMoved.Subscribe(UpdatePreview).AddTo(_disposables);
             _inputService.OnPrimaryClick.Subscribe(PlaceStructure).AddTo(_disposables);
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastStructure()).AddTo(_disposables);
 
-            _rotationService.OnRotationCompleted.Subscribe(RotateActiveStructures).AddTo(_disposables);
+            _rotationService.OnRotationCompleted.Subscribe(angle =>
+            {
+                _currentAngle = (_currentAngle + angle + 360) % 360;
+                RotateActiveStructures(angle);
+            }).AddTo(_disposables);
+        }
+
+        private Vector3Int[] GetRotatedLocalCoordinates(Vector3Int[] localCoords)
+        {
+            if (localCoords is null || localCoords.Length == 0) return Array.Empty<Vector3Int>();
+            if (_currentAngle == 0) return localCoords;
+
+            var rotated = new Vector3Int[localCoords.Length];
+            for (var i = 0; i < localCoords.Length; i++)
+            {
+                var local = localCoords[i];
+                rotated[i] = _currentAngle switch
+                {
+                    90 => new Vector3Int(local.z, local.y, -local.x),
+                    180 => new Vector3Int(-local.x, local.y, -local.z),
+                    270 => new Vector3Int(-local.z, local.y, local.x),
+                    _ => local
+                };
+            }
+            return rotated;
         }
 
         public void SelectStructure(StructureConfig config)
@@ -131,7 +156,8 @@ namespace Game.Services.Placement
 
             if (_raycastService.TryGetTargetCell(mousePosition, out var cell, out _))
             {
-                var isValid = ValidatePlacement(cell, _selectedConfig.LocalCoordinates);
+                var rotatedCoords = GetRotatedLocalCoordinates(_selectedConfig.LocalCoordinates);
+                var isValid = ValidatePlacement(cell, rotatedCoords);
                 _previewInstance.gameObject.SetActive(isValid);
                 if (isValid) _previewInstance.SetPosition(cell);
             }
@@ -147,16 +173,17 @@ namespace Game.Services.Placement
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired) return;
             if (_isAnimating || _selectedConfig is null) return;
             if (!_raycastService.TryGetTargetCell(mousePosition, out var originCell, out _)) return;
-            if (!ValidatePlacement(originCell, _selectedConfig.LocalCoordinates)) return;
+
+            var rotatedCoords = GetRotatedLocalCoordinates(_selectedConfig.LocalCoordinates);
+            if (!ValidatePlacement(originCell, rotatedCoords)) return;
 
             var structure = _previewInstance ?? _poolService.Get(_selectedConfig);
             if (structure is null) return;
 
-            var worldCells = new Vector3Int[_selectedConfig.LocalCoordinates.Length];
-            for (var i = 0; i < _selectedConfig.LocalCoordinates.Length; i++)
+            var worldCells = new Vector3Int[rotatedCoords.Length];
+            for (var i = 0; i < rotatedCoords.Length; i++)
             {
-                var local = _selectedConfig.LocalCoordinates[i];
-                worldCells[i] = originCell + local;
+                worldCells[i] = originCell + rotatedCoords[i];
                 _gridService.SetCellOccupied(worldCells[i], true);
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, worldCells[i], _selectedConfig.DisplayName));
             }
@@ -165,7 +192,6 @@ namespace Game.Services.Placement
             structure.SetInteractionEnabled(true);
             _activeStructures[worldCells[0]] = structure;
             _previewInstance = null;
-
             _historyService.RecordPlacement(new PlacementRecord(worldCells, _selectedConfig));
 
             var placeClip = _selectedConfig.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
@@ -230,7 +256,6 @@ namespace Game.Services.Placement
             {
                 var origin = kvp.Key;
                 var structure = kvp.Value;
-
                 var newOrigin = angle == 90
                     ? new Vector3Int(origin.z, origin.y, gridSize - 1 - origin.x)
                     : new Vector3Int(gridSize - 1 - origin.z, origin.y, origin.x);
@@ -268,7 +293,6 @@ namespace Game.Services.Placement
                     if (_gridService.IsCellOccupied(belowCell)) hasSupport = true;
                 }
             }
-
             return hasSupport;
         }
 
