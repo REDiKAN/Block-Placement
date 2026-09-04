@@ -20,6 +20,8 @@ namespace Game.Services.Placement
     public interface IStructurePlacementService
     {
         IObservable<Unit> OnGridChanged { get; }
+        IObservable<(StructureConfig Config, int Remaining)> OnStructureCountChanged { get; }
+        int GetRemainingCount(StructureConfig config);
         void SelectStructure(StructureConfig config);
         void ClearSelection();
     }
@@ -27,7 +29,10 @@ namespace Game.Services.Placement
     public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
+        public IObservable<(StructureConfig Config, int Remaining)> OnStructureCountChanged => _onStructureCountChanged;
+
         private readonly Subject<Unit> _onGridChanged = new();
+        private readonly Subject<(StructureConfig Config, int Remaining)> _onStructureCountChanged = new();
         private readonly CompositeDisposable _disposables = new();
 
         private readonly IInputService _inputService;
@@ -46,6 +51,7 @@ namespace Game.Services.Placement
         private StructureConfig _selectedConfig;
         private StructureView _previewInstance;
         private readonly Dictionary<Vector3Int, StructureView> _activeStructures = new();
+        private readonly Dictionary<StructureConfig, int> _remainingCounts = new();
         private bool _isAnimating;
         private int _currentAngle;
         private int _localPreviewAngle;
@@ -93,6 +99,17 @@ namespace Game.Services.Placement
             _currentAngle = 0;
             _localPreviewAngle = 0;
 
+            if (_levelConfig is not null && _levelConfig.AvailableStructures is not null)
+            {
+                foreach (var spawnData in _levelConfig.AvailableStructures)
+                {
+                    if (spawnData is not null && spawnData.Config is not null)
+                    {
+                        _remainingCounts[spawnData.Config] = spawnData.MaxCount;
+                    }
+                }
+            }
+
             _inputService.OnMouseMoved.Subscribe(UpdatePreview).AddTo(_disposables);
             _inputService.OnPrimaryClick.Subscribe(PlaceStructure).AddTo(_disposables);
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastStructure()).AddTo(_disposables);
@@ -105,6 +122,12 @@ namespace Game.Services.Placement
                 RotateActiveStructures(angle);
                 UpdatePreview(_lastMousePosition);
             }).AddTo(_disposables);
+        }
+
+        public int GetRemainingCount(StructureConfig config)
+        {
+            if (config is null) return 0;
+            return _remainingCounts.TryGetValue(config, out var count) ? count : -1;
         }
 
         private void RotatePreview(int angleDelta)
@@ -146,6 +169,9 @@ namespace Game.Services.Placement
 
         public void SelectStructure(StructureConfig config)
         {
+            if (config is null) return;
+            if (GetRemainingCount(config) == 0) return;
+
             _selectedConfig = config;
             _localPreviewAngle = 0;
             ReturnPreviewToPool();
@@ -187,6 +213,12 @@ namespace Game.Services.Placement
                 return;
             }
 
+            if (GetRemainingCount(_selectedConfig) == 0)
+            {
+                ReturnPreviewToPool();
+                return;
+            }
+
             if (_previewInstance is null)
             {
                 _previewInstance = _poolService.Get(_selectedConfig);
@@ -214,6 +246,7 @@ namespace Game.Services.Placement
             if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures) return;
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired) return;
             if (_isAnimating || _selectedConfig is null) return;
+            if (GetRemainingCount(_selectedConfig) == 0) return;
 
             if (!_raycastService.TryGetTargetCell(mousePosition, out var originCell, out _)) return;
 
@@ -242,6 +275,12 @@ namespace Game.Services.Placement
 
             var placeClip = _selectedConfig.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
             if (placeClip is not null) _sfxService.Play(placeClip);
+
+            if (_remainingCounts.TryGetValue(_selectedConfig, out var currentCount) && currentCount > 0)
+            {
+                _remainingCounts[_selectedConfig] = currentCount - 1;
+                _onStructureCountChanged.OnNext((_selectedConfig, currentCount - 1));
+            }
 
             _isAnimating = true;
             _contextService.SetContext(InputContext.Generating);
@@ -277,6 +316,12 @@ namespace Game.Services.Placement
 
                 var removeClip = config.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
                 if (removeClip is not null) _sfxService.Play(removeClip);
+
+                if (_remainingCounts.TryGetValue(config, out var currentCount) && currentCount >= 0)
+                {
+                    _remainingCounts[config] = currentCount + 1;
+                    _onStructureCountChanged.OnNext((config, currentCount + 1));
+                }
 
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);

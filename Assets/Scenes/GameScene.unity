@@ -13738,7 +13738,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.UI.StructureInventoryView
   <Content>k__BackingField: {fileID: 1876670348}
-  <ItemPrefab>k__BackingField: {fileID: 443438432213338452, guid: e2cd8b5a6da46a841b010bced7172746, type: 3}
+  <ItemPrefab>k__BackingField: {fileID: 1613251339937620441, guid: e2cd8b5a6da46a841b010bced7172746, type: 3}
 --- !u!1 &1505224507
 GameObject:
   m_ObjectHideFlags: 0

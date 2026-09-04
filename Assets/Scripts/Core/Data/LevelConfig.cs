@@ -20,8 +20,14 @@ namespace Game.Data
     public class WallData
     {
         [field: SerializeField] public WallCellDensityData[] CellDensities { get; private set; }
-
         public void SetDensities(WallCellDensityData[] densities) => CellDensities = densities;
+    }
+
+    [System.Serializable]
+    public class StructureSpawnData
+    {
+        [field: SerializeField] public StructureConfig Config { get; private set; }
+        [field: SerializeField] public int MaxCount { get; private set; } = -1;
     }
 
     [CreateAssetMenu(fileName = nameof(LevelConfig), menuName = "Game/" + nameof(LevelConfig))]
@@ -29,7 +35,7 @@ namespace Game.Data
     {
         [field: Title("Game Mode", CustomColor.Red, CustomColor.Orange)]
         [field: SerializeField] public GameMode Mode { get; private set; } = GameMode.Blocks;
-        [field: SerializeField] public StructureConfig[] AvailableStructures { get; private set; }
+        [field: SerializeField] public StructureSpawnData[] AvailableStructures { get; private set; }
 
         [field: Title("Level", CustomColor.Cyan, CustomColor.Blue)]
         [field: SerializeField] public Vector3Int[] InitialBlocks { get; private set; }
@@ -46,7 +52,6 @@ namespace Game.Data
         [field: Title("Time Limit", CustomColor.Green, CustomColor.Red)]
         [field: SerializeField] public bool IsTimeLimitEnabled { get; private set; }
         [field: SerializeField] public float TimeLimitSeconds { get; private set; } = -1f;
-
 
         public void SetData(Vector3Int[] initialBlocks, bool[] floorMatrix, WallData wallYZ, WallData wallXY)
         {
@@ -73,5 +78,7 @@ namespace Game.Data
             IsTimeLimitEnabled = isEnabled;
             TimeLimitSeconds = seconds;
         }
+
+        public void SetAvailableStructures(StructureSpawnData[] structures) => AvailableStructures = structures;
     }
 }
