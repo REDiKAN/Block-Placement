@@ -1,5 +1,5 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 03.09.2026 15:20:41
+// Generation Time: 04.09.2026 14:02:22
 // Encoding: Unicode (UTF-8)
 // Total Files: 122
 // =====================================
@@ -1249,9 +1249,23 @@ namespace Game.Views
     public class StructureView : MonoBehaviour
     {
         private static readonly Vector3 Offset = new(0.5f, 0.5f, 0.5f);
-        private Collider[] _colliders;
 
-        private void Awake() => _colliders = GetComponentsInChildren<Collider>();
+        private Collider[] _colliders;
+        private Quaternion _initialWorldRotation;
+
+        private void Awake()
+        {
+            _colliders = GetComponentsInChildren<Collider>();
+            _initialWorldRotation = transform.rotation;
+        }
+
+        private void LateUpdate()
+        {
+            if (transform.rotation != _initialWorldRotation)
+            {
+                transform.rotation = _initialWorldRotation;
+            }
+        }
 
         public void SetPosition(Vector3Int cell) => transform.position = cell + Offset;
 
@@ -6849,6 +6863,7 @@ using Game.Services.Input;
 using Game.Services.Pool;
 using Game.Services.Raycast;
 using Game.Services.Registry;
+using Game.Services.Rotation;
 using Game.Views;
 using System;
 using System.Collections.Generic;
@@ -6868,6 +6883,7 @@ namespace Game.Services.Placement
     public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
+
         private readonly Subject<Unit> _onGridChanged = new();
         private readonly CompositeDisposable _disposables = new();
 
@@ -6881,6 +6897,7 @@ namespace Game.Services.Placement
         private readonly ISfxService _sfxService;
         private readonly AudioConfig _audioConfig;
         private readonly LevelConfig _levelConfig;
+        private readonly IRotationService _rotationService;
 
         private StructureConfig _selectedConfig;
         private StructureView _previewInstance;
@@ -6897,7 +6914,8 @@ namespace Game.Services.Placement
             IObjectRegistryService registryService,
             ISfxService sfxService,
             AudioConfig audioConfig,
-            LevelConfig levelConfig)
+            LevelConfig levelConfig,
+            IRotationService rotationService)
         {
             _inputService = inputService;
             _raycastService = raycastService;
@@ -6909,6 +6927,7 @@ namespace Game.Services.Placement
             _sfxService = sfxService;
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
+            _rotationService = rotationService;
         }
 
         public void Initialize()
@@ -6916,40 +6935,35 @@ namespace Game.Services.Placement
             _inputService.OnMouseMoved.Subscribe(UpdatePreview).AddTo(_disposables);
             _inputService.OnPrimaryClick.Subscribe(PlaceStructure).AddTo(_disposables);
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastStructure()).AddTo(_disposables);
+
+            _rotationService.OnRotationCompleted.Subscribe(RotateActiveStructures).AddTo(_disposables);
         }
 
         public void SelectStructure(StructureConfig config)
         {
             _selectedConfig = config;
-            if (_previewInstance is not null)
-            {
-                _previewInstance.SetInteractionEnabled(true);
-                _poolService.Return(_previewInstance);
-                _previewInstance = null;
-            }
+            ReturnPreviewToPool();
         }
 
         public void ClearSelection()
         {
             _selectedConfig = null;
-            if (_previewInstance is not null)
-            {
-                _previewInstance.SetInteractionEnabled(true);
-                _poolService.Return(_previewInstance);
-                _previewInstance = null;
-            }
+            ReturnPreviewToPool();
+        }
+
+        private void ReturnPreviewToPool()
+        {
+            if (_previewInstance is null) return;
+            _previewInstance.SetInteractionEnabled(true);
+            _poolService.Return(_previewInstance);
+            _previewInstance = null;
         }
 
         private void UpdatePreview(Vector2 mousePosition)
         {
             if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures)
             {
-                if (_previewInstance is not null)
-                {
-                    _previewInstance.SetInteractionEnabled(true);
-                    _poolService.Return(_previewInstance);
-                    _previewInstance = null;
-                }
+                ReturnPreviewToPool();
                 return;
             }
 
@@ -6961,7 +6975,7 @@ namespace Game.Services.Placement
 
             if (_selectedConfig is null)
             {
-                if (_previewInstance is not null) _previewInstance.gameObject.SetActive(false);
+                ReturnPreviewToPool();
                 return;
             }
 
@@ -6983,6 +6997,7 @@ namespace Game.Services.Placement
                 _previewInstance.gameObject.SetActive(false);
             }
         }
+
         private void PlaceStructure(Vector2 mousePosition)
         {
             if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures) return;
@@ -6990,6 +7005,9 @@ namespace Game.Services.Placement
             if (_isAnimating || _selectedConfig is null) return;
             if (!_raycastService.TryGetTargetCell(mousePosition, out var originCell, out _)) return;
             if (!ValidatePlacement(originCell, _selectedConfig.LocalCoordinates)) return;
+
+            var structure = _previewInstance ?? _poolService.Get(_selectedConfig);
+            if (structure is null) return;
 
             var worldCells = new Vector3Int[_selectedConfig.LocalCoordinates.Length];
             for (var i = 0; i < _selectedConfig.LocalCoordinates.Length; i++)
@@ -6999,9 +7017,6 @@ namespace Game.Services.Placement
                 _gridService.SetCellOccupied(worldCells[i], true);
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, worldCells[i], _selectedConfig.DisplayName));
             }
-
-            var structure = _previewInstance ?? _poolService.Get(_selectedConfig);
-            if (structure is null) return;
 
             structure.SetPosition(originCell);
             structure.SetInteractionEnabled(true);
@@ -7044,9 +7059,9 @@ namespace Game.Services.Placement
             if (_activeStructures.TryGetValue(record.Cells[0], out var structure))
             {
                 _activeStructures.Remove(record.Cells[0]);
+                structure.gameObject.SetActive(false);
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);
-
                 Observable.Timer(TimeSpan.FromSeconds(0.1f))
                     .Subscribe(_ => OnStructureDespawned(structure, config))
                     .AddTo(_disposables);
@@ -7058,17 +7073,41 @@ namespace Game.Services.Placement
             _poolService.Return(structure);
             var removeClip = config.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
             if (removeClip is not null) _sfxService.Play(removeClip);
-
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
+            _onGridChanged.OnNext(Unit.Default);
+        }
+
+        private void RotateActiveStructures(int angle)
+        {
+            var gridSize = _gridService.GridSize;
+            var newActiveStructures = new Dictionary<Vector3Int, StructureView>();
+
+            foreach (var kvp in _activeStructures)
+            {
+                var origin = kvp.Key;
+                var structure = kvp.Value;
+
+                var newOrigin = angle == 90
+                    ? new Vector3Int(origin.z, origin.y, gridSize - 1 - origin.x)
+                    : new Vector3Int(gridSize - 1 - origin.z, origin.y, origin.x);
+
+                structure.SetPosition(newOrigin);
+                newActiveStructures[newOrigin] = structure;
+            }
+
+            _activeStructures.Clear();
+            foreach (var kvp in newActiveStructures)
+                _activeStructures.Add(kvp.Key, kvp.Value);
+
             _onGridChanged.OnNext(Unit.Default);
         }
 
         private bool ValidatePlacement(Vector3Int origin, Vector3Int[] localCoords)
         {
             if (localCoords is null || localCoords.Length == 0) return false;
-
             var hasSupport = false;
+
             foreach (var local in localCoords)
             {
                 var worldCell = origin + local;
@@ -7086,6 +7125,7 @@ namespace Game.Services.Placement
                     if (_gridService.IsCellOccupied(belowCell)) hasSupport = true;
                 }
             }
+
             return hasSupport;
         }
 
@@ -7256,8 +7296,10 @@ namespace Game.Services.Pool
         public void Return(StructureView structure)
         {
             if (structure is null) return;
-            structure.SetInteractionEnabled(true);
+
             structure.gameObject.SetActive(false);
+            structure.SetInteractionEnabled(true);
+
             if (_activeStructures.TryGetValue(structure, out var config))
             {
                 if (_configPools.TryGetValue(config, out var pool))
@@ -8737,9 +8779,9 @@ namespace Game.Services.Water
 
 // ============ Statistics =============
 // Total Files: 122
-// Total Size: 299,11 KB
-// Total Lines: 8486
+// Total Size: 300,29 KB
+// Total Lines: 8528
 // Classes: 113
-// Methods: 539
+// Methods: 542
 // Comments (Blocks): 2
 // =====================================
