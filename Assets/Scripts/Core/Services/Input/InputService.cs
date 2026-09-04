@@ -12,6 +12,8 @@ namespace Game.Services.Input
         IObservable<Vector2> OnSecondaryClick { get; }
         IObservable<Unit> OnRotateLeft { get; }
         IObservable<Unit> OnRotateRight { get; }
+        IObservable<Unit> OnRotatePreviewLeft { get; }
+        IObservable<Unit> OnRotatePreviewRight { get; }
         IObservable<Unit> OnNextLevelRequested { get; }
     }
 
@@ -22,9 +24,10 @@ namespace Game.Services.Input
         private readonly Subject<Vector2> _onSecondaryClick = new();
         private readonly Subject<Unit> _onRotateLeft = new();
         private readonly Subject<Unit> _onRotateRight = new();
+        private readonly Subject<Unit> _onRotatePreviewLeft = new();
+        private readonly Subject<Unit> _onRotatePreviewRight = new();
         private readonly Subject<Unit> _onNextLevelRequested = new();
         private readonly CompositeDisposable _disposables = new();
-
         private Vector3 _lastMousePosition;
 
         public IObservable<Vector2> OnMouseMoved => _onMouseMoved;
@@ -32,12 +35,13 @@ namespace Game.Services.Input
         public IObservable<Vector2> OnSecondaryClick => _onSecondaryClick;
         public IObservable<Unit> OnRotateLeft => _onRotateLeft;
         public IObservable<Unit> OnRotateRight => _onRotateRight;
+        public IObservable<Unit> OnRotatePreviewLeft => _onRotatePreviewLeft;
+        public IObservable<Unit> OnRotatePreviewRight => _onRotatePreviewRight;
         public IObservable<Unit> OnNextLevelRequested => _onNextLevelRequested;
 
         public void Tick()
         {
             var currentPosition = UnityEngine.Input.mousePosition;
-
             if (currentPosition != _lastMousePosition)
             {
                 _onMouseMoved.OnNext((Vector2)currentPosition);
@@ -55,6 +59,12 @@ namespace Game.Services.Input
 
             if (UnityEngine.Input.GetKeyDown(KeyCode.D))
                 _onRotateRight.OnNext(Unit.Default);
+
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Q))
+                _onRotatePreviewLeft.OnNext(Unit.Default);
+
+            if (UnityEngine.Input.GetKeyDown(KeyCode.E))
+                _onRotatePreviewRight.OnNext(Unit.Default);
 
             if (UnityEngine.Input.GetKeyDown(KeyCode.Space))
                 _onNextLevelRequested.OnNext(Unit.Default);
