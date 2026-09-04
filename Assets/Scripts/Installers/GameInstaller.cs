@@ -37,6 +37,7 @@ namespace Game.Installers
         [field: SerializeField] public FloorGridView FloorGridView { get; private set; }
         [field: SerializeField] public WallView[] WallViews { get; private set; }
         [field: SerializeField] public BlockAnimationConfig BlockAnimationConfig { get; private set; }
+        [field: SerializeField] public StructureAnimationConfig StructureAnimationConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -67,7 +68,6 @@ namespace Game.Installers
 
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
-
             if (StructureConfigs is not null && StructureConfigs.Length > 0)
                 Container.BindInstance(StructureConfigs);
 
@@ -76,6 +76,9 @@ namespace Game.Installers
 
             if (BlockAnimationConfig is not null)
                 Container.BindInstance(BlockAnimationConfig);
+
+            if (StructureAnimationConfig is not null)
+                Container.BindInstance(StructureAnimationConfig);
 
             Bind<InputService>();
             Bind<InputContextService>();
@@ -101,6 +104,7 @@ namespace Game.Installers
             Bind<LevelGeneratorService>();
             Bind<ShakeAnimationService>();
             Bind<BlockAnimationService>();
+            Bind<StructureAnimationService>();
             Bind<ProgressionService>();
             Bind<GenerationContext>();
             Bind<EndlessGeneratorService>();

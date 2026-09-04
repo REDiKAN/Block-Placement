@@ -7,6 +7,7 @@ using Game.Services.Pool;
 using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
+using Game.Services.Animation;
 using Game.Views;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ namespace Game.Services.Placement
         private readonly IPlacementHistoryService _historyService;
         private readonly IInputContextService _contextService;
         private readonly IObjectRegistryService _registryService;
+        private readonly IStructureAnimationService _animationService;
         private readonly ISfxService _sfxService;
         private readonly AudioConfig _audioConfig;
         private readonly LevelConfig _levelConfig;
@@ -66,6 +68,7 @@ namespace Game.Services.Placement
             IPlacementHistoryService historyService,
             IInputContextService contextService,
             IObjectRegistryService registryService,
+            IStructureAnimationService animationService,
             ISfxService sfxService,
             AudioConfig audioConfig,
             LevelConfig levelConfig,
@@ -78,6 +81,7 @@ namespace Game.Services.Placement
             _historyService = historyService;
             _contextService = contextService;
             _registryService = registryService;
+            _animationService = animationService;
             _sfxService = sfxService;
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
@@ -242,9 +246,7 @@ namespace Game.Services.Placement
             _isAnimating = true;
             _contextService.SetContext(InputContext.Generating);
 
-            Observable.Timer(TimeSpan.FromSeconds(0.1f))
-                .Subscribe(_ => OnStructureSpawned())
-                .AddTo(_disposables);
+            _animationService.AnimateSpawn(structure, OnStructureSpawned);
         }
 
         private void OnStructureSpawned()
@@ -272,22 +274,20 @@ namespace Game.Services.Placement
             if (_activeStructures.TryGetValue(record.Cells[0], out var structure))
             {
                 _activeStructures.Remove(record.Cells[0]);
-                structure.gameObject.SetActive(false);
+
+                var removeClip = config.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
+                if (removeClip is not null) _sfxService.Play(removeClip);
+
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);
 
-                Observable.Timer(TimeSpan.FromSeconds(0.1f))
-                    .Subscribe(_ => OnStructureDespawned(structure, config))
-                    .AddTo(_disposables);
+                _animationService.AnimateDespawn(structure, () => OnStructureDespawned(structure, config));
             }
         }
 
         private void OnStructureDespawned(StructureView structure, StructureConfig config)
         {
             _poolService.Return(structure);
-            var removeClip = config.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
-            if (removeClip is not null) _sfxService.Play(removeClip);
-
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);

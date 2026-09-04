@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace Game.Views
@@ -17,12 +18,17 @@ namespace Game.Views
             transform.localRotation = Quaternion.identity;
         }
 
+        private void OnDisable()
+        {
+            transform.localScale = Vector3.one;
+            DOTween.Kill(transform);
+        }
+
         public void SetPosition(Vector3Int cell) => transform.position = cell + Offset;
 
         public void SetInteractionEnabled(bool enabled)
         {
             if (_colliders is null) return;
-
             foreach (var c in _colliders)
             {
                 if (c is not null) c.enabled = enabled;

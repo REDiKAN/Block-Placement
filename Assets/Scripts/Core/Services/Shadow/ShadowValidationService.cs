@@ -67,6 +67,7 @@ namespace Game.Services.Shadow
         public ShadowValidationService(
             IGridService gridService,
             IBlockPlacementService placementService,
+            IStructurePlacementService structurePlacementService,
             IShadowCalculationService calculationService,
             IRotationService rotationService,
             ITargetDensityProjectionService projectionService)
@@ -77,6 +78,10 @@ namespace Game.Services.Shadow
             _projectionService = projectionService;
 
             placementService.OnGridChanged
+                .Subscribe(_ => ValidateAndPublish())
+                .AddTo(_disposables);
+
+            structurePlacementService.OnGridChanged
                 .Subscribe(_ => ValidateAndPublish())
                 .AddTo(_disposables);
         }
@@ -131,6 +136,7 @@ namespace Game.Services.Shadow
         {
             if (densities is null || index >= densities.Length)
                 return default;
+
             return densities[index];
         }
 
@@ -178,6 +184,7 @@ namespace Game.Services.Shadow
         }
 
         public void Dispose() => _disposables?.Dispose();
+
         public void ForceRevalidate() => ValidateAndPublish();
     }
 }
