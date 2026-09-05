@@ -1,9 +1,10 @@
+using Game.Services.Achievements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using UniRx;
 using UnityEngine;
 using Zenject;
-using UniRx;
-using Game.Services.Achievements;
 
 namespace Game.Views.UI.Achievements
 {
@@ -15,11 +16,14 @@ namespace Game.Views.UI.Achievements
         [field: SerializeField] private bool ShowOnlyCompleted { get; set; }
         [field: SerializeField] private bool HideCompleted { get; set; }
 
+        public IObservable<AchievementRuntimeData> OnItemSelected => _onItemSelected;
+
         [Inject] private IAchievementService _achievementService;
 
         private readonly Queue<AchievementItemView> _itemPool = new();
         private readonly List<AchievementItemView> _activeItems = new();
         private readonly CompositeDisposable _disposables = new();
+        private readonly Subject<AchievementRuntimeData> _onItemSelected = new();
 
         private void Start()
         {
@@ -87,7 +91,11 @@ namespace Game.Views.UI.Achievements
             if (_itemPool.Count > 0)
                 return _itemPool.Dequeue();
 
-            return Instantiate(targetPrefab, Content);
+            var newItem = Instantiate(targetPrefab, Content);
+            newItem.OnClick
+                .Subscribe(_onItemSelected.OnNext)
+                .AddTo(_disposables);
+            return newItem;
         }
 
         private void OnDestroy() => _disposables?.Dispose();
