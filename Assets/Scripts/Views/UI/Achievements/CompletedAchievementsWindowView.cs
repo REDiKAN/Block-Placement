@@ -6,11 +6,10 @@ using Game.Services.Menu;
 
 namespace Game.Views.UI.Achievements
 {
-    public class AchievementsWindowView : MonoBehaviour
+    public class CompletedAchievementsWindowView : MonoBehaviour
     {
         [field: SerializeField] private GameObject WindowRoot { get; set; }
         [field: SerializeField] private Button BackButton { get; set; }
-        [field: SerializeField] private Button CompletedAchievementsButton { get; set; }
 
         [Inject] private IMenuNavigationService _navigationService;
 
@@ -23,14 +22,7 @@ namespace Game.Views.UI.Achievements
             if (BackButton is not null && _navigationService is not null)
             {
                 BackButton.OnClickAsObservable()
-                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.MainMenu))
-                    .AddTo(_disposables);
-            }
-
-            if (CompletedAchievementsButton is not null && _navigationService is not null)
-            {
-                CompletedAchievementsButton.OnClickAsObservable()
-                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.CompletedAchievements))
+                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.Achievements))
                     .AddTo(_disposables);
             }
 
@@ -40,7 +32,7 @@ namespace Game.Views.UI.Achievements
                     .Subscribe(view =>
                     {
                         if (WindowRoot is not null)
-                            WindowRoot.SetActive(view == MenuView.Achievements);
+                            WindowRoot.SetActive(view == MenuView.CompletedAchievements);
                     })
                     .AddTo(_disposables);
             }

@@ -2373,6 +2373,7 @@ MonoBehaviour:
   <ItemPrefab>k__BackingField: {fileID: 7203008219226235252, guid: 079687b42b680de49a2168e5ae9fd12a, type: 3}
   <EmptyStateRoot>k__BackingField: {fileID: 1625479718}
   <ShowOnlyCompleted>k__BackingField: 0
+  <HideCompleted>k__BackingField: 0
 --- !u!1 &131131401
 GameObject:
   m_ObjectHideFlags: 0
@@ -10679,7 +10680,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2045967536}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999986
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -14674,7 +14675,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 83813298}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999986
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -19128,6 +19129,7 @@ MonoBehaviour:
   <ItemPrefab>k__BackingField: {fileID: 7203008219226235252, guid: 079687b42b680de49a2168e5ae9fd12a, type: 3}
   <EmptyStateRoot>k__BackingField: {fileID: 2004435247}
   <ShowOnlyCompleted>k__BackingField: 1
+  <HideCompleted>k__BackingField: 0
 --- !u!1 &1798256112
 GameObject:
   m_ObjectHideFlags: 0

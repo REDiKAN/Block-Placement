@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 using UniRx;
@@ -10,6 +11,9 @@ namespace Game.Views.UI.Achievements
     {
         [field: SerializeField] private Transform Content { get; set; }
         [field: SerializeField] private AchievementItemView ItemPrefab { get; set; }
+        [field: SerializeField] private GameObject EmptyStateRoot { get; set; }
+        [field: SerializeField] private bool ShowOnlyCompleted { get; set; }
+        [field: SerializeField] private bool HideCompleted { get; set; }
 
         [Inject] private IAchievementService _achievementService;
 
@@ -29,12 +33,19 @@ namespace Game.Views.UI.Achievements
                 .Subscribe(_ => RebuildList())
                 .AddTo(_disposables);
 
+            if (ShowOnlyCompleted || HideCompleted)
+            {
+                _achievementService.OnAchievementUnlocked
+                    .Subscribe(_ => RebuildList())
+                    .AddTo(_disposables);
+            }
+
             RebuildList();
         }
 
         private void RebuildList()
         {
-            if (Content is null) return;
+            if (Content is null || _achievementService is null) return;
 
             foreach (var item in _activeItems)
             {
@@ -44,7 +55,19 @@ namespace Game.Views.UI.Achievements
             }
             _activeItems.Clear();
 
-            foreach (var data in _achievementService.Achievements)
+            IEnumerable<AchievementRuntimeData> filteredData = _achievementService.Achievements;
+
+            if (ShowOnlyCompleted)
+                filteredData = filteredData.Where(d => d.IsCompleted.Value);
+            else if (HideCompleted)
+                filteredData = filteredData.Where(d => !d.IsCompleted.Value);
+
+            var resultList = filteredData.ToList();
+
+            if (EmptyStateRoot is not null)
+                EmptyStateRoot.SetActive(resultList.Count == 0);
+
+            foreach (var data in resultList)
             {
                 var item = GetPooledItem(data.Config.UIPrefab);
                 if (item is null) continue;
@@ -62,9 +85,7 @@ namespace Game.Views.UI.Achievements
             if (targetPrefab is null) return null;
 
             if (_itemPool.Count > 0)
-            {
                 return _itemPool.Dequeue();
-            }
 
             return Instantiate(targetPrefab, Content);
         }
