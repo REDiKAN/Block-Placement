@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Game.Data;
 using UnityEditor;
 using UnityEngine;
@@ -9,32 +10,84 @@ namespace Game.Editor.Tool
 {
     public class LevelImporterWindow : EditorWindow
     {
-        [field: SerializeField] public string JsonInput { get; private set; } = string.Empty;
-        [field: SerializeField] public string AssetName { get; private set; } = "NewLevel";
-        [field: SerializeField] public string SavePath { get; private set; } = "Assets/Data/Levels";
-        [field: SerializeField] public bool AutoFixShadows { get; private set; } = true;
+        [field: SerializeField] private string _jsonInput = string.Empty;
+        [field: SerializeField] private string _assetName = "NewLevel";
+        [field: SerializeField] private string _savePath = "Assets/Data/Levels";
+        [field: SerializeField] private bool _autoFixShadows = true;
+        [field: SerializeField] private List<StructurePromptItem> _structuresForPrompt = new();
 
         [MenuItem("Tools/Level Importer")]
         public static void ShowWindow() => GetWindow<LevelImporterWindow>("Level Importer");
 
         private void OnGUI()
         {
-            JsonInput = EditorGUILayout.TextArea(JsonInput, GUILayout.Height(300));
-            AssetName = EditorGUILayout.TextField("Asset Name", AssetName);
-            SavePath = EditorGUILayout.TextField("Save Path", SavePath);
-            AutoFixShadows = EditorGUILayout.Toggle("Auto-Fix Shadows", AutoFixShadows);
+            DrawImportSection();
+            DrawPromptGeneratorSection();
+        }
 
-            if (GUILayout.Button("Create"))
+        private void DrawImportSection()
+        {
+            EditorGUILayout.LabelField("Level Importer", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            _jsonInput = EditorGUILayout.TextArea(_jsonInput, GUILayout.Height(300));
+            _assetName = EditorGUILayout.TextField("Asset Name", _assetName);
+            _savePath = EditorGUILayout.TextField("Save Path", _savePath);
+            _autoFixShadows = EditorGUILayout.Toggle("Auto-Fix Shadows", _autoFixShadows);
+
+            if (GUILayout.Button("Create Level"))
                 ProcessImport();
+        }
+
+        private void DrawPromptGeneratorSection()
+        {
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("AI Prompt Generator", EditorStyles.boldLabel);
+
+            if (GUILayout.Button("Add Structure"))
+                _structuresForPrompt.Add(new StructurePromptItem());
+
+            for (var i = 0; i < _structuresForPrompt.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                _structuresForPrompt[i].Config = (StructureConfig)EditorGUILayout.ObjectField(
+                    _structuresForPrompt[i].Config, typeof(StructureConfig), false);
+                _structuresForPrompt[i].MaxCount = EditorGUILayout.IntField(
+                    _structuresForPrompt[i].MaxCount, GUILayout.Width(50));
+
+                if (GUILayout.Button("X", GUILayout.Width(25)))
+                {
+                    _structuresForPrompt.RemoveAt(i);
+                    i--;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.Space();
+
+            if (GUILayout.Button("Generate AI Prompt", GUILayout.Height(30)))
+                GenerateAIPrompt();
+        }
+
+        private void GenerateAIPrompt()
+        {
+            var validStructures = _structuresForPrompt.Where(s => s.Config is not null).ToArray();
+            if (validStructures.Length == 0)
+            {
+                EditorUtility.DisplayDialog("Error", "No valid structures selected.", "OK");
+                return;
+            }
+
+            var prompt = StructurePromptBuilder.Build(validStructures);
+            EditorGUIUtility.systemCopyBuffer = prompt;
+            EditorUtility.DisplayDialog("Success", "AI prompt copied to clipboard!", "OK");
         }
 
         private void ProcessImport()
         {
-            if (string.IsNullOrWhiteSpace(JsonInput))
-                return;
+            if (string.IsNullOrWhiteSpace(_jsonInput)) return;
 
-            var dto = JsonUtility.FromJson<LevelConfigDto>(JsonInput);
-
+            var dto = JsonUtility.FromJson<LevelConfigDto>(_jsonInput);
             if (dto is null || dto.InitialBlocks is null || dto.InitialBlocks.Length == 0)
             {
                 Debug.LogError("Invalid JSON or empty blocks.");
@@ -48,7 +101,6 @@ namespace Game.Editor.Tool
             }
 
             var config = ScriptableObject.CreateInstance<LevelConfig>();
-
             var wallYZ = MapWallData(dto.WallYZ);
             var wallXY = MapWallData(dto.WallXY);
 
@@ -58,38 +110,26 @@ namespace Game.Editor.Tool
 
             if (!ValidateSolvability(config))
             {
-                Debug.LogError("Level is mathematically unsolvable (blocks disconnected or floating).");
+                Debug.LogError("Level is mathematically unsolvable.");
                 return;
             }
 
-            if (AutoFixShadows)
+            if (_autoFixShadows)
                 RecalculateShadowsAndDensities(config);
 
-            CreateDirectoryIfNotExists(SavePath);
-
-            var fullPath = Path.Combine(SavePath, $"{AssetName}.asset");
+            CreateDirectoryIfNotExists(_savePath);
+            var fullPath = Path.Combine(_savePath, $"{_assetName}.asset");
 
             EditorUtility.SetDirty(config);
             AssetDatabase.CreateAsset(config, fullPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-
-            Debug.Log($"Level '{AssetName}' created. Floor cells active: {CountTrue(dto.FloorMatrix)}/25");
-        }
-
-        private static int CountTrue(bool[] array)
-        {
-            var count = 0;
-            foreach (var b in array)
-                if (b) count++;
-            return count;
         }
 
         private static WallData MapWallData(WallDataDto dto)
         {
             var data = new WallData();
-            if (dto?.CellDensities is null)
-                return data;
+            if (dto?.CellDensities is null) return data;
 
             var densities = new WallCellDensityData[dto.CellDensities.Length];
             for (var i = 0; i < dto.CellDensities.Length; i++)
@@ -108,6 +148,7 @@ namespace Game.Editor.Tool
 
             var parts = path.Split('/');
             var currentPath = parts[0];
+
             for (var i = 1; i < parts.Length; i++)
             {
                 var nextPath = $"{currentPath}/{parts[i]}";
@@ -125,28 +166,19 @@ namespace Game.Editor.Tool
             foreach (var block in blocks)
             {
                 if (block.x < 0 || block.x >= 5 || block.y < 0 || block.y >= 5 || block.z < 0 || block.z >= 5)
-                {
-                    Debug.LogError($"Block {block} is out of bounds.");
                     return false;
-                }
 
                 if (block.y == 0)
                 {
                     var floorIndex = block.x * 5 + block.z;
                     if (floor is null || floorIndex >= floor.Length || !floor[floorIndex])
-                    {
-                        Debug.LogError($"Block {block} is on the ground but FloorMatrix is false at index {floorIndex}.");
                         return false;
-                    }
                 }
                 else
                 {
                     var below = new Vector3Int(block.x, block.y - 1, block.z);
                     if (!blocks.Contains(below))
-                    {
-                        Debug.LogError($"Block {block} is floating. Missing support at {below}.");
                         return false;
-                    }
                 }
             }
 
@@ -154,9 +186,8 @@ namespace Game.Editor.Tool
 
             var visited = new HashSet<Vector3Int>();
             var queue = new Queue<Vector3Int>();
-            var enumerator = blocks.GetEnumerator();
-            enumerator.MoveNext();
-            var startBlock = enumerator.Current;
+            var startBlock = blocks.First();
+
             queue.Enqueue(startBlock);
             visited.Add(startBlock);
 
@@ -165,10 +196,10 @@ namespace Game.Editor.Tool
                 var current = queue.Dequeue();
                 var directions = new[]
                 {
-            Vector3Int.up, Vector3Int.down,
-            Vector3Int.left, Vector3Int.right,
-            Vector3Int.forward, Vector3Int.back
-        };
+                    Vector3Int.up, Vector3Int.down,
+                    Vector3Int.left, Vector3Int.right,
+                    Vector3Int.forward, Vector3Int.back
+                };
 
                 foreach (var dir in directions)
                 {
@@ -178,20 +209,7 @@ namespace Game.Editor.Tool
                 }
             }
 
-            if (visited.Count != blocks.Count)
-            {
-                foreach (var b in blocks)
-                {
-                    if (!visited.Contains(b))
-                    {
-                        Debug.LogError($"Block {b} is disconnected from the main structure starting at {startBlock}.");
-                        break;
-                    }
-                }
-                return false;
-            }
-
-            return true;
+            return visited.Count == blocks.Count;
         }
 
         private static void RecalculateShadowsAndDensities(LevelConfig config)
@@ -210,7 +228,6 @@ namespace Game.Editor.Tool
                 var countYZ = 0;
                 for (var x = 0; x < 5; x++)
                     if (grid[x, y, z]) countYZ++;
-
                 wallYZ[i] = new WallCellDensityData(countYZ > 0, countYZ);
 
                 var x2 = i / 5;
@@ -218,12 +235,12 @@ namespace Game.Editor.Tool
                 var countXY = 0;
                 for (var z2 = 0; z2 < 5; z2++)
                     if (grid[x2, y2, z2]) countXY++;
-
                 wallXY[i] = new WallCellDensityData(countXY > 0, countXY);
             }
 
             var dataYZ = new WallData();
             dataYZ.SetDensities(wallYZ);
+
             var dataXY = new WallData();
             dataXY.SetDensities(wallXY);
 
