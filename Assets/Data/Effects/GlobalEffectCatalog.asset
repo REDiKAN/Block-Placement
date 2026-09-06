@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 645b550be66434f4fbd5a3f5006619e6, type: 3}
+  m_Name: GlobalEffectCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.EnvironmentEffectCatalog
+  <Configs>k__BackingField:
+  - {fileID: 11400000, guid: e384239123e69224fa376a972594f4b1, type: 2}
+  - {fileID: 11400000, guid: 2dfab67749c5324479762aa84b388d3a, type: 2}

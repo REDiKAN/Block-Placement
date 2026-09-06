@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 3906534171256902391}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1487,7 +1487,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 1151555457, guid: abee16a49a4ef224daec03c7e5e61b8a, type: 3}
+    - sprite: {fileID: -988802108, guid: 38963e6c6ee348047be3741d20c72e84, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -4845,6 +4845,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5503832670955837221}
+  - component: {fileID: 3727941243119368922}
   m_Layer: 0
   m_Name: Fog Particle System
   m_TagString: Untagged
@@ -4868,3 +4869,16 @@ Transform:
   - {fileID: 5496016022335965670}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3727941243119368922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4448305124163456437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cde4687d345d323448446a3ebe1f1a9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FogEffectView
+  <ParticleSystem>k__BackingField: {fileID: 281292893816587780}
