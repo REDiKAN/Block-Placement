@@ -16,5 +16,6 @@ MonoBehaviour:
   <Title>k__BackingField: First 10 blocks
   <Description>k__BackingField: text
   <UIPrefab>k__BackingField: {fileID: 7203008219226235252, guid: 079687b42b680de49a2168e5ae9fd12a, type: 3}
+  <Icon>k__BackingField: {fileID: 1702758509, guid: 605bbe7db04630a4893ad8db3bdf3437, type: 3}
   <ConditionType>k__BackingField: 0
   <TargetValue>k__BackingField: 10

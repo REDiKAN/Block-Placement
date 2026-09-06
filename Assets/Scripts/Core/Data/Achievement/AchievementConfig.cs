@@ -13,6 +13,9 @@ namespace Game.Data
         [field: SerializeField] public string Description { get; private set; }
         [field: SerializeField] public AchievementItemView UIPrefab { get; private set; }
 
+        [field: Title("Visuals", CustomColor.Yellow, CustomColor.Orange)]
+        [field: SerializeField] public Sprite Icon { get; private set; }
+
         [field: Title("Condition", CustomColor.Green, CustomColor.DarkGreen)]
         [field: SerializeField] public AchievementConditionType ConditionType { get; private set; }
         [field: SerializeField, Min(1)] public int TargetValue { get; private set; } = 1;

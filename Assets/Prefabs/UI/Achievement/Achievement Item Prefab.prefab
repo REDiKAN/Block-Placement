@@ -170,6 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.UI.Achievements.AchievementItemView
   <TitleText>k__BackingField: {fileID: 5090907402367749958}
+  <IconImage>k__BackingField: {fileID: 6879290963127458860}
   <ProgressBarFill>k__BackingField: {fileID: 8063071347261934015}
   <ProgressText>k__BackingField: {fileID: 9130716069786673982}
   <CompletedOverlay>k__BackingField: {fileID: 8793451631436448656}
