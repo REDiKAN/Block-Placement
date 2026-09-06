@@ -1130,6 +1130,7 @@ GameObject:
   - component: {fileID: 114461253}
   - component: {fileID: 114461254}
   - component: {fileID: 114461255}
+  - component: {fileID: 114461256}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1205,6 +1206,7 @@ MonoBehaviour:
   - {fileID: 114461253}
   - {fileID: 114461254}
   - {fileID: 114461255}
+  - {fileID: 114461256}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -1262,6 +1264,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Installers.SettingsInstaller
   <SettingsConfig>k__BackingField: {fileID: 11400000, guid: 60c7409f7fe35bb4daca6dad12cd9b83, type: 2}
+--- !u!114 &114461256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114461248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db624c2bb8e7ffe44ba750811d7b5c7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Installers.EnvironmentEffectInstaller
 --- !u!1 &122828061
 GameObject:
   m_ObjectHideFlags: 0
@@ -17654,6 +17668,67 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1001 &1937751617
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 263963047931747680, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519901939236035842, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4741590525697754052, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
+      propertyPath: m_Name
+      value: Effects Parent
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7cbd1524338cb7b49a4464263b152b90, type: 3}
 --- !u!1001 &1942815693
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23276,3 +23351,4 @@ SceneRoots:
   - {fileID: 2129806692}
   - {fileID: 1372099531151786652}
   - {fileID: 846341725}
+  - {fileID: 1937751617}
