@@ -1,5 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
+using Zenject;
+using Game.Data;
 
 namespace Game.Views.Effects
 {
@@ -8,16 +10,24 @@ namespace Game.Views.Effects
         [field: SerializeField, Range(0f, 1f)] public float Probability { get; private set; }
         [field: SerializeField] public ParticleSystem ParticleSystem { get; private set; }
 
-        [Header("Effect Setting")]
-        [field: SerializeField] const float TargetRate = 3000f;
-        [field: SerializeField] const float FadeDuration = 5f;
-
         private Tween _fadeTween;
+        private RainConfig _rainConfig;
+
+        [Inject]
+        public void Construct(RainConfig rainConfig)
+        {
+            _rainConfig = rainConfig;
+        }
 
         public void Show()
         {
             gameObject.SetActive(true);
-            if (ParticleSystem is null) return;
+
+            if (ParticleSystem is null || _rainConfig is null || _rainConfig.States is null || _rainConfig.States.Length == 0)
+                return;
+
+            var randomIndex = UnityEngine.Random.Range(0, _rainConfig.States.Length);
+            var targetRate = _rainConfig.States[randomIndex].TargetRate;
 
             ParticleSystem.Play();
             _fadeTween?.Kill();
@@ -29,8 +39,8 @@ namespace Game.Views.Effects
                     var emission = ParticleSystem.emission;
                     emission.rateOverTime = value;
                 },
-                TargetRate,
-                FadeDuration
+                targetRate,
+                _rainConfig.FadeDuration
             ).SetEase(Ease.Linear).SetAutoKill(true);
         }
 
