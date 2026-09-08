@@ -23,12 +23,6 @@ namespace Game.Views.UI.Achievements
 
         private void Start()
         {
-            if (ProgressFill is not null)
-            {
-                ProgressFill.type = Image.Type.Filled;
-                ProgressFill.fillMethod = Image.FillMethod.Horizontal;
-            }
-
             if (_navigationService is not null)
             {
                 _navigationService.CurrentView
@@ -43,6 +37,7 @@ namespace Game.Views.UI.Achievements
             if (_achievementService is null) return;
 
             var total = _achievementService.Achievements.Count;
+
             if (total == 0)
             {
                 if (ProgressFill is not null) ProgressFill.fillAmount = 0f;

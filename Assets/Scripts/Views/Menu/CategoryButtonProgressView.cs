@@ -31,11 +31,8 @@ namespace Game.Views.Menu
         {
             if (ProgressImage is not null)
             {
-                ProgressImage.type = Image.Type.Filled;
-                ProgressImage.fillOrigin = (int)Image.OriginHorizontal.Left;
                 ProgressImage.raycastTarget = false;
             }
-
             if (IconImage is not null)
             {
                 IconImage.raycastTarget = false;
@@ -47,8 +44,7 @@ namespace Game.Views.Menu
             _categoryId = categoryId;
             _progressionService = progressionService;
 
-            if (Label is not null)
-                Label.text = config.Title;
+            if (Label is not null) Label.text = config.Title;
 
             if (IconImage is not null)
             {
@@ -92,13 +88,8 @@ namespace Game.Views.Menu
         private void UpdateProgress(ProgressionData data)
         {
             var fillAmount = data.ProgressPercent / 100f;
-
-            if (ProgressImage is not null)
-                ProgressImage.fillAmount = fillAmount;
-
-            if (ProgressLabel is not null)
-                ProgressLabel.text = $"{data.ProgressPercent:F0}%";
-
+            if (ProgressImage is not null) ProgressImage.fillAmount = fillAmount;
+            if (ProgressLabel is not null) ProgressLabel.text = $"{data.ProgressPercent:F0}%";
             _onProgress.OnNext(fillAmount);
         }
 

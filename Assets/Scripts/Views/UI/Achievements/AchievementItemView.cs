@@ -41,14 +41,7 @@ namespace Game.Views.UI.Achievements
             _boundData = data;
 
             if (TitleText is not null) TitleText.text = data.Config.Title;
-
             if (IconImage is not null) IconImage.sprite = data.Config.Icon;
-
-            if (ProgressBarFill is not null)
-            {
-                ProgressBarFill.type = Image.Type.Filled;
-                ProgressBarFill.fillMethod = Image.FillMethod.Horizontal;
-            }
 
             data.CurrentProgress
                 .Subscribe(progress => UpdateProgressUI(progress, data.Config.TargetValue))

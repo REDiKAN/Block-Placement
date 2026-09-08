@@ -17,6 +17,7 @@ using Game.Services.Rotation;
 using Game.Services.Shadow;
 using Game.Services.Time;
 using Game.Views;
+using Game.Views.UI.Achievements;
 using UnityEngine;
 using Zenject;
 
@@ -128,6 +129,8 @@ namespace Game.Installers
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<RowByRowStrategy>().AsSingle().Lazy();
+
+            Container.Bind<AchievementToastView>().FromComponentInHierarchy().AsCached();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>
