@@ -1208,6 +1208,7 @@ MonoBehaviour:
   <StructureConfigs>k__BackingField:
   - {fileID: 11400000, guid: 93ae3c76714c070488cdfbb0ee271c30, type: 2}
   - {fileID: 11400000, guid: e8916ef9488196e49b6333be57449d9e, type: 2}
+  - {fileID: 11400000, guid: cf7f6716aea3acd4dbe3d3a020c604a2, type: 2}
   <BlockPrefab>k__BackingField: {fileID: 229738514984466294, guid: 3c20647d27160114a84a4fdb96c06590, type: 3}
   <PreviewBlock>k__BackingField: {fileID: 2470772666985236582}
   <BlocksParent>k__BackingField: {fileID: 378661812}
