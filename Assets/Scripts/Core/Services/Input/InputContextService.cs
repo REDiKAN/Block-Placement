@@ -11,7 +11,8 @@ namespace Game.Services.Input
         LevelCompleted,
         Paused,
         Generating,
-        TimeExpired
+        TimeExpired,
+        Dialogue
     }
 
     public interface IInputContextService

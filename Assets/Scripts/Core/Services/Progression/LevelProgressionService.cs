@@ -4,6 +4,7 @@ using Zenject;
 using Game.Core;
 using Game.Data;
 using Game.Services.Animation;
+using Game.Services.Dialogue;
 using Game.Services.Generation;
 using Game.Services.Input;
 using Game.Services.Placement;
@@ -33,6 +34,8 @@ namespace Game.Services.Progression
         private readonly IBlockPlacementService _placementService;
         private readonly ILevelIntroAnimationService _levelIntroAnimationService;
         private readonly IAchievementEventBus _achievementEventBus;
+        private readonly IDialogueService _dialogueService;
+        private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
 
         private bool _isLevelReady;
@@ -54,6 +57,8 @@ namespace Game.Services.Progression
             IBlockPlacementService placementService,
             ILevelIntroAnimationService levelIntroAnimationService,
             IAchievementEventBus achievementEventBus,
+            IDialogueService dialogueService,
+            LevelConfig levelConfig,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
             _validationService = validationService;
@@ -67,6 +72,8 @@ namespace Game.Services.Progression
             _placementService = placementService;
             _levelIntroAnimationService = levelIntroAnimationService;
             _achievementEventBus = achievementEventBus;
+            _dialogueService = dialogueService;
+            _levelConfig = levelConfig;
             _isDeveloperMode = isDeveloperMode;
         }
 
@@ -78,7 +85,6 @@ namespace Game.Services.Progression
                 _contextService.SetContext(InputContext.PlaceBlock);
                 return;
             }
-
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
@@ -98,6 +104,23 @@ namespace Game.Services.Progression
                     _validationService.ForceRevalidate();
                 })
                 .AddTo(_disposables);
+
+            var dialogueConfig = _levelConfig != null ? _levelConfig.DialogueConfig : null;
+            if (dialogueConfig != null && dialogueConfig.Replicas != null && dialogueConfig.Replicas.Length > 0)
+            {
+                _contextService.SetContext(InputContext.Dialogue);
+                _dialogueService.StartDialogue(dialogueConfig.Replicas);
+
+                _dialogueService.OnDialogueCompleted
+                    .Subscribe(_ =>
+                    {
+                        _contextService.SetContext(InputContext.None);
+                        _levelIntroAnimationService.Play();
+                    })
+                    .AddTo(_disposables);
+
+                return;
+            }
 
             _levelIntroAnimationService.Play();
         }
@@ -126,6 +149,7 @@ namespace Game.Services.Progression
         private void HandleTimeExpired()
         {
             if (!_isLevelReady) return;
+
             _contextService.SetContext(InputContext.TimeExpired);
             _onLevelCompletedMessage.OnNext(TimeExpiredMessage);
         }

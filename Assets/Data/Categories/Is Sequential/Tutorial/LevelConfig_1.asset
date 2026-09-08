@@ -130,3 +130,4 @@ MonoBehaviour:
   <MaxBlocks>k__BackingField: -1
   <IsTimeLimitEnabled>k__BackingField: 0
   <TimeLimitSeconds>k__BackingField: -1
+  <DialogueConfig>k__BackingField: {fileID: 11400000, guid: 14f740c3ee3c70146b4843c5be2f9671, type: 2}

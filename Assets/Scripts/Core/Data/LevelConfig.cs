@@ -20,6 +20,7 @@ namespace Game.Data
     public class WallData
     {
         [field: SerializeField] public WallCellDensityData[] CellDensities { get; private set; }
+
         public void SetDensities(WallCellDensityData[] densities) => CellDensities = densities;
     }
 
@@ -52,6 +53,9 @@ namespace Game.Data
         [field: Title("Time Limit", CustomColor.Green, CustomColor.Red)]
         [field: SerializeField] public bool IsTimeLimitEnabled { get; private set; }
         [field: SerializeField] public float TimeLimitSeconds { get; private set; } = -1f;
+
+        [field: Title("Dialogue", CustomColor.Blue, CustomColor.Cyan)]
+        [field: SerializeField] public DialogueConfig DialogueConfig { get; private set; }
 
         public void SetData(Vector3Int[] initialBlocks, bool[] floorMatrix, WallData wallYZ, WallData wallXY)
         {

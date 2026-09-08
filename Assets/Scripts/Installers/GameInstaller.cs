@@ -3,6 +3,7 @@ using Game.Data;
 using Game.Services.Achievements;
 using Game.Services.Animation;
 using Game.Services.Dev;
+using Game.Services.Dialogue;
 using Game.Services.Generation;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -40,6 +41,7 @@ namespace Game.Installers
         [field: SerializeField] public BlockAnimationConfig BlockAnimationConfig { get; private set; }
         [field: SerializeField] public StructureAnimationConfig StructureAnimationConfig { get; private set; }
         [field: SerializeField] public AchievementConfig[] AchievementConfigs { get; private set; }
+        [field: SerializeField] public DialogueAnimationConfig DialogueAnimationConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -70,8 +72,10 @@ namespace Game.Installers
 
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
+
             if (StructureConfigs is not null && StructureConfigs.Length > 0)
                 Container.BindInstance(StructureConfigs);
+
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
 
@@ -80,8 +84,12 @@ namespace Game.Installers
 
             if (BlockAnimationConfig is not null)
                 Container.BindInstance(BlockAnimationConfig);
+
             if (StructureAnimationConfig is not null)
                 Container.BindInstance(StructureAnimationConfig);
+
+            if (DialogueAnimationConfig is not null)
+                Container.BindInstance(DialogueAnimationConfig);
 
             Container.BindInterfacesTo<AchievementEventBus>().AsCached();
             Container.BindInterfacesTo<AchievementService>().AsCached();
@@ -115,6 +123,7 @@ namespace Game.Installers
             Bind<GenerationContext>();
             Bind<EndlessGeneratorService>();
             Bind<LevelIntroAnimationService>();
+            Bind<DialogueService>();
 
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
