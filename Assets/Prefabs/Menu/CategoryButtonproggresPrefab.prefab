@@ -263,6 +263,7 @@ GameObject:
   - component: {fileID: 5281441756831193700}
   - component: {fileID: 4358373322566183648}
   - component: {fileID: 7519691703729782038}
+  - component: {fileID: 406958618940257590}
   m_Layer: 5
   m_Name: CategoryButtonProggresPrefab
   m_TagString: Untagged
@@ -408,6 +409,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &406958618940257590
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2254950404723819126}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3380593992470206931
 GameObject:
   m_ObjectHideFlags: 0

@@ -287,6 +287,7 @@ GameObject:
   - component: {fileID: 8720596463764421349}
   - component: {fileID: 950321247860278646}
   - component: {fileID: 443438432213338452}
+  - component: {fileID: -3447627245353155026}
   m_Layer: 5
   m_Name: Structure Inventory Item
   m_TagString: Untagged
@@ -413,3 +414,15 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &-3447627245353155026
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7884818572851321091}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
