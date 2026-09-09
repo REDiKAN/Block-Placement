@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 192ad21e7e9d73549a92370d582459c3, type: 3}
+  m_Name: PlusStanding-Structure
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
+  <DisplayName>k__BackingField: PlusStanding-Structure
+  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Prefab>k__BackingField: {fileID: 5728445003592361457, guid: ba982c7baec5a3a47a0f6098b8d4c231, type: 3}
+  <LocalCoordinates>k__BackingField:
+  - {x: 0, y: 0, z: 0}
+  <PlaceClip>k__BackingField: {fileID: 8300000, guid: b6a2dd974aebd734594e05a1fbfbbae4, type: 3}
+  <RemoveClip>k__BackingField: {fileID: 8300000, guid: fdbf80b4051360f42a821bc0d8180ff9, type: 3}

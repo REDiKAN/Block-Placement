@@ -1297,6 +1297,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fe637c507eea6f54f942a290961fe7b5, type: 2}
   - {fileID: 11400000, guid: b2c4cc50edcd30040aae38e377e43613, type: 2}
   - {fileID: 11400000, guid: 1bdb4eb4c504b7441b5c7fec78b3aa9e, type: 2}
+  - {fileID: 11400000, guid: ed77ca536df19f94b912302137dc7d00, type: 2}
+  - {fileID: 11400000, guid: 140ed644ba12f6e4dbab3fee35aa9ec7, type: 2}
   <BlockPrefab>k__BackingField: {fileID: 229738514984466294, guid: 3c20647d27160114a84a4fdb96c06590, type: 3}
   <PreviewBlock>k__BackingField: {fileID: 2470772666985236582}
   <BlocksParent>k__BackingField: {fileID: 378661812}
@@ -6862,7 +6864,7 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 150, y: 150}
+  m_CellSize: {x: 120, y: 120}
   m_Spacing: {x: 50, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
