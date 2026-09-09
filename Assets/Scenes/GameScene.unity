@@ -1289,6 +1289,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba62bc25a0200e84c9b4ec7ab5c6feaf, type: 2}
   - {fileID: 11400000, guid: 15009a0006e4f1342a858da578c9927f, type: 2}
   - {fileID: 11400000, guid: 8c78b78c2600574498bd4734f8dc1954, type: 2}
+  - {fileID: 11400000, guid: 45b9b70d6c1068245ac5b1bd1deec3dd, type: 2}
+  - {fileID: 11400000, guid: 485963a9f07dbf147a6661f5552f19bc, type: 2}
+  - {fileID: 11400000, guid: 8627db91b2c071341883b8722e6e4bdb, type: 2}
   <BlockPrefab>k__BackingField: {fileID: 229738514984466294, guid: 3c20647d27160114a84a4fdb96c06590, type: 3}
   <PreviewBlock>k__BackingField: {fileID: 2470772666985236582}
   <BlocksParent>k__BackingField: {fileID: 378661812}
