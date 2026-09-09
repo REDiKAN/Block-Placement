@@ -10,15 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 192ad21e7e9d73549a92370d582459c3, type: 3}
-  m_Name: Tower-Structure
+  m_Name: Tower2x1-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
-  <DisplayName>k__BackingField: Tower-Structure
+  <DisplayName>k__BackingField: Tower2x1-Structure
   <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
-  <Prefab>k__BackingField: {fileID: 4597687531819208094, guid: e44f665f358852041a3b996a444ec494, type: 3}
+  <Prefab>k__BackingField: {fileID: 2791727554035485789, guid: d04d5a3d0262af842b673039c9382c9f, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 1, z: 0}
-  - {x: 0, y: 2, z: 0}
-  - {x: 0, y: 3, z: 0}
   <PlaceClip>k__BackingField: {fileID: 8300000, guid: b6a2dd974aebd734594e05a1fbfbbae4, type: 3}
   <RemoveClip>k__BackingField: {fileID: 8300000, guid: fdbf80b4051360f42a821bc0d8180ff9, type: 3}
