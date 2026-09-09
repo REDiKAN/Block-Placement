@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Zenject;
 
 namespace Game.Services.Placement
@@ -26,7 +27,7 @@ namespace Game.Services.Placement
         void ClearSelection();
     }
 
-    public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable
+    public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable, ITickable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
         public IObservable<(StructureConfig Config, int Remaining)> OnStructureCountChanged => _onStructureCountChanged;
@@ -47,15 +48,25 @@ namespace Game.Services.Placement
         private readonly AudioConfig _audioConfig;
         private readonly LevelConfig _levelConfig;
         private readonly IRotationService _rotationService;
+        private readonly Camera _gameCamera;
 
         private StructureConfig _selectedConfig;
         private StructureView _previewInstance;
         private readonly Dictionary<Vector3Int, StructureView> _activeStructures = new();
         private readonly Dictionary<StructureConfig, int> _remainingCounts = new();
+
         private bool _isAnimating;
         private int _currentAngle;
         private int _localPreviewAngle;
         private Vector2 _lastMousePosition;
+
+        private Vector3 _targetPosition;
+        private Vector3 _smoothVelocity;
+        private bool _isSnapped;
+
+        private const float OffGridSmoothTime = 0.08f;
+        private const float SnapSmoothTime = 0.02f;
+        private static readonly Vector3 CellCenterOffset = new(0.5f, 0.5f, 0.5f);
 
         private static readonly Vector3Int[] _directions =
         {
@@ -78,7 +89,8 @@ namespace Game.Services.Placement
             ISfxService sfxService,
             AudioConfig audioConfig,
             LevelConfig levelConfig,
-            IRotationService rotationService)
+            IRotationService rotationService,
+            [Inject(Id = "GameCamera")] Camera gameCamera)
         {
             _inputService = inputService;
             _raycastService = raycastService;
@@ -92,6 +104,7 @@ namespace Game.Services.Placement
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
             _rotationService = rotationService;
+            _gameCamera = gameCamera;
         }
 
         public void Initialize()
@@ -104,9 +117,7 @@ namespace Game.Services.Placement
                 foreach (var spawnData in _levelConfig.AvailableStructures)
                 {
                     if (spawnData is not null && spawnData.Config is not null)
-                    {
                         _remainingCounts[spawnData.Config] = spawnData.MaxCount;
-                    }
                 }
             }
 
@@ -124,6 +135,17 @@ namespace Game.Services.Placement
             }).AddTo(_disposables);
         }
 
+        public void Tick()
+        {
+            if (_previewInstance is null || _selectedConfig is null) return;
+
+            var smoothTime = _isSnapped ? SnapSmoothTime : OffGridSmoothTime;
+            var currentPosition = _previewInstance.transform.position;
+            var smoothedPosition = Vector3.SmoothDamp(currentPosition, _targetPosition, ref _smoothVelocity, smoothTime);
+
+            _previewInstance.transform.position = smoothedPosition;
+        }
+
         public int GetRemainingCount(StructureConfig config)
         {
             if (config is null) return 0;
@@ -138,9 +160,7 @@ namespace Game.Services.Placement
             _localPreviewAngle = (_localPreviewAngle + angleDelta + 360) % 360;
 
             if (_previewInstance is not null)
-            {
                 _previewInstance.transform.rotation = Quaternion.Euler(0f, TotalPreviewAngle, 0f);
-            }
 
             UpdatePreview(_lastMousePosition);
         }
@@ -186,9 +206,11 @@ namespace Game.Services.Placement
         private void ReturnPreviewToPool()
         {
             if (_previewInstance is null) return;
+
             _previewInstance.SetInteractionEnabled(true);
             _poolService.Return(_previewInstance);
             _previewInstance = null;
+            _isSnapped = false;
         }
 
         private void UpdatePreview(Vector2 mousePosition)
@@ -203,17 +225,17 @@ namespace Game.Services.Placement
 
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
             {
-                if (_previewInstance is not null) _previewInstance.gameObject.SetActive(false);
+                ReturnPreviewToPool();
                 return;
             }
 
-            if (_selectedConfig is null)
+            if (_selectedConfig is null || GetRemainingCount(_selectedConfig) == 0)
             {
                 ReturnPreviewToPool();
                 return;
             }
 
-            if (GetRemainingCount(_selectedConfig) == 0)
+            if (EventSystem.current is not null && EventSystem.current.IsPointerOverGameObject())
             {
                 ReturnPreviewToPool();
                 return;
@@ -224,21 +246,35 @@ namespace Game.Services.Placement
                 _previewInstance = _poolService.Get(_selectedConfig);
                 if (_previewInstance is null) return;
                 _previewInstance.SetInteractionEnabled(false);
+                _previewInstance.transform.rotation = Quaternion.Euler(0f, TotalPreviewAngle, 0f);
             }
 
-            _previewInstance.transform.rotation = Quaternion.Euler(0f, TotalPreviewAngle, 0f);
+            var ray = _gameCamera.ScreenPointToRay(mousePosition);
+            var groundPlane = new Plane(Vector3.up, Vector3.zero);
 
-            if (_raycastService.TryGetTargetCell(mousePosition, out var cell, out _))
+            if (!groundPlane.Raycast(ray, out var enter))
             {
-                var rotatedCoords = GetRotatedLocalCoordinates(_selectedConfig.LocalCoordinates);
-                var isValid = ValidatePlacement(cell, rotatedCoords);
-                _previewInstance.gameObject.SetActive(isValid);
-                if (isValid) _previewInstance.SetPosition(cell);
+                _previewInstance.gameObject.SetActive(false);
+                return;
+            }
+
+            var hitPoint = ray.GetPoint(enter);
+            var hasGridTarget = _raycastService.TryGetTargetCell(mousePosition, out var cell, out _);
+            var rotatedCoords = GetRotatedLocalCoordinates(_selectedConfig.LocalCoordinates);
+            var isValidPlacement = hasGridTarget && ValidatePlacement(cell, rotatedCoords);
+
+            if (isValidPlacement)
+            {
+                _isSnapped = true;
+                _targetPosition = cell + CellCenterOffset;
             }
             else
             {
-                _previewInstance.gameObject.SetActive(false);
+                _isSnapped = false;
+                _targetPosition = hitPoint;
             }
+
+            _previewInstance.gameObject.SetActive(true);
         }
 
         private void PlaceStructure(Vector2 mousePosition)
@@ -270,6 +306,7 @@ namespace Game.Services.Placement
             structure.SetInteractionEnabled(true);
             _activeStructures[worldCells[0]] = structure;
             _previewInstance = null;
+            _isSnapped = false;
 
             _historyService.RecordPlacement(new PlacementRecord(worldCells, _selectedConfig));
 
@@ -284,7 +321,6 @@ namespace Game.Services.Placement
 
             _isAnimating = true;
             _contextService.SetContext(InputContext.Generating);
-
             _animationService.AnimateSpawn(structure, OnStructureSpawned);
         }
 
@@ -300,7 +336,6 @@ namespace Game.Services.Placement
             if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures) return;
             if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired) return;
             if (_isAnimating) return;
-
             if (!_historyService.TryPop(out var record)) return;
             if (record.Config is not StructureConfig config) return;
 
@@ -325,7 +360,6 @@ namespace Game.Services.Placement
 
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);
-
                 _animationService.AnimateDespawn(structure, () => OnStructureDespawned(structure, config));
             }
         }
@@ -393,7 +427,6 @@ namespace Game.Services.Placement
                     }
                 }
             }
-
             return hasConnection;
         }
 
