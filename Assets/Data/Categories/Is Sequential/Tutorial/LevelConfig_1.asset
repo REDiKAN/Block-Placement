@@ -44,6 +44,12 @@ MonoBehaviour:
     <MaxCount>k__BackingField: 3
   - <Config>k__BackingField: {fileID: 11400000, guid: b14d1f201bf99d04db2d6dcbf0cba7dd, type: 2}
     <MaxCount>k__BackingField: 3
+  - <Config>k__BackingField: {fileID: 11400000, guid: fe637c507eea6f54f942a290961fe7b5, type: 2}
+    <MaxCount>k__BackingField: 3
+  - <Config>k__BackingField: {fileID: 11400000, guid: b2c4cc50edcd30040aae38e377e43613, type: 2}
+    <MaxCount>k__BackingField: 3
+  - <Config>k__BackingField: {fileID: 11400000, guid: 1bdb4eb4c504b7441b5c7fec78b3aa9e, type: 2}
+    <MaxCount>k__BackingField: 3
   <InitialBlocks>k__BackingField:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 4}
