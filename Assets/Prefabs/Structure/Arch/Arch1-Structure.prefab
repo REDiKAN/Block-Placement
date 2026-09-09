@@ -263,7 +263,7 @@ GameObject:
   - component: {fileID: 5589271097809751691}
   - component: {fileID: 7989218512495584198}
   m_Layer: 0
-  m_Name: Arch-Structure
+  m_Name: Arch1-Structure
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
