@@ -24,6 +24,8 @@ MonoBehaviour:
     <MaxCount>k__BackingField: 3
   - <Config>k__BackingField: {fileID: 11400000, guid: 8bb9f3324dfdef54aa66bbde3aafed39, type: 2}
     <MaxCount>k__BackingField: 3
+  - <Config>k__BackingField: {fileID: 11400000, guid: 193266b0a7ee73f489716bb42c88e5ac, type: 2}
+    <MaxCount>k__BackingField: 3
   <InitialBlocks>k__BackingField:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 4}
