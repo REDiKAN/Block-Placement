@@ -12,16 +12,19 @@ namespace Game.Services.Rotation
     {
         void SetTargetBlocks(Vector3Int[] blocks);
         IObservable<int> OnRotationCompleted { get; }
+        IReadOnlyReactiveProperty<bool> IsRotating { get; }
         Vector3Int[] CurrentInitialBlocks { get; }
     }
 
     public class RotationService : IRotationService, IInitializable, IDisposable
     {
         public IObservable<int> OnRotationCompleted => _onRotationCompleted;
+        public IReadOnlyReactiveProperty<bool> IsRotating => _isRotating;
         public Vector3Int[] CurrentInitialBlocks => _currentInitialBlocks;
 
         private const int GridSize = 5;
         private readonly Subject<int> _onRotationCompleted = new();
+        private readonly ReactiveProperty<bool> _isRotating = new(false);
         private readonly IInputService _inputService;
         private readonly IInputContextService _contextService;
         private readonly RotationConfig _config;
@@ -29,7 +32,6 @@ namespace Game.Services.Rotation
         private readonly CompositeDisposable _disposables = new();
         private Vector3Int[] _currentInitialBlocks;
         private Tween _rotationTween;
-        private bool _isRotating;
         private int _lastAngle;
 
         public RotationService(
@@ -51,7 +53,6 @@ namespace Game.Services.Rotation
             _inputService.OnRotateLeft
                 .Subscribe(_ => Rotate(-90))
                 .AddTo(_disposables);
-
             _inputService.OnRotateRight
                 .Subscribe(_ => Rotate(90))
                 .AddTo(_disposables);
@@ -59,16 +60,14 @@ namespace Game.Services.Rotation
 
         private void Rotate(int angle)
         {
-            if (_isRotating) return;
-
+            if (_isRotating.Value) return;
             if (_contextService.CurrentContext.Value == InputContext.LevelCompleted ||
                 _contextService.CurrentContext.Value == InputContext.Paused) return;
 
-            _isRotating = true;
+            _isRotating.Value = true;
             _lastAngle = angle;
             RotateInitialBlocks(angle);
             var targetRotation = _pivot.eulerAngles + new Vector3(0f, angle, 0f);
-
             _rotationTween = _pivot.DORotate(targetRotation, _config.Duration)
                 .SetEase(Ease.Linear)
                 .SetAutoKill(true)
@@ -91,7 +90,7 @@ namespace Game.Services.Rotation
 
         private void OnRotationComplete()
         {
-            _isRotating = false;
+            _isRotating.Value = false;
             _onRotationCompleted.OnNext(_lastAngle);
         }
 
