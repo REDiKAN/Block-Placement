@@ -16,6 +16,8 @@ namespace Game.Editor.Tool
         [field: SerializeField] private bool _autoFixShadows = true;
         [field: SerializeField] private List<StructurePromptItem> _structuresForPrompt = new();
 
+        private Vector2 _scrollPosition;
+
         [MenuItem("Tools/Level Importer")]
         public static void ShowWindow() => GetWindow<LevelImporterWindow>("Level Importer");
 
@@ -29,7 +31,6 @@ namespace Game.Editor.Tool
         {
             EditorGUILayout.LabelField("Level Importer", EditorStyles.boldLabel);
             EditorGUILayout.Space();
-
             _jsonInput = EditorGUILayout.TextArea(_jsonInput, GUILayout.Height(300));
             _assetName = EditorGUILayout.TextField("Asset Name", _assetName);
             _savePath = EditorGUILayout.TextField("Save Path", _savePath);
@@ -43,9 +44,14 @@ namespace Game.Editor.Tool
         {
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("AI Prompt Generator", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Structures added: {_structuresForPrompt.Count}", EditorStyles.miniLabel);
 
             if (GUILayout.Button("Add Structure"))
+            {
                 _structuresForPrompt.Add(new StructurePromptItem());
+            }
+
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.MinHeight(100), GUILayout.MaxHeight(250));
 
             for (var i = 0; i < _structuresForPrompt.Count; i++)
             {
@@ -54,7 +60,6 @@ namespace Game.Editor.Tool
                     _structuresForPrompt[i].Config, typeof(StructureConfig), false);
                 _structuresForPrompt[i].MaxCount = EditorGUILayout.IntField(
                     _structuresForPrompt[i].MaxCount, GUILayout.Width(50));
-
                 if (GUILayout.Button("X", GUILayout.Width(25)))
                 {
                     _structuresForPrompt.RemoveAt(i);
@@ -63,8 +68,9 @@ namespace Game.Editor.Tool
                 EditorGUILayout.EndHorizontal();
             }
 
-            EditorGUILayout.Space();
+            EditorGUILayout.EndScrollView();
 
+            EditorGUILayout.Space();
             if (GUILayout.Button("Generate AI Prompt", GUILayout.Height(30)))
                 GenerateAIPrompt();
         }
@@ -137,7 +143,6 @@ namespace Game.Editor.Tool
                 var d = dto.CellDensities[i];
                 densities[i] = new WallCellDensityData(d.IsDensityEnabled, d.TargetDensity);
             }
-
             data.SetDensities(densities);
             return data;
         }
@@ -148,7 +153,6 @@ namespace Game.Editor.Tool
 
             var parts = path.Split('/');
             var currentPath = parts[0];
-
             for (var i = 1; i < parts.Length; i++)
             {
                 var nextPath = $"{currentPath}/{parts[i]}";
@@ -187,7 +191,6 @@ namespace Game.Editor.Tool
             var visited = new HashSet<Vector3Int>();
             var queue = new Queue<Vector3Int>();
             var startBlock = blocks.First();
-
             queue.Enqueue(startBlock);
             visited.Add(startBlock);
 
@@ -240,7 +243,6 @@ namespace Game.Editor.Tool
 
             var dataYZ = new WallData();
             dataYZ.SetDensities(wallYZ);
-
             var dataXY = new WallData();
             dataXY.SetDensities(wallXY);
 
