@@ -6199,14 +6199,20 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 477607740}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 010d54cb05c29174e9cee4440952dc12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.GridEditorVisualizer
-  <Config>k__BackingField: {fileID: 0}
-  <ShowGrid>k__BackingField: 0
-  <ShowInitialBlocks>k__BackingField: 1
+  EditorConfig: {fileID: 0}
+  ShowGrid: 1
+  ShowInitialBlocks: 1
+  ShowTargetBlocks: 1
+  ShowActiveBlocks: 1
+  GridColor: {r: 1, g: 1, b: 1, a: 0.2}
+  InitialBlockColor: {r: 0, g: 1, b: 0, a: 0.3}
+  TargetBlockColor: {r: 0, g: 0.5, b: 1, a: 0.4}
+  ActiveBlockColor: {r: 1, g: 1, b: 0, a: 0.4}
 --- !u!4 &477607742
 Transform:
   m_ObjectHideFlags: 0
