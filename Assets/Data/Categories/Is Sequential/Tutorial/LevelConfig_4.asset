@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d4671db7110ca4a8267c61af6105d5, type: 3}
   m_Name: LevelConfig_4
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelConfig
+  <Mode>k__BackingField: 0
+  <AvailableStructures>k__BackingField: []
   <InitialBlocks>k__BackingField:
   - {x: 1, y: 0, z: 1}
   - {x: 1, y: 0, z: 3}
@@ -132,3 +134,4 @@ MonoBehaviour:
   <MaxBlocks>k__BackingField: -1
   <IsTimeLimitEnabled>k__BackingField: 0
   <TimeLimitSeconds>k__BackingField: -1
+  <DialogueConfig>k__BackingField: {fileID: 0}
