@@ -16,6 +16,8 @@ MonoBehaviour:
   <AvailableStructures>k__BackingField:
   - <Config>k__BackingField: {fileID: 11400000, guid: 93ae3c76714c070488cdfbb0ee271c30, type: 2}
     <MaxCount>k__BackingField: 5
+  - <Config>k__BackingField: {fileID: 11400000, guid: afff97807c9e35a489e7c84d104302c6, type: 2}
+    <MaxCount>k__BackingField: 5
   <InitialBlocks>k__BackingField:
   - {x: 1, y: 0, z: 1}
   - {x: 1, y: 0, z: 2}
@@ -135,3 +137,4 @@ MonoBehaviour:
   <MaxBlocks>k__BackingField: -1
   <IsTimeLimitEnabled>k__BackingField: 0
   <TimeLimitSeconds>k__BackingField: -1
+  <DialogueConfig>k__BackingField: {fileID: 0}

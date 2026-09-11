@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arch2-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: Arch2-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 1273762045, guid: c595657f5e95ec643aaf9dfef163299a, type: 3}
   <Prefab>k__BackingField: {fileID: 2660585422213768045, guid: 30c223cf9873e1b4e89e0e7a32905357, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

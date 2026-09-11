@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: L1-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: L1-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 124288132, guid: 9cc3b96022ee5924081db72435a9e3ca, type: 3}
   <Prefab>k__BackingField: {fileID: 3277435070473049599, guid: f9939d501874eb342bccb038115ad10b, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

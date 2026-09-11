@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Zigzag-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: Zigzag-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: -654697031, guid: 8a0c0f1fa224b344c9cb8a8a054c195a, type: 3}
   <Prefab>k__BackingField: {fileID: 5728445003592361457, guid: 423a52ccc718c734cb74c5247c81269c, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

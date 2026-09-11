@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Hook-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: Hook-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 152312593, guid: d5598acbc8ae4bc439fd9fd0e276c969, type: 3}
   <Prefab>k__BackingField: {fileID: 90332259792757599, guid: 52efdb19fab73cf4984acacd8dfc3899, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

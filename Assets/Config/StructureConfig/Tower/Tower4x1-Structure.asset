@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Tower4x1-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: Tower4x1-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 1455165380, guid: 882915fa33e5bb8429f7038bef1f9379, type: 3}
   <Prefab>k__BackingField: {fileID: 4597687531819208094, guid: e44f665f358852041a3b996a444ec494, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

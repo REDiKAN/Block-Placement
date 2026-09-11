@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Square2x2-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: Square2x2-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 1582600184, guid: b93afbd0b4b5bc74fad206275b29c690, type: 3}
   <Prefab>k__BackingField: {fileID: 106356127565653283, guid: 8216ebcf298d61b4fb108a827fbfe17e, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: S_Shape-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: S_Shape-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 282279112, guid: ca59e8b5d90ecf44ca61efb2516437c4, type: 3}
   <Prefab>k__BackingField: {fileID: 930094839157276377, guid: 72e48cd077345344fa5e51d31ebe7e34, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

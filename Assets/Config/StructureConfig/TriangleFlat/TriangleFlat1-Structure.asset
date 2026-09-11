@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TriangleFlat1-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: TriangleFlat1-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: -971124346, guid: cf6cadd5bde218b4ea781118cd03add4, type: 3}
   <Prefab>k__BackingField: {fileID: 2879439115661586929, guid: 6b430890534682643abf3190563361c8, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

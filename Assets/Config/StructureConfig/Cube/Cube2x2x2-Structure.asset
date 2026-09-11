@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Cube2x2x2-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: Cube2x2x2-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: -1108121114, guid: f4fc6178f9a99614aafdfb107e551645, type: 3}
   <Prefab>k__BackingField: {fileID: 1838730151119421765, guid: 35e18b95197321e48b3b8f9ea26a4e0e, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}

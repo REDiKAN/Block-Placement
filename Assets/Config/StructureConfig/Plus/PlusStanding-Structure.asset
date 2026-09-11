@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlusStanding-Structure
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureConfig
   <DisplayName>k__BackingField: PlusStanding-Structure
-  <Icon>k__BackingField: {fileID: -276799191, guid: 5e00fc36550440c4b8621bff5c2906a8, type: 3}
+  <Icon>k__BackingField: {fileID: 1439779490, guid: 55b03ef4f8c011b4489bdd85b0257546, type: 3}
   <Prefab>k__BackingField: {fileID: 5728445003592361457, guid: ba982c7baec5a3a47a0f6098b8d4c231, type: 3}
   <LocalCoordinates>k__BackingField:
   - {x: 0, y: 0, z: 0}
