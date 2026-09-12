@@ -29,6 +29,14 @@ namespace Game.Data
     {
         [field: SerializeField] public StructureConfig Config { get; private set; }
         [field: SerializeField] public int MaxCount { get; private set; } = -1;
+
+        public StructureSpawnData() { }
+
+        public StructureSpawnData(StructureConfig config, int maxCount)
+        {
+            Config = config;
+            MaxCount = maxCount;
+        }
     }
 
     [CreateAssetMenu(fileName = nameof(LevelConfig), menuName = "Game/" + nameof(LevelConfig))]

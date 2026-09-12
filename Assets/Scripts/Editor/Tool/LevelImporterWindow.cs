@@ -10,11 +10,11 @@ namespace Game.Editor.Tool
 {
     public class LevelImporterWindow : EditorWindow
     {
-        [field: SerializeField] private string _jsonInput = string.Empty;
-        [field: SerializeField] private string _assetName = "NewLevel";
-        [field: SerializeField] private string _savePath = "Assets/Data/Levels";
-        [field: SerializeField] private bool _autoFixShadows = true;
-        [field: SerializeField] private List<StructurePromptItem> _structuresForPrompt = new();
+        [SerializeField] private string _jsonInput = string.Empty;
+        [SerializeField] private string _assetName = "NewLevel";
+        [SerializeField] private string _savePath = "Assets/Data/Levels";
+        [SerializeField] private bool _autoFixShadows = true;
+        [SerializeField] private List<StructurePromptItem> _structuresForPrompt = new();
 
         private Vector2 _scrollPosition;
 
@@ -47,12 +47,9 @@ namespace Game.Editor.Tool
             EditorGUILayout.LabelField($"Structures added: {_structuresForPrompt.Count}", EditorStyles.miniLabel);
 
             if (GUILayout.Button("Add Structure"))
-            {
                 _structuresForPrompt.Add(new StructurePromptItem());
-            }
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.MinHeight(100), GUILayout.MaxHeight(250));
-
             for (var i = 0; i < _structuresForPrompt.Count; i++)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -60,6 +57,7 @@ namespace Game.Editor.Tool
                     _structuresForPrompt[i].Config, typeof(StructureConfig), false);
                 _structuresForPrompt[i].MaxCount = EditorGUILayout.IntField(
                     _structuresForPrompt[i].MaxCount, GUILayout.Width(50));
+
                 if (GUILayout.Button("X", GUILayout.Width(25)))
                 {
                     _structuresForPrompt.RemoveAt(i);
@@ -67,10 +65,9 @@ namespace Game.Editor.Tool
                 }
                 EditorGUILayout.EndHorizontal();
             }
-
             EditorGUILayout.EndScrollView();
-
             EditorGUILayout.Space();
+
             if (GUILayout.Button("Generate AI Prompt", GUILayout.Height(30)))
                 GenerateAIPrompt();
         }
@@ -83,7 +80,6 @@ namespace Game.Editor.Tool
                 EditorUtility.DisplayDialog("Error", "No valid structures selected.", "OK");
                 return;
             }
-
             var prompt = StructurePromptBuilder.Build(validStructures);
             EditorGUIUtility.systemCopyBuffer = prompt;
             EditorUtility.DisplayDialog("Success", "AI prompt copied to clipboard!", "OK");
@@ -99,7 +95,6 @@ namespace Game.Editor.Tool
                 Debug.LogError("Invalid JSON or empty blocks.");
                 return;
             }
-
             if (dto.FloorMatrix is null || dto.FloorMatrix.Length != 25)
             {
                 Debug.LogError($"Invalid FloorMatrix length. Expected 25, got {dto.FloorMatrix?.Length ?? 0}.");
@@ -113,6 +108,33 @@ namespace Game.Editor.Tool
             config.SetData(dto.InitialBlocks, dto.FloorMatrix, wallYZ, wallXY);
             config.SetBlockLimit(dto.IsBlockLimitEnabled, dto.MaxBlocks);
             config.SetTimeLimit(dto.IsTimeLimitEnabled, dto.TimeLimitSeconds);
+
+            if (dto.Mode == GameMode.Structures && dto.AvailableStructures is not null)
+            {
+                var structures = new StructureSpawnData[dto.AvailableStructures.Length];
+                for (var i = 0; i < dto.AvailableStructures.Length; i++)
+                {
+                    var structDto = dto.AvailableStructures[i];
+                    var resolvedConfig = ResolveStructureConfig(structDto.Name);
+
+                    if (resolvedConfig is null)
+                    {
+                        Debug.LogError($"StructureConfig with name '{structDto.Name}' not found in project.");
+                        return;
+                    }
+
+                    structures[i] = new StructureSpawnData(resolvedConfig, structDto.MaxCount);
+                }
+                config.SetAvailableStructures(structures);
+            }
+
+            var serializedConfig = new SerializedObject(config);
+            var modeProperty = serializedConfig.FindProperty("<Mode>k__BackingField");
+            if (modeProperty != null)
+            {
+                modeProperty.enumValueIndex = (int)dto.Mode;
+                serializedConfig.ApplyModifiedProperties();
+            }
 
             if (!ValidateSolvability(config))
             {
@@ -130,6 +152,19 @@ namespace Game.Editor.Tool
             AssetDatabase.CreateAsset(config, fullPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+        }
+
+        private StructureConfig ResolveStructureConfig(string displayName)
+        {
+            var guids = AssetDatabase.FindAssets("t:StructureConfig");
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var config = AssetDatabase.LoadAssetAtPath<StructureConfig>(path);
+                if (config is not null && config.DisplayName == displayName)
+                    return config;
+            }
+            return null;
         }
 
         private static WallData MapWallData(WallDataDto dto)
@@ -167,6 +202,8 @@ namespace Game.Editor.Tool
             var blocks = new HashSet<Vector3Int>(config.InitialBlocks);
             var floor = config.FloorMatrix;
 
+            if (blocks.Count == 0) return false;
+
             foreach (var block in blocks)
             {
                 if (block.x < 0 || block.x >= 5 || block.y < 0 || block.y >= 5 || block.z < 0 || block.z >= 5)
@@ -178,7 +215,7 @@ namespace Game.Editor.Tool
                     if (floor is null || floorIndex >= floor.Length || !floor[floorIndex])
                         return false;
                 }
-                else
+                else if (config.Mode == GameMode.Blocks)
                 {
                     var below = new Vector3Int(block.x, block.y - 1, block.z);
                     if (!blocks.Contains(below))
@@ -186,33 +223,7 @@ namespace Game.Editor.Tool
                 }
             }
 
-            if (blocks.Count == 0) return false;
-
-            var visited = new HashSet<Vector3Int>();
-            var queue = new Queue<Vector3Int>();
-            var startBlock = blocks.First();
-            queue.Enqueue(startBlock);
-            visited.Add(startBlock);
-
-            while (queue.Count > 0)
-            {
-                var current = queue.Dequeue();
-                var directions = new[]
-                {
-                    Vector3Int.up, Vector3Int.down,
-                    Vector3Int.left, Vector3Int.right,
-                    Vector3Int.forward, Vector3Int.back
-                };
-
-                foreach (var dir in directions)
-                {
-                    var next = current + dir;
-                    if (blocks.Contains(next) && visited.Add(next))
-                        queue.Enqueue(next);
-                }
-            }
-
-            return visited.Count == blocks.Count;
+            return true;
         }
 
         private static void RecalculateShadowsAndDensities(LevelConfig config)
@@ -262,6 +273,8 @@ namespace Game.Editor.Tool
             public int MaxBlocks = -1;
             public bool IsTimeLimitEnabled;
             public float TimeLimitSeconds = -1f;
+            public GameMode Mode;
+            public StructureSpawnDataDto[] AvailableStructures;
         }
 
         [Serializable]
@@ -275,6 +288,13 @@ namespace Game.Editor.Tool
         {
             public bool IsDensityEnabled;
             public int TargetDensity;
+        }
+
+        [Serializable]
+        private class StructureSpawnDataDto
+        {
+            public string Name;
+            public int MaxCount = -1;
         }
     }
 }
