@@ -6053,9 +6053,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 010d54cb05c29174e9cee4440952dc12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.GridEditorVisualizer
-  <Config>k__BackingField: {fileID: 11400000, guid: 3f7b311fa2149d440b0bceb9767834bc, type: 2}
-  <ShowGrid>k__BackingField: 0
-  <ShowInitialBlocks>k__BackingField: 1
+  EditorConfig: {fileID: 0}
+  ShowGrid: 1
+  ShowInitialBlocks: 1
+  ShowTargetBlocks: 1
+  ShowActiveBlocks: 1
+  GridColor: {r: 1, g: 1, b: 1, a: 0.2}
+  InitialBlockColor: {r: 0, g: 1, b: 0, a: 0.3}
+  TargetBlockColor: {r: 0, g: 0.5, b: 1, a: 0.4}
+  ActiveBlockColor: {r: 1, g: 1, b: 0, a: 0.4}
 --- !u!4 &477607742
 Transform:
   m_ObjectHideFlags: 0
@@ -6562,7 +6568,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 5
   m_Viewport: {fileID: 1536016292}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 845679748}
@@ -6647,7 +6653,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00014618653}
+  m_AnchoredPosition: {x: 0, y: 0.00013741318}
   m_SizeDelta: {x: 0, y: 1000}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &529588260
@@ -15587,7 +15593,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 83813298}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9999973
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
