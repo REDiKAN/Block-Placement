@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 116da8e372f45504580de47d0a75368d, type: 3}
+  m_Name: CategoryConfig_Tutorial
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.CategoryConfig
+  <Title>k__BackingField: Tutorial
+  <Icon>k__BackingField: {fileID: 325744451, guid: db17110d4a7f22d499e956891f316057, type: 3}
+  <Levels>k__BackingField:
+  - {fileID: 11400000, guid: 72fcb3f25da9bd3488860fdce37cc1a2, type: 2}
+  - {fileID: 11400000, guid: 74e46efd050413b49b6ea0b0d33ad419, type: 2}
+  - {fileID: 11400000, guid: a0462b6747e97664a890f3d216fac8f8, type: 2}
+  - {fileID: 11400000, guid: 35c184fa6496dd9489dbbe8c0d8e70ca, type: 2}
+  - {fileID: 11400000, guid: e8bc7e663d01d9d4c9ea0000dbaafacb, type: 2}
+  - {fileID: 11400000, guid: 3f4ca8a6abf48fa46bbe6c4cac579723, type: 2}
+  - {fileID: 11400000, guid: 8de4c6708e0c8894b93e20085ae75cb0, type: 2}
+  - {fileID: 11400000, guid: c9d89580cfcd26445bde0fd31b870a97, type: 2}
+  - {fileID: 11400000, guid: 0400036b909bbb04a95d7fd7550e5452, type: 2}
+  - {fileID: 11400000, guid: c70682fb23bf1844b95ef46c3a2ea42a, type: 2}
+  - {fileID: 11400000, guid: 4323fec72af0bc347ac8bbbad79e061a, type: 2}
+  - {fileID: 11400000, guid: 734172a2c45ef1e469a0634a113d135e, type: 2}
+  <IsSequential>k__BackingField: 1
+  <IsCustomGenerator>k__BackingField: 0

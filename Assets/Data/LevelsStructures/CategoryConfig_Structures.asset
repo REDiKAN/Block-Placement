@@ -15,16 +15,6 @@ MonoBehaviour:
   <Title>k__BackingField: Structures
   <Icon>k__BackingField: {fileID: 325744451, guid: db17110d4a7f22d499e956891f316057, type: 3}
   <Levels>k__BackingField:
-  - {fileID: 11400000, guid: a1e7239857508c9498a2de618845754b, type: 2}
-  - {fileID: 11400000, guid: f911c5fecdab49d4d96bccf7797f946d, type: 2}
-  - {fileID: 11400000, guid: 33ebe5eb24059ee4eb706f8ecaf69fd8, type: 2}
-  - {fileID: 11400000, guid: cae31936b74408a4c83e4663b6b2f1d7, type: 2}
-  - {fileID: 11400000, guid: e111e2d502f293042841f86731d8dbdc, type: 2}
-  - {fileID: 11400000, guid: 96d90b79d419d6c4eb4033b5682c1a11, type: 2}
-  - {fileID: 11400000, guid: bd174e7abbe5b5e4fa6a66968bd7f9ca, type: 2}
-  - {fileID: 11400000, guid: 113cecf00703eaf4d921b72c18bdb1d5, type: 2}
-  - {fileID: 11400000, guid: f3098b4802566a14d8bb4b1c569dec04, type: 2}
-  - {fileID: 11400000, guid: c0063a4ecb71147409bc9db75c567a46, type: 2}
   - {fileID: 11400000, guid: c9f764de741476f4c9c71afa173f84d1, type: 2}
   - {fileID: 11400000, guid: c673902fa63d1ef43bf1ea78398b6751, type: 2}
   - {fileID: 11400000, guid: b895f74d08ca5ba40bd0c10cddd2b130, type: 2}

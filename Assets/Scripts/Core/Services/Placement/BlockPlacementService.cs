@@ -106,6 +106,7 @@ namespace Game.Services.Placement
         {
             _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
             _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
+
             _materialPropertyBlock = new MaterialPropertyBlock();
 
             if (_previewBlock is not null)
@@ -132,6 +133,9 @@ namespace Game.Services.Placement
             PublishRemainingBlocks();
         }
 
+        private static bool IsInputAllowedForPlacement(InputContext context) =>
+            context is InputContext.PlaceBlock or InputContext.None;
+
         private void OnPreviewSettingChanged(bool isEnabled)
         {
             if (!isEnabled && _previewBlock is not null)
@@ -146,7 +150,7 @@ namespace Game.Services.Placement
                 return;
             }
 
-            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
+            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value))
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
@@ -192,11 +196,13 @@ namespace Game.Services.Placement
         private void PlaceBlock(Vector2 mousePosition)
         {
             if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
-            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
+
+            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value))
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
             }
+
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
             if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
             if (_isAnimating) return;
@@ -223,6 +229,7 @@ namespace Game.Services.Placement
             _gridService.SetCellOccupied(cell, true);
             block.SetPosition(cell);
             _activeBlocks[cell] = block;
+
             _historyService.RecordPlacement(new PlacementRecord(new[] { cell }, config));
 
             if (_isDeveloperMode)
@@ -255,11 +262,13 @@ namespace Game.Services.Placement
         private void RemoveLastBlock()
         {
             if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
-            if (_contextService.CurrentContext.Value is InputContext.LevelCompleted or InputContext.Paused or InputContext.TimeExpired)
+
+            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value))
             {
                 if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
             }
+
             if (_isAnimating) return;
             if (!_historyService.TryPop(out var record)) return;
 
@@ -277,6 +286,7 @@ namespace Game.Services.Placement
         private void OnBlockDespawned(PlacementRecord record, BlockView block)
         {
             _poolService.Return(block);
+
             var cell = record.Cells[0];
             _activeBlocks.Remove(cell);
 
