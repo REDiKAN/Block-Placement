@@ -7,6 +7,6 @@ namespace Game.Data
     public class DialogueConfig : ScriptableObject
     {
         [field: Title("Dialogue Replicas", CustomColor.Cyan, CustomColor.Blue)]
-        [field: SerializeField, TextArea(3, 10)] public string[] Replicas { get; private set; }
+        [field: SerializeField] public DialogueReplica[] Replicas { get; private set; }
     }
 }

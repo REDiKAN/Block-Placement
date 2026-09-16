@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd64ad8b1fdea3643a7ca4da3ebc9d49, type: 3}
+  m_Name: LevelTutorial (BlockLimit) (8)_Dialogue
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.DialogueConfig
+  <Replicas>k__BackingField:
+  - <Text>k__BackingField: "\u0412\u0438\u0434\u0438\u0448\u044C \u0441\u0447\u0451\u0442\u0447\u0438\u043A
+      \u0431\u043B\u043E\u043A\u043E\u0432 \u0432 \u0443\u0433\u043B\u0443 \u044D\u043A\u0440\u0430\u043D\u0430?
+      \u0423 \u0442\u0435\u0431\u044F \u0432\u0441\u0435\u0433\u043E 4 \u0431\u043B\u043E\u043A\u0430."
+    <Audio>k__BackingField: {fileID: 8300000, guid: c392ad6cc6acf7d42a22dffc9e566794, type: 3}
+  - <Text>k__BackingField: "\u041D\u0435 \u0441\u0442\u0430\u0432\u044C \u043B\u0438\u0448\u043D\u0438\u0435
+      \u2014 \u0438\u043D\u0430\u0447\u0435 \u043D\u0435 \u0445\u0432\u0430\u0442\u0438\u0442
+      \u043D\u0430 \u0432\u0441\u044E \u0444\u0438\u0433\u0443\u0440\u0443.\r\n"
+    <Audio>k__BackingField: {fileID: 8300000, guid: eb7f925d1418b9a4a90201a0394a2836, type: 3}
+  - <Text>k__BackingField: "\u041F\u043E\u0441\u0442\u0440\u043E\u0439 \u0413-\u043E\u0431\u0440\u0430\u0437\u043D\u0443\u044E
+      \u0444\u043E\u0440\u043C\u0443 \u0440\u043E\u0432\u043D\u043E \u0438\u0437
+      4 \u0431\u043B\u043E\u043A\u043E\u0432.\r\n"
+    <Audio>k__BackingField: {fileID: 8300000, guid: cccc82f5805988346b4321d70efc3888, type: 3}

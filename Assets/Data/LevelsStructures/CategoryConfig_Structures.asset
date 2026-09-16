@@ -100,5 +100,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0b63f220c7838d647b2d7521bf60561e, type: 2}
   - {fileID: 11400000, guid: fee585e5ad0e3324282ac22abf8f287f, type: 2}
   - {fileID: 11400000, guid: 82e0096841656aa4db9162d718b4a954, type: 2}
-  <IsSequential>k__BackingField: 1
+  <IsSequential>k__BackingField: 0
   <IsCustomGenerator>k__BackingField: 0

@@ -126,6 +126,7 @@ namespace Game.Installers
             Bind<LevelIntroAnimationService>();
             Bind<DialogueService>();
             Bind<LevelAutoTesterService>();
+            Bind<DialogueAudioService>();
 
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
