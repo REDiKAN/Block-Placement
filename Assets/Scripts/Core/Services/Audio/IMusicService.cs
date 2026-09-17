@@ -6,5 +6,6 @@ namespace Game.Services.Audio
     {
         void Play(AudioClip clip);
         void Stop();
+        void GetSpectrumData(float[] samples, int channel, FFTWindow window);
     }
 }

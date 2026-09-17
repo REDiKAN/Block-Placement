@@ -126,5 +126,17 @@ namespace Game.Services.Audio
             if (_nextObject != null)
                 Object.Destroy(_nextObject);
         }
+
+        public void GetSpectrumData(float[] samples, int channel, FFTWindow window)
+        {
+            if (_currentSource != null && _currentSource.isPlaying)
+            {
+                _currentSource.GetSpectrumData(samples, channel, window);
+            }
+            else
+            {
+                System.Array.Clear(samples, 0, samples.Length);
+            }
+        }
     }
 }
