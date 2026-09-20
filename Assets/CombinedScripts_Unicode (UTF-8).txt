@@ -1,10 +1,10 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 16.09.2026 16:15:58
+// Generation Time: 18.09.2026 14:30:17
 // Encoding: Unicode (UTF-8)
-// Total Files: 166
+// Total Files: 173
 // =====================================
 
-//==== File 1 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\EndlessContext.cs ====
+//==== File 1 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\EndlessContext.cs ====
 using Game.Data;
 
 namespace Game.Core
@@ -22,7 +22,7 @@ namespace Game.Core
     }
 }
 
-//==== File 2 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\LevelContext.cs ====
+//==== File 2 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\LevelContext.cs ====
 namespace Game.Core
 {
     public static class LevelContext
@@ -38,7 +38,7 @@ namespace Game.Core
     }
 }
 
-//==== File 3 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\AudioInstaller.cs ====
+//==== File 3 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\AudioInstaller.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -50,6 +50,7 @@ namespace Game.Installers
     {
         [field: SerializeField] private AudioConfig AudioConfig { get; set; }
         [field: SerializeField] private AudioClip StartMusicClip { get; set; }
+        [field: SerializeField] private AudioSpectrumConfig AudioSpectrumConfig { get; set; }
 
         public override void InstallBindings()
         {
@@ -59,8 +60,12 @@ namespace Game.Installers
             if (StartMusicClip is not null)
                 Container.BindInstance(StartMusicClip);
 
+            if (AudioSpectrumConfig is not null)
+                Container.BindInstance(AudioSpectrumConfig);
+
             Bind<SfxService>();
             Bind<MusicService>();
+            Bind<AudioSpectrumService>();
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>
@@ -71,7 +76,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 4 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\EnvironmentEffectInstaller.cs ====
+//==== File 4 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\EnvironmentEffectInstaller.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -101,7 +106,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 5 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
+//==== File 5 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\GameInstaller.cs ====
 using Game.Core;
 using Game.Data;
 using Game.Services.Achievements;
@@ -230,6 +235,7 @@ namespace Game.Installers
             Bind<LevelIntroAnimationService>();
             Bind<DialogueService>();
             Bind<LevelAutoTesterService>();
+            Bind<DialogueAudioService>();
 
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
@@ -246,7 +252,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 6 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\MenuInstaller.cs ====
+//==== File 6 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\MenuInstaller.cs ====
 using Game.Data;
 using Game.Services.Achievements;
 using Game.Services.Generation;
@@ -285,7 +291,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 7 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\PreviewInstaller.cs ====
+//==== File 7 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\PreviewInstaller.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -314,7 +320,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 8 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\SettingsInstaller.cs ====
+//==== File 8 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\SettingsInstaller.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -342,7 +348,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 9 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\WaterInstaller.cs ====
+//==== File 9 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Installers\WaterInstaller.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -370,7 +376,7 @@ namespace Game.Installers
     }
 }
 
-//==== File 10 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
+//==== File 10 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\BlockView.cs ====
 using DG.Tweening;
 using UnityEngine;
 
@@ -389,7 +395,7 @@ namespace Game.Views
     }
 }
 
-//==== File 11 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevFloorEditorView.cs ====
+//==== File 11 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevFloorEditorView.cs ====
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
@@ -487,7 +493,7 @@ namespace Game.Views
     }
 }
 
-//==== File 12 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevModeView.cs ====
+//==== File 12 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevModeView.cs ====
 using UnityEngine;
 using Zenject;
 
@@ -501,7 +507,7 @@ namespace Game.Views
     }
 }
 
-//==== File 13 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListItemView.cs ====
+//==== File 13 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListItemView.cs ====
 using TMPro;
 using UnityEngine;
 using Game.Services.Registry;
@@ -517,7 +523,7 @@ namespace Game.Views
     }
 }
 
-//==== File 14 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListView.cs ====
+//==== File 14 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevObjectListView.cs ====
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -588,7 +594,7 @@ namespace Game.Views
     }
 }
 
-//==== File 15 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevShadowDensityEditorView.cs ====
+//==== File 15 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevShadowDensityEditorView.cs ====
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
@@ -680,7 +686,7 @@ namespace Game.Views
     }
 }
 
-//==== File 16 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevStatisticsView.cs ====
+//==== File 16 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevStatisticsView.cs ====
 using UniRx;
 using TMPro;
 using UnityEngine;
@@ -728,7 +734,7 @@ namespace Game.Views
     }
 }
 
-//==== File 17 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevToolsView.cs ====
+//==== File 17 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\DevToolsView.cs ====
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
@@ -908,7 +914,7 @@ namespace Game.Views
     }
 }
 
-//==== File 18 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloatingDecorView.cs ====
+//==== File 18 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloatingDecorView.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Services.Water;
@@ -987,7 +993,7 @@ namespace Game.Views
     }
 }
 
-//==== File 19 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
+//==== File 19 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorCellView.cs ====
 using UnityEngine;
 
 namespace Game.Views
@@ -1026,7 +1032,7 @@ namespace Game.Views
     }
 }
 
-//==== File 20 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
+//==== File 20 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\FloorGridView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -1118,7 +1124,7 @@ namespace Game.Views
     }
 }
 
-//==== File 21 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
+//==== File 21 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\GridEditorVisualizer.cs ====
 #if UNITY_EDITOR
 using UnityEngine;
 using Zenject;
@@ -1277,7 +1283,7 @@ namespace Game.Views
 }
 #endif
 
-//==== File 22 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\IEffectView.cs ====
+//==== File 22 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\IEffectView.cs ====
 namespace Game.Views.Effects
 {
     public interface IEffectView
@@ -1288,7 +1294,7 @@ namespace Game.Views.Effects
     }
 }
 
-//==== File 23 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\LevelGeneratorProgressView.cs ====
+//==== File 23 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\LevelGeneratorProgressView.cs ====
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -1340,7 +1346,7 @@ namespace Game.Views
     }
 }
 
-//==== File 24 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\LevelGeneratorView.cs ====
+//==== File 24 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\LevelGeneratorView.cs ====
 using System.Collections.Generic;
 using TMPro;
 using UniRx;
@@ -1424,7 +1430,7 @@ namespace Game.Views
     }
 }
 
-//==== File 25 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\StructureView.cs ====
+//==== File 25 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\StructureView.cs ====
 using DG.Tweening;
 using UnityEngine;
 
@@ -1464,7 +1470,7 @@ namespace Game.Views
     }
 }
 
-//==== File 26 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
+//==== File 26 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallCellView.cs ====
 using UnityEngine;
 using Game.Services.Shadow;
 
@@ -1536,7 +1542,7 @@ namespace Game.Views
     }
 }
 
-//==== File 27 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
+//==== File 27 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WallView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -1627,7 +1633,7 @@ namespace Game.Views
     }
 }
 
-//==== File 28 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WaterShaderView.cs ====
+//==== File 28 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\WaterShaderView.cs ====
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -1712,7 +1718,7 @@ namespace Game.Views
     }
 }
 
-//==== File 29 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Attributes\TitleAttribute.cs ====
+//==== File 29 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Attributes\TitleAttribute.cs ====
 using UnityEngine;
 
 namespace Game.Attributes
@@ -1746,7 +1752,7 @@ namespace Game.Attributes
     }
 }
 
-//==== File 30 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\AudioConfig.cs ====
+//==== File 30 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\AudioConfig.cs ====
 using UnityEngine;
 using UnityEngine.Audio;
 using Game.Attributes;
@@ -1774,7 +1780,34 @@ namespace Game.Data
     }
 }
 
-//==== File 31 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\BlockAnimationConfig.cs ====
+//==== File 31 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\AudioSpectrumConfig.cs ====
+using UnityEngine;
+using Game.Attributes;
+
+namespace Game.Data
+{
+    [CreateAssetMenu(fileName = nameof(AudioSpectrumConfig), menuName = "Game/" + nameof(AudioSpectrumConfig))]
+    public class AudioSpectrumConfig : ScriptableObject
+    {
+        [field: Title("Spectrum Settings", CustomColor.Cyan, CustomColor.Blue)]
+        [field: SerializeField, Range(16, 128)] public int BarCount { get; private set; } = 32;
+        [field: SerializeField] public FFTWindow WindowType { get; private set; } = FFTWindow.Rectangular;
+
+        [field: Title("Algorithm Settings", CustomColor.Yellow, CustomColor.Orange)]
+        [field: SerializeField, Range(0.0000001f, 0.1f)] public float RefValue { get; private set; } = 0.00005f;
+        [field: SerializeField, Range(0.01f, 2f)] public float ReleaseTime { get; private set; } = 0.2f;
+        [field: SerializeField, Range(0.1f, 10f)] public float ScaleMultiplier { get; private set; } = 3f;
+
+        [field: Title("UI Settings", CustomColor.Green, CustomColor.DarkGreen)]
+        [field: SerializeField, Range(0f, 50f)] public float Spacing { get; private set; } = 5f;
+        [field: SerializeField, Range(0f, 50f)] public float MinHeight { get; private set; } = 10f;
+        [field: SerializeField, Range(50f, 500f)] public float MaxHeight { get; private set; } = 200f;
+        [field: SerializeField, Range(10f, 100f)] public float MaxInputValue { get; private set; } = 40f;
+        [field: SerializeField] public Color BarColor { get; private set; } = new(0f, 1f, 1f, 1f);
+    }
+}
+
+//==== File 32 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\BlockAnimationConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -1807,7 +1840,7 @@ namespace Game.Data
     }
 }
 
-//==== File 32 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\BlockConfig.cs ====
+//==== File 33 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\BlockConfig.cs ====
 using UnityEngine;
 using Game.Views;
 using Game.Attributes;
@@ -1827,7 +1860,7 @@ namespace Game.Data
     }
 }
 
-//==== File 33 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\CategoryConfig.cs ====
+//==== File 34 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\CategoryConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -1847,7 +1880,7 @@ namespace Game.Data
     }
 }
 
-//==== File 34 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\CustomGenerationSettings.cs ====
+//==== File 35 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\CustomGenerationSettings.cs ====
 namespace Game.Data
 {
     public readonly struct CustomGenerationSettings
@@ -1867,7 +1900,7 @@ namespace Game.Data
     }
 }
 
-//==== File 35 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueAnimationConfig.cs ====
+//==== File 36 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueAnimationConfig.cs ====
 using DG.Tweening;
 using UnityEngine;
 using Game.Attributes;
@@ -1894,7 +1927,7 @@ namespace Game.Data
     }
 }
 
-//==== File 36 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueConfig.cs ====
+//==== File 37 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -1904,11 +1937,11 @@ namespace Game.Data
     public class DialogueConfig : ScriptableObject
     {
         [field: Title("Dialogue Replicas", CustomColor.Cyan, CustomColor.Blue)]
-        [field: SerializeField, TextArea(3, 10)] public string[] Replicas { get; private set; }
+        [field: SerializeField] public DialogueReplica[] Replicas { get; private set; }
     }
 }
 
-//==== File 37 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueJsonWrapper.cs ====
+//==== File 38 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueJsonWrapper.cs ====
 using System;
 
 namespace Game.Data
@@ -1916,11 +1949,31 @@ namespace Game.Data
     [Serializable]
     public class DialogueJsonWrapper
     {
-        public string[] Replicas;
+        public DialogueReplicaWrapper[] Replicas;
+    }
+
+    [Serializable]
+    public class DialogueReplicaWrapper
+    {
+        public string Text;
+        public string AudioClipName;
     }
 }
 
-//==== File 38 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\EnvironmentEffectCatalog.cs ====
+//==== File 39 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\DialogueReplica.cs ====
+using UnityEngine;
+
+namespace Game.Data
+{
+    [System.Serializable]
+    public class DialogueReplica
+    {
+        [field: SerializeField, TextArea(1, 5)] public string Text { get; private set; }
+        [field: SerializeField] public AudioClip Audio { get; private set; }
+    }
+}
+
+//==== File 40 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\EnvironmentEffectCatalog.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -1934,7 +1987,7 @@ namespace Game.Data
     }
 }
 
-//==== File 39 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\EnvironmentEffectConfig.cs ====
+//==== File 41 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\EnvironmentEffectConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -1951,7 +2004,7 @@ namespace Game.Data
     }
 }
 
-//==== File 40 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\GameMode.cs ====
+//==== File 42 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\GameMode.cs ====
 namespace Game.Data
 {
     public enum GameMode
@@ -1961,7 +2014,7 @@ namespace Game.Data
     }
 }
 
-//==== File 41 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\LevelCatalog.cs ====
+//==== File 43 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\LevelCatalog.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -1973,7 +2026,7 @@ namespace Game.Data
     }
 }
 
-//==== File 42 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\LevelConfig.cs ====
+//==== File 44 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\LevelConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -2071,7 +2124,7 @@ namespace Game.Data
     }
 }
 
-//==== File 43 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RainConfig.cs ====
+//==== File 45 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RainConfig.cs ====
 using System;
 using UnityEngine;
 using Game.Attributes;
@@ -2096,7 +2149,7 @@ namespace Game.Data
     }
 }
 
-//==== File 44 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RaycastConfig.cs ====
+//==== File 46 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RaycastConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -2110,7 +2163,7 @@ namespace Game.Data
     }
 }
 
-//==== File 45 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RotationConfig.cs ====
+//==== File 47 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\RotationConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -2122,7 +2175,7 @@ namespace Game.Data
     }
 }
 
-//==== File 46 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\SettingsConfig.cs ====
+//==== File 48 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\SettingsConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -2145,7 +2198,7 @@ namespace Game.Data
     }
 }
 
-//==== File 47 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
+//==== File 49 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\ShadowLevelConfig.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -2164,7 +2217,7 @@ namespace Game.Data
     }
 }
 
-//==== File 48 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\StaggeredAnimationConfig.cs ====
+//==== File 50 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\StaggeredAnimationConfig.cs ====
 using DG.Tweening;
 using UnityEngine;
 using Game.Attributes;
@@ -2187,7 +2240,7 @@ namespace Game.Data
     }
 }
 
-//==== File 49 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\StructureAnimationConfig.cs ====
+//==== File 51 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\StructureAnimationConfig.cs ====
 using DG.Tweening;
 using UnityEngine;
 using Game.Attributes;
@@ -2207,7 +2260,7 @@ namespace Game.Data
     }
 }
 
-//==== File 50 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\StructureConfig.cs ====
+//==== File 52 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\StructureConfig.cs ====
 using UnityEngine;
 using Game.Views;
 using Game.Attributes;
@@ -2229,7 +2282,7 @@ namespace Game.Data
     }
 }
 
-//==== File 51 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\WaterShaderConfig.cs ====
+//==== File 53 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\WaterShaderConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -2275,7 +2328,7 @@ namespace Game.Data
     }
 }
 
-//==== File 52 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\WaterShaderConfigCatalog.cs ====
+//==== File 54 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\WaterShaderConfigCatalog.cs ====
 using UnityEngine;
 using Game.Attributes;
 
@@ -2291,7 +2344,7 @@ namespace Game.Data
     }
 }
 
-//==== File 53 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\WaterShaderParameters.cs ====
+//==== File 55 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\WaterShaderParameters.cs ====
 using UnityEngine;
 
 namespace Game.Data
@@ -2416,7 +2469,7 @@ namespace Game.Data
     }
 }
 
-//==== File 54 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\AchievementResetter.cs ====
+//==== File 56 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\AchievementResetter.cs ====
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
@@ -2452,7 +2505,7 @@ namespace Game.Editor.Tool
 }
 #endif
 
-//==== File 55 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\LevelAutoTesterWindow.cs ====
+//==== File 57 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\LevelAutoTesterWindow.cs ====
 #if UNITY_EDITOR
 using System;
 using UniRx;
@@ -2648,11 +2701,12 @@ namespace Game.Editor.Tool
 }
 #endif
 
-//==== File 56 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\LevelImporterWindow.cs ====
+//==== File 58 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\LevelImporterWindow.cs ====
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Game.Data;
 using UnityEditor;
 using UnityEngine;
@@ -2666,7 +2720,6 @@ namespace Game.Editor.Tool
         [SerializeField] private string _savePath = "Assets/Data/Levels";
         [SerializeField] private bool _autoFixShadows = true;
         [SerializeField] private List<StructurePromptItem> _structuresForPrompt = new();
-
         private Vector2 _scrollPosition;
 
         [MenuItem("Tools/Level Importer")]
@@ -2686,7 +2739,6 @@ namespace Game.Editor.Tool
             _assetName = EditorGUILayout.TextField("Asset Name", _assetName);
             _savePath = EditorGUILayout.TextField("Save Path", _savePath);
             _autoFixShadows = EditorGUILayout.Toggle("Auto-Fix Shadows", _autoFixShadows);
-
             if (GUILayout.Button("Create Level"))
                 ProcessImport();
         }
@@ -2708,7 +2760,6 @@ namespace Game.Editor.Tool
                     _structuresForPrompt[i].Config, typeof(StructureConfig), false);
                 _structuresForPrompt[i].MaxCount = EditorGUILayout.IntField(
                     _structuresForPrompt[i].MaxCount, GUILayout.Width(50));
-
                 if (GUILayout.Button("X", GUILayout.Width(25)))
                 {
                     _structuresForPrompt.RemoveAt(i);
@@ -2717,8 +2768,8 @@ namespace Game.Editor.Tool
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndScrollView();
-            EditorGUILayout.Space();
 
+            EditorGUILayout.Space();
             if (GUILayout.Button("Generate AI Prompt", GUILayout.Height(30)))
                 GenerateAIPrompt();
         }
@@ -2726,13 +2777,61 @@ namespace Game.Editor.Tool
         private void GenerateAIPrompt()
         {
             var validStructures = _structuresForPrompt.Where(s => s.Config is not null).ToArray();
-            if (validStructures.Length == 0)
+            var sb = new StringBuilder();
+
+            sb.AppendLine("You are a level designer AI. Generate a valid JSON for a 3D shadow puzzle level.");
+            sb.AppendLine("The grid size is 5x5x5 (X, Y, Z from 0 to 4).");
+            sb.AppendLine("FloorMatrix is a 1D array of 25 booleans (X * 5 + Z).");
+            sb.AppendLine("Walls are 1D arrays of 25 items (WallYZ: Y * 5 + Z, WallXY: X * 5 + Y).");
+            sb.AppendLine();
+
+            if (validStructures.Length > 0)
             {
-                EditorUtility.DisplayDialog("Error", "No valid structures selected.", "OK");
-                return;
+                sb.AppendLine("Available structures and their local coordinates:");
+                sb.AppendLine(StructurePromptBuilder.Build(validStructures));
+                sb.AppendLine();
             }
-            var prompt = StructurePromptBuilder.Build(validStructures);
-            EditorGUIUtility.systemCopyBuffer = prompt;
+
+            sb.AppendLine("JSON Schema:");
+            sb.AppendLine("{");
+            sb.AppendLine("  \"InitialBlocks\": [ {\"x\": 0, \"y\": 0, \"z\": 0} ],");
+            sb.AppendLine("  \"FloorMatrix\": [ true, true, ... ],");
+            sb.AppendLine("  \"WallYZ\": { \"CellDensities\": [ {\"IsDensityEnabled\": false, \"TargetDensity\": 0} ] },");
+            sb.AppendLine("  \"WallXY\": { \"CellDensities\": [ {\"IsDensityEnabled\": false, \"TargetDensity\": 0} ] },");
+            sb.AppendLine("  \"IsBlockLimitEnabled\": false,");
+            sb.AppendLine("  \"MaxBlocks\": -1,");
+            sb.AppendLine("  \"IsTimeLimitEnabled\": false,");
+            sb.AppendLine("  \"TimeLimitSeconds\": -1.0,");
+            sb.AppendLine("  \"Mode\": 0,");
+
+            if (validStructures.Length > 0)
+            {
+                sb.AppendLine("  \"AvailableStructures\": [");
+                for (var i = 0; i < validStructures.Length; i++)
+                {
+                    var item = validStructures[i];
+                    sb.Append($"    {{ \"Name\": \"{item.Config.DisplayName}\", \"MaxCount\": {item.MaxCount} }}");
+                    if (i < validStructures.Length - 1) sb.Append(",");
+                    sb.AppendLine();
+                }
+                sb.AppendLine("  ],");
+            }
+            else
+            {
+                sb.AppendLine("  \"AvailableStructures\": [],");
+            }
+
+            sb.AppendLine("  \"Dialogue\": {");
+            sb.AppendLine("    \"Replicas\": [");
+            sb.AppendLine("      { \"Text\": \"First line of dialogue.\", \"AudioClipName\": \"voice_line_01\" },");
+            sb.AppendLine("      { \"Text\": \"Second line (no audio).\", \"AudioClipName\": \"\" }");
+            sb.AppendLine("    ]");
+            sb.AppendLine("  }");
+            sb.AppendLine("}");
+            sb.AppendLine();
+            sb.AppendLine("AudioClipName must match the exact filename of the AudioClip in the Unity project (without extension). Leave empty string for silent replica.");
+
+            EditorGUIUtility.systemCopyBuffer = sb.ToString();
             EditorUtility.DisplayDialog("Success", "AI prompt copied to clipboard!", "OK");
         }
 
@@ -2740,7 +2839,16 @@ namespace Game.Editor.Tool
         {
             if (string.IsNullOrWhiteSpace(_jsonInput)) return;
 
-            var dto = JsonUtility.FromJson<LevelConfigDto>(_jsonInput);
+            var cleanJson = _jsonInput.Trim();
+            if (cleanJson.StartsWith("```"))
+            {
+                var firstNewline = cleanJson.IndexOf('\n');
+                if (firstNewline > 0) cleanJson = cleanJson.Substring(firstNewline + 1);
+                if (cleanJson.EndsWith("```")) cleanJson = cleanJson.Substring(0, cleanJson.Length - 3);
+                cleanJson = cleanJson.Trim();
+            }
+
+            var dto = JsonUtility.FromJson<LevelConfigDto>(cleanJson);
             if (dto is null || dto.InitialBlocks is null || dto.InitialBlocks.Length == 0)
             {
                 Debug.LogError("Invalid JSON or empty blocks.");
@@ -2752,10 +2860,46 @@ namespace Game.Editor.Tool
                 return;
             }
 
+            DialogueConfig dialogueConfig = null;
+            if (dto.Dialogue != null && dto.Dialogue.Replicas != null && dto.Dialogue.Replicas.Length > 0)
+            {
+                dialogueConfig = ScriptableObject.CreateInstance<DialogueConfig>();
+                var serializedDialogue = new SerializedObject(dialogueConfig);
+                var replicasProperty = serializedDialogue.FindProperty("<Replicas>k__BackingField");
+
+                if (replicasProperty != null)
+                {
+                    replicasProperty.arraySize = dto.Dialogue.Replicas.Length;
+                    for (int i = 0; i < dto.Dialogue.Replicas.Length; i++)
+                    {
+                        var replicaProp = replicasProperty.GetArrayElementAtIndex(i);
+                        var textProp = replicaProp.FindPropertyRelative("<Text>k__BackingField");
+                        var audioProp = replicaProp.FindPropertyRelative("<Audio>k__BackingField");
+
+                        if (textProp != null)
+                            textProp.stringValue = dto.Dialogue.Replicas[i].Text ?? string.Empty;
+
+                        if (audioProp != null)
+                        {
+                            var clipName = dto.Dialogue.Replicas[i].AudioClipName;
+                            var clip = ResolveAudioClip(clipName);
+                            if (clip != null)
+                            {
+                                audioProp.objectReferenceValue = clip;
+                            }
+                            else if (!string.IsNullOrWhiteSpace(clipName))
+                            {
+                                Debug.LogWarning($"[LevelImporter] AudioClip '{clipName}' not found in project for replica {i}.");
+                            }
+                        }
+                    }
+                    serializedDialogue.ApplyModifiedProperties();
+                }
+            }
+
             var config = ScriptableObject.CreateInstance<LevelConfig>();
             var wallYZ = MapWallData(dto.WallYZ);
             var wallXY = MapWallData(dto.WallXY);
-
             config.SetData(dto.InitialBlocks, dto.FloorMatrix, wallYZ, wallXY);
             config.SetBlockLimit(dto.IsBlockLimitEnabled, dto.MaxBlocks);
             config.SetTimeLimit(dto.IsTimeLimitEnabled, dto.TimeLimitSeconds);
@@ -2767,13 +2911,13 @@ namespace Game.Editor.Tool
                 {
                     var structDto = dto.AvailableStructures[i];
                     var resolvedConfig = ResolveStructureConfig(structDto.Name);
-
                     if (resolvedConfig is null)
                     {
                         Debug.LogError($"StructureConfig with name '{structDto.Name}' not found in project.");
+                        if (dialogueConfig != null) ScriptableObject.DestroyImmediate(dialogueConfig);
+                        ScriptableObject.DestroyImmediate(config);
                         return;
                     }
-
                     structures[i] = new StructureSpawnData(resolvedConfig, structDto.MaxCount);
                 }
                 config.SetAvailableStructures(structures);
@@ -2782,14 +2926,21 @@ namespace Game.Editor.Tool
             var serializedConfig = new SerializedObject(config);
             var modeProperty = serializedConfig.FindProperty("<Mode>k__BackingField");
             if (modeProperty != null)
-            {
                 modeProperty.enumValueIndex = (int)dto.Mode;
-                serializedConfig.ApplyModifiedProperties();
+
+            if (dialogueConfig != null)
+            {
+                var dialogueProperty = serializedConfig.FindProperty("<DialogueConfig>k__BackingField");
+                if (dialogueProperty != null)
+                    dialogueProperty.objectReferenceValue = dialogueConfig;
             }
+            serializedConfig.ApplyModifiedProperties();
 
             if (!ValidateSolvability(config))
             {
                 Debug.LogError("Level is mathematically unsolvable.");
+                if (dialogueConfig != null) ScriptableObject.DestroyImmediate(dialogueConfig);
+                ScriptableObject.DestroyImmediate(config);
                 return;
             }
 
@@ -2797,12 +2948,20 @@ namespace Game.Editor.Tool
                 RecalculateShadowsAndDensities(config);
 
             CreateDirectoryIfNotExists(_savePath);
-            var fullPath = Path.Combine(_savePath, $"{_assetName}.asset");
 
+            if (dialogueConfig != null)
+            {
+                var dialoguePath = Path.Combine(_savePath, $"{_assetName}_Dialogue.asset");
+                AssetDatabase.CreateAsset(dialogueConfig, dialoguePath);
+            }
+
+            var fullPath = Path.Combine(_savePath, $"{_assetName}.asset");
             EditorUtility.SetDirty(config);
             AssetDatabase.CreateAsset(config, fullPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
+            Debug.Log($"[LevelImporter] Successfully created level '{_assetName}'{(dialogueConfig != null ? " and dialogue" : "")}.");
         }
 
         private StructureConfig ResolveStructureConfig(string displayName)
@@ -2818,11 +2977,35 @@ namespace Game.Editor.Tool
             return null;
         }
 
+        private AudioClip ResolveAudioClip(string clipName)
+        {
+            if (string.IsNullOrWhiteSpace(clipName)) return null;
+
+            var guids = AssetDatabase.FindAssets($"t:AudioClip {clipName}");
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+                if (clip is not null && clip.name == clipName)
+                    return clip;
+            }
+
+            var allGuids = AssetDatabase.FindAssets("t:AudioClip");
+            foreach (var guid in allGuids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+                if (clip is not null && clip.name == clipName)
+                    return clip;
+            }
+
+            return null;
+        }
+
         private static WallData MapWallData(WallDataDto dto)
         {
             var data = new WallData();
             if (dto?.CellDensities is null) return data;
-
             var densities = new WallCellDensityData[dto.CellDensities.Length];
             for (var i = 0; i < dto.CellDensities.Length; i++)
             {
@@ -2836,7 +3019,6 @@ namespace Game.Editor.Tool
         private static void CreateDirectoryIfNotExists(string path)
         {
             if (AssetDatabase.IsValidFolder(path)) return;
-
             var parts = path.Split('/');
             var currentPath = parts[0];
             for (var i = 1; i < parts.Length; i++)
@@ -2852,14 +3034,11 @@ namespace Game.Editor.Tool
         {
             var blocks = new HashSet<Vector3Int>(config.InitialBlocks);
             var floor = config.FloorMatrix;
-
             if (blocks.Count == 0) return false;
-
             foreach (var block in blocks)
             {
                 if (block.x < 0 || block.x >= 5 || block.y < 0 || block.y >= 5 || block.z < 0 || block.z >= 5)
                     return false;
-
                 if (block.y == 0)
                 {
                     var floorIndex = block.x * 5 + block.z;
@@ -2873,7 +3052,6 @@ namespace Game.Editor.Tool
                         return false;
                 }
             }
-
             return true;
         }
 
@@ -2926,6 +3104,7 @@ namespace Game.Editor.Tool
             public float TimeLimitSeconds = -1f;
             public GameMode Mode;
             public StructureSpawnDataDto[] AvailableStructures;
+            public DialogueDto Dialogue;
         }
 
         [Serializable]
@@ -2947,10 +3126,23 @@ namespace Game.Editor.Tool
             public string Name;
             public int MaxCount = -1;
         }
+
+        [Serializable]
+        private class DialogueDto
+        {
+            public DialogueReplicaDto[] Replicas;
+        }
+
+        [Serializable]
+        private class DialogueReplicaDto
+        {
+            public string Text;
+            public string AudioClipName;
+        }
     }
 }
 
-//==== File 57 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
+//==== File 59 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\ShadowLevelGenerator.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -3048,7 +3240,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 58 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\StructurePromptBuilder.cs ====
+//==== File 60 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\StructurePromptBuilder.cs ====
 using System.Linq;
 using System.Text;
 
@@ -3102,7 +3294,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 59 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\StructurePromptItem.cs ====
+//==== File 61 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Editor\Tool\StructurePromptItem.cs ====
 using System;
 using Game.Data;
 
@@ -3116,7 +3308,7 @@ namespace Game.Editor.Tool
     }
 }
 
-//==== File 60 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Audio\PooledAudioSource.cs ====
+//==== File 62 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Audio\PooledAudioSource.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -3200,7 +3392,7 @@ namespace Game.Views.Audio
     }
 }
 
-//==== File 61 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Debug\GridDebugVisualizer.cs ====
+//==== File 63 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Debug\GridDebugVisualizer.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Services.Grid;
@@ -3263,7 +3455,7 @@ namespace Game.Tools.Debug
     }
 }
 
-//==== File 62 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Effects\EnvironmentEffectView.cs ====
+//==== File 64 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Effects\EnvironmentEffectView.cs ====
 using UnityEngine;
 
 namespace Game.Views.Effects
@@ -3278,7 +3470,7 @@ namespace Game.Views.Effects
     }
 }
 
-//==== File 63 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Effects\RainEffectView.cs ====
+//==== File 65 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Effects\RainEffectView.cs ====
 using DG.Tweening;
 using UnityEngine;
 using Zenject;
@@ -3341,7 +3533,7 @@ namespace Game.Views.Effects
     }
 }
 
-//==== File 64 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CategoryButtonProgressView.cs ====
+//==== File 66 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CategoryButtonProgressView.cs ====
 using System;
 using TMPro;
 using UnityEngine;
@@ -3441,7 +3633,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 65 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CategoryButtonView.cs ====
+//==== File 67 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CategoryButtonView.cs ====
 using System;
 using TMPro;
 using UnityEngine;
@@ -3499,7 +3691,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 66 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CategoryListView.cs ====
+//==== File 68 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CategoryListView.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -3591,7 +3783,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 67 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CustomGenerationSettingsView.cs ====
+//==== File 69 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\CustomGenerationSettingsView.cs ====
 using System;
 using TMPro;
 using UniRx;
@@ -3672,7 +3864,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 68 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\LevelButtonView.cs ====
+//==== File 70 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\LevelButtonView.cs ====
 using System;
 using TMPro;
 using UnityEngine;
@@ -3718,7 +3910,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 69 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\LevelListView.cs ====
+//==== File 71 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\LevelListView.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -3847,7 +4039,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 70 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\MainMenuView.cs ====
+//==== File 72 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\MainMenuView.cs ====
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -3919,7 +4111,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 71 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\SettingsView.cs ====
+//==== File 73 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Menu\SettingsView.cs ====
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -4033,7 +4225,7 @@ namespace Game.Views.Menu
     }
 }
 
-//==== File 72 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Preview\PreviewFloorGridView.cs ====
+//==== File 74 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Preview\PreviewFloorGridView.cs ====
 using UnityEngine;
 using Zenject;
 using UniRx;
@@ -4098,7 +4290,7 @@ namespace Game.Views.Preview
     }
 }
 
-//==== File 73 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Preview\PreviewWallView.cs ====
+//==== File 75 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\Preview\PreviewWallView.cs ====
 using UnityEngine;
 using Zenject;
 using UniRx;
@@ -4178,7 +4370,7 @@ namespace Game.Views.Preview
     }
 }
 
-//==== File 74 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\AnimatedButtonView.cs ====
+//==== File 76 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\AnimatedButtonView.cs ====
 using DG.Tweening;
 using UniRx;
 using UniRx.Triggers;
@@ -4304,7 +4496,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 75 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\AnimatedDialogueTextView.cs ====
+//==== File 77 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\AnimatedDialogueTextView.cs ====
 using System;
 using DG.Tweening;
 using TMPro;
@@ -4521,7 +4713,112 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 76 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\BlockCounterView.cs ====
+//==== File 78 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\AudioSpectrumView.cs ====
+using System;
+using UniRx;
+using UnityEngine;
+using UnityEngine.UI;
+using Zenject;
+using Game.Data;
+using Game.Services.Audio;
+using Game.Services.Input;
+
+namespace Game.Views.UI
+{
+    [RequireComponent(typeof(CanvasRenderer))]
+    public class AudioSpectrumView : Graphic
+    {
+        [Inject] private readonly IAudioSpectrumService _spectrumService;
+        [Inject] private readonly IInputContextService _inputContextService;
+        [Inject] private readonly AudioSpectrumConfig _config;
+
+        private float[] _currentData;
+        private bool _isVisible;
+
+        private void Start()
+        {
+            _spectrumService.OnSpectrumUpdated
+                .Subscribe(OnDataReceived)
+                .AddTo(this);
+
+            _inputContextService.CurrentContext
+                .Subscribe(OnContextChanged)
+                .AddTo(this);
+        }
+
+        private void OnContextChanged(InputContext context)
+        {
+            bool shouldBeVisible = context == InputContext.Paused;
+            if (_isVisible != shouldBeVisible)
+            {
+                _isVisible = shouldBeVisible;
+                SetVerticesDirty();
+            }
+        }
+
+        private void OnDataReceived(float[] data)
+        {
+            _currentData = data;
+            if (_isVisible)
+                SetVerticesDirty();
+        }
+
+        protected override void OnPopulateMesh(VertexHelper vh)
+        {
+            vh.Clear();
+
+            if (!_isVisible || _currentData is null || _currentData.Length == 0)
+                return;
+
+            RectTransform rect = rectTransform;
+            Vector2 size = rect.rect.size;
+            int barCount = _config.BarCount;
+
+            float totalSpacing = _config.Spacing * (barCount - 1);
+            float barWidth = (size.x - totalSpacing) / barCount;
+
+            if (barWidth <= 0f) return;
+
+            UIVertex vert = UIVertex.simpleVert;
+            vert.color = _config.BarColor;
+
+            float startX = -size.x / 2f;
+
+            for (int i = 0; i < barCount; i++)
+            {
+                float rawValue = i < _currentData.Length ? _currentData[i] : 0f;
+                float normalized = Mathf.Clamp01(rawValue / _config.MaxInputValue);
+                float barHeight = Mathf.Lerp(_config.MinHeight, _config.MaxHeight, normalized);
+
+                float x = startX + i * (barWidth + _config.Spacing);
+                float y = -size.y / 2f;
+
+                Vector2 bottomLeft = new(x, y);
+                Vector2 bottomRight = new(x + barWidth, y);
+                Vector2 topLeft = new(x, y + barHeight);
+                Vector2 topRight = new(x + barWidth, y + barHeight);
+
+                vert.position = new Vector3(bottomLeft.x, bottomLeft.y, 0f);
+                vh.AddVert(vert);
+
+                vert.position = new Vector3(bottomRight.x, bottomRight.y, 0f);
+                vh.AddVert(vert);
+
+                vert.position = new Vector3(topRight.x, topRight.y, 0f);
+                vh.AddVert(vert);
+
+                vert.position = new Vector3(topLeft.x, topLeft.y, 0f);
+                vh.AddVert(vert);
+
+                int startIndex = i * 4;
+                vh.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+                vh.AddTriangle(startIndex, startIndex + 2, startIndex + 3);
+            }
+        }
+    }
+}
+
+//==== File 79 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\BlockCounterView.cs ====
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -4572,7 +4869,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 77 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\DialogueIndicatorView.cs ====
+//==== File 80 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\DialogueIndicatorView.cs ====
 using System;
 using DG.Tweening;
 using UniRx;
@@ -4746,7 +5043,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 78 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\DialogueView.cs ====
+//==== File 81 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\DialogueView.cs ====
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -4807,7 +5104,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 79 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\LevelCompletedView.cs ====
+//==== File 82 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\LevelCompletedView.cs ====
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -4920,7 +5217,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 80 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\PauseMenuView.cs ====
+//==== File 83 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\PauseMenuView.cs ====
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -5082,7 +5379,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 81 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\StaggeredIntroView.cs ====
+//==== File 84 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\StaggeredIntroView.cs ====
 using System.Collections.Generic;
 using DG.Tweening;
 using UniRx;
@@ -5287,7 +5584,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 82 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\StructureInventoryItemView.cs ====
+//==== File 85 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\StructureInventoryItemView.cs ====
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5317,7 +5614,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 83 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\StructureInventoryView.cs ====
+//==== File 86 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\StructureInventoryView.cs ====
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -5422,7 +5719,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 84 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\TimeLimitView.cs ====
+//==== File 87 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\TimeLimitView.cs ====
 using DG.Tweening;
 using TMPro;
 using UniRx;
@@ -5504,7 +5801,7 @@ namespace Game.Views.UI
     }
 }
 
-//==== File 85 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\Achievement\AchievementConditionType.cs ====
+//==== File 88 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\Achievement\AchievementConditionType.cs ====
 namespace Game.Data
 {
     public enum AchievementConditionType
@@ -5514,7 +5811,7 @@ namespace Game.Data
     }
 }
 
-//==== File 86 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\Achievement\AchievementConfig.cs ====
+//==== File 89 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Data\Achievement\AchievementConfig.cs ====
 using UnityEngine;
 using Game.Attributes;
 using Game.Views.UI.Achievements;
@@ -5539,7 +5836,7 @@ namespace Game.Data
     }
 }
 
-//==== File 87 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\AchievementRuntimeData.cs ====
+//==== File 90 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\AchievementRuntimeData.cs ====
 using UniRx;
 using Game.Data;
 
@@ -5581,7 +5878,7 @@ namespace Game.Services.Achievements
     }
 }
 
-//==== File 88 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\AchievementService.cs ====
+//==== File 91 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\AchievementService.cs ====
 using System;
 using System.Collections.Generic;
 using UniRx;
@@ -5668,7 +5965,7 @@ namespace Game.Services.Achievements
     }
 }
 
-//==== File 89 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\IAchievementService.cs ====
+//==== File 92 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\IAchievementService.cs ====
 using System;
 using UniRx;
 
@@ -5681,7 +5978,7 @@ namespace Game.Services.Achievements
     }
 }
 
-//==== File 90 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\BlockAnimationService.cs ====
+//==== File 93 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\BlockAnimationService.cs ====
 using System;
 using DG.Tweening;
 using UniRx;
@@ -5766,7 +6063,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 91 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\CascadeIntroStrategy.cs ====
+//==== File 94 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\CascadeIntroStrategy.cs ====
 using System;
 using System.Linq;
 using DG.Tweening;
@@ -5982,7 +6279,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 92 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\IBlockAnimationService.cs ====
+//==== File 95 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\IBlockAnimationService.cs ====
 using System;
 using UniRx;
 using Game.Views;
@@ -5997,7 +6294,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 93 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\ILevelIntroAnimationStrategy.cs ====
+//==== File 96 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\ILevelIntroAnimationStrategy.cs ====
 using System;
 using UniRx;
 
@@ -6011,7 +6308,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 94 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\IStructureAnimationService.cs ====
+//==== File 97 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\IStructureAnimationService.cs ====
 using System;
 using Game.Views;
 
@@ -6024,7 +6321,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 95 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\LevelIntroAnimationService.cs ====
+//==== File 98 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\LevelIntroAnimationService.cs ====
 using System;
 using System.Linq;
 using UniRx;
@@ -6144,7 +6441,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 96 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\RowByRowStrategy.cs ====
+//==== File 99 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\RowByRowStrategy.cs ====
 using System;
 using System.Linq;
 using DG.Tweening;
@@ -6342,7 +6639,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 97 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\ShakeAnimationService.cs ====
+//==== File 100 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\ShakeAnimationService.cs ====
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -6384,7 +6681,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 98 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\StructureAnimationService.cs ====
+//==== File 101 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\StructureAnimationService.cs ====
 using System;
 using DG.Tweening;
 using Game.Data;
@@ -6433,7 +6730,7 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 99 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\WaveFromCenterStrategy.cs ====
+//==== File 102 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Animation\WaveFromCenterStrategy.cs ====
 using System;
 using System.Linq;
 using DG.Tweening;
@@ -6631,7 +6928,148 @@ namespace Game.Services.Animation
     }
 }
 
-//==== File 100 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\IMusicService.cs ====
+//==== File 103 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\AudioSpectrumService.cs ====
+using System;
+using UniRx;
+using Zenject;
+using Game.Data;
+using Game.Services.Input;
+using UnityEngine;
+
+namespace Game.Services.Audio
+{
+    public class AudioSpectrumService : IAudioSpectrumService, ITickable, IDisposable
+    {
+        public int BarCount => _config.BarCount;
+        public IObservable<float[]> OnSpectrumUpdated => _onSpectrumUpdated;
+
+        private readonly Subject<float[]> _onSpectrumUpdated = new();
+        private readonly CompositeDisposable _disposables = new();
+
+        private readonly IMusicService _musicService;
+        private readonly IInputContextService _inputContextService;
+        private readonly AudioSpectrumConfig _config;
+
+        private const int SampleCount = 512;
+
+        private readonly float[] _rawSamples;
+        private readonly float[] _processedBars;
+        private readonly float[] _currentScales;
+        private readonly float[] _peakScales;
+        private readonly float[] _lastUpdates;
+
+        public AudioSpectrumService(
+            IMusicService musicService,
+            IInputContextService inputContextService,
+            AudioSpectrumConfig config)
+        {
+            _musicService = musicService;
+            _inputContextService = inputContextService;
+            _config = config;
+
+            _rawSamples = new float[SampleCount];
+            _processedBars = new float[_config.BarCount];
+            _currentScales = new float[_config.BarCount];
+            _peakScales = new float[_config.BarCount];
+            _lastUpdates = new float[_config.BarCount];
+        }
+
+        public void Tick()
+        {
+            bool isPaused = _inputContextService.CurrentContext.Value == InputContext.Paused;
+            float time = UnityEngine.Time.unscaledTime;
+
+            if (!isPaused)
+            {
+                bool needsUpdate = false;
+                for (int i = 0; i < _config.BarCount; i++)
+                {
+                    if (_currentScales[i] > 0.01f)
+                    {
+                        needsUpdate = true;
+                        break;
+                    }
+                }
+
+                if (needsUpdate)
+                {
+                    for (int i = 0; i < _config.BarCount; i++)
+                    {
+                        float t = (time - _lastUpdates[i]) / _config.ReleaseTime;
+                        _currentScales[i] = Mathf.Lerp(_peakScales[i], 0f, t);
+                        _processedBars[i] = Mathf.Max(0f, _currentScales[i] * _config.ScaleMultiplier);
+                    }
+                    _onSpectrumUpdated.OnNext(_processedBars);
+                }
+                return;
+            }
+
+            _musicService.GetSpectrumData(_rawSamples, 0, _config.WindowType);
+            ProcessSpectrum(time);
+            _onSpectrumUpdated.OnNext(_processedBars);
+        }
+
+        private void ProcessSpectrum(float time)
+        {
+            int minIndex = 2;
+            int maxIndex = (SampleCount / 2) - 1;
+            float minLog = Mathf.Log10(minIndex);
+            float maxLog = Mathf.Log10(maxIndex);
+
+            for (int i = 0; i < _config.BarCount; i++)
+            {
+                int startIndex = (int)Mathf.Pow(10f, Mathf.Lerp(minLog, maxLog, (float)i / _config.BarCount));
+                int endIndex = (int)Mathf.Pow(10f, Mathf.Lerp(minLog, maxLog, (float)(i + 1) / _config.BarCount));
+
+                if (startIndex < minIndex) startIndex = minIndex;
+                if (endIndex > maxIndex) endIndex = maxIndex;
+                if (endIndex <= startIndex) endIndex = startIndex + 1;
+
+                float sum = 0f;
+                int count = 0;
+                for (int j = startIndex; j < endIndex; j++)
+                {
+                    sum += _rawSamples[j];
+                    count++;
+                }
+
+                float average = count > 0 ? sum / count : 0f;
+                float dbValue = 20f * Mathf.Log10(average / _config.RefValue);
+
+                if (dbValue > _currentScales[i])
+                {
+                    _peakScales[i] = _currentScales[i] = dbValue;
+                    _lastUpdates[i] = time;
+                }
+
+                float t = (time - _lastUpdates[i]) / _config.ReleaseTime;
+                _currentScales[i] = Mathf.Lerp(_peakScales[i], 0f, t);
+
+                _processedBars[i] = Mathf.Max(0f, _currentScales[i] * _config.ScaleMultiplier);
+            }
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
+            _onSpectrumUpdated.Dispose();
+        }
+    }
+}
+
+//==== File 104 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\IAudioSpectrumService.cs ====
+using System;
+
+namespace Game.Services.Audio
+{
+    public interface IAudioSpectrumService
+    {
+        int BarCount { get; }
+        IObservable<float[]> OnSpectrumUpdated { get; }
+    }
+}
+
+//==== File 105 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\IMusicService.cs ====
 using UnityEngine;
 
 namespace Game.Services.Audio
@@ -6640,10 +7078,11 @@ namespace Game.Services.Audio
     {
         void Play(AudioClip clip);
         void Stop();
+        void GetSpectrumData(float[] samples, int channel, FFTWindow window);
     }
 }
 
-//==== File 101 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\ISfxService.cs ====
+//==== File 106 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\ISfxService.cs ====
 using UnityEngine;
 
 namespace Game.Services.Audio
@@ -6655,7 +7094,7 @@ namespace Game.Services.Audio
     }
 }
 
-//==== File 102 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\MusicService.cs ====
+//==== File 107 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\MusicService.cs ====
 using DG.Tweening;
 using UnityEngine;
 using Zenject;
@@ -6784,10 +7223,22 @@ namespace Game.Services.Audio
             if (_nextObject != null)
                 Object.Destroy(_nextObject);
         }
+
+        public void GetSpectrumData(float[] samples, int channel, FFTWindow window)
+        {
+            if (_currentSource != null && _currentSource.isPlaying)
+            {
+                _currentSource.GetSpectrumData(samples, channel, window);
+            }
+            else
+            {
+                System.Array.Clear(samples, 0, samples.Length);
+            }
+        }
     }
 }
 
-//==== File 103 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\SfxService.cs ====
+//==== File 108 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Audio\SfxService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -6891,7 +7342,7 @@ namespace Game.Services.Audio
     }
 }
 
-//==== File 104 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\CellHoverService.cs ====
+//==== File 109 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\CellHoverService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -6955,7 +7406,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 105 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevInputServic.cs ====
+//==== File 110 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevInputServic.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -6985,7 +7436,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 106 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevLevelExportService.cs ====
+//==== File 111 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevLevelExportService.cs ====
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7114,7 +7565,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 107 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevModeService.cs ====
+//==== File 112 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\DevModeService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -7169,7 +7620,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 108 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ILevelAutoTesterService.cs ====
+//==== File 113 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ILevelAutoTesterService.cs ====
 using UniRx;
 
 namespace Game.Services.Dev
@@ -7200,7 +7651,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 109 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ILevelGeneratorService.cs ====
+//==== File 114 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ILevelGeneratorService.cs ====
 using System;
 using UniRx;
 
@@ -7216,7 +7667,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 110 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\IShadowDensityService.cs ====
+//==== File 115 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\IShadowDensityService.cs ====
 using System;
 using UniRx;
 
@@ -7231,7 +7682,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 111 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\LevelAutoTesterService.cs ====
+//==== File 116 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\LevelAutoTesterService.cs ====
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8080,7 +8531,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 112 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\LevelGeneratorService.cs ====
+//==== File 117 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\LevelGeneratorService.cs ====
 using System;
 using System.Collections.Generic;
 using UniRx;
@@ -8394,7 +8845,7 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 113 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ShadowDensityService.cs ====
+//==== File 118 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dev\ShadowDensityService.cs ====
 using System;
 using UniRx;
 
@@ -8427,27 +8878,100 @@ namespace Game.Services.Dev
     }
 }
 
-//==== File 114 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dialogue\DialogueService.cs ====
+//==== File 119 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dialogue\DialogueAudioService.cs ====
+using System;
+using UniRx;
+using UnityEngine;
+using Zenject;
+using Game.Data;
+
+namespace Game.Services.Dialogue
+{
+    public class DialogueAudioService : IDialogueAudioService, IInitializable, IDisposable
+    {
+        private readonly IDialogueService _dialogueService;
+        private readonly AudioConfig _audioConfig;
+        private readonly CompositeDisposable _disposables = new();
+
+        private AudioSource _audioSource;
+        private GameObject _audioObject;
+
+        public DialogueAudioService(
+            IDialogueService dialogueService,
+            [InjectOptional] AudioConfig audioConfig)
+        {
+            _dialogueService = dialogueService;
+            _audioConfig = audioConfig;
+        }
+
+        public void Initialize()
+        {
+            _audioObject = new GameObject("DialogueAudioSource");
+            UnityEngine.Object.DontDestroyOnLoad(_audioObject);
+            _audioSource = _audioObject.AddComponent<AudioSource>();
+            _audioSource.spatialBlend = 0f;
+            _audioSource.playOnAwake = false;
+            _audioSource.loop = false;
+
+            if (_audioConfig is not null && _audioConfig.SfxMixerGroup is not null)
+                _audioSource.outputAudioMixerGroup = _audioConfig.SfxMixerGroup;
+
+            _dialogueService.CurrentAudioClip
+                .Subscribe(OnAudioClipChanged)
+                .AddTo(_disposables);
+        }
+
+        private void OnAudioClipChanged(AudioClip clip)
+        {
+            if (_audioSource is null) return;
+
+            _audioSource.Stop();
+            _audioSource.clip = null;
+
+            if (clip is null) return;
+
+            _audioSource.clip = clip;
+            var volume = _audioConfig is not null ? _audioConfig.DefaultSfxVolume : 1f;
+            _audioSource.volume = volume;
+            _audioSource.Play();
+        }
+
+        public void Dispose()
+        {
+            _disposables?.Dispose();
+            if (_audioSource is not null)
+                _audioSource.Stop();
+            if (_audioObject is not null)
+                UnityEngine.Object.Destroy(_audioObject);
+        }
+    }
+}
+
+//==== File 120 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dialogue\DialogueService.cs ====
 using System;
 using UniRx;
 using Zenject;
+using Game.Data;
 using Game.Services.Input;
+using UnityEngine;
 
 namespace Game.Services.Dialogue
 {
     public class DialogueService : IDialogueService, IInitializable, IDisposable
     {
         public IReadOnlyReactiveProperty<string> CurrentReplica => _currentReplica;
+        public IReadOnlyReactiveProperty<AudioClip> CurrentAudioClip => _currentAudioClip;
         public IReadOnlyReactiveProperty<bool> IsCurrentReplicaFullyRevealed => _isCurrentReplicaFullyRevealed;
         public IObservable<Unit> OnDialogueCompleted => _onDialogueCompleted;
 
         private readonly ReactiveProperty<string> _currentReplica = new();
+        private readonly ReactiveProperty<AudioClip> _currentAudioClip = new();
         private readonly ReactiveProperty<bool> _isCurrentReplicaFullyRevealed = new(true);
         private readonly Subject<Unit> _onDialogueCompleted = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly IInputContextService _contextService;
 
-        private string[] _replicas;
+        private DialogueReplica[] _replicas;
         private int _currentIndex;
 
         public DialogueService(IInputContextService contextService)
@@ -8457,13 +8981,14 @@ namespace Game.Services.Dialogue
 
         public void Initialize() { }
 
-        public void StartDialogue(string[] replicas)
+        public void StartDialogue(DialogueReplica[] replicas)
         {
             UnityEngine.Debug.Log($"[DialogueService] Started with {replicas.Length} replicas.");
             _replicas = replicas;
             _currentIndex = 0;
             _isCurrentReplicaFullyRevealed.Value = false;
-            _currentReplica.Value = _replicas[_currentIndex];
+            _currentReplica.Value = _replicas[_currentIndex].Text;
+            _currentAudioClip.Value = _replicas[_currentIndex].Audio;
         }
 
         public void NotifyRevealCompleted()
@@ -8481,37 +9006,49 @@ namespace Game.Services.Dialogue
             if (_currentIndex >= _replicas.Length)
             {
                 _currentReplica.Value = string.Empty;
+                _currentAudioClip.Value = null;
                 _onDialogueCompleted.OnNext(Unit.Default);
                 _replicas = null;
                 return;
             }
 
             _isCurrentReplicaFullyRevealed.Value = false;
-            _currentReplica.Value = _replicas[_currentIndex];
+            _currentReplica.Value = _replicas[_currentIndex].Text;
+            _currentAudioClip.Value = _replicas[_currentIndex].Audio;
         }
 
         public void Dispose() => _disposables?.Dispose();
     }
 }
 
-//==== File 115 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dialogue\IDialogueService.cs ====
+//==== File 121 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dialogue\IDialogueAudioService.cs ====
+namespace Game.Services.Dialogue
+{
+    public interface IDialogueAudioService
+    {
+    }
+}
+
+//==== File 122 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Dialogue\IDialogueService.cs ====
 using System;
 using UniRx;
+using UnityEngine;
 
 namespace Game.Services.Dialogue
 {
     public interface IDialogueService
     {
         IReadOnlyReactiveProperty<string> CurrentReplica { get; }
+        IReadOnlyReactiveProperty<AudioClip> CurrentAudioClip { get; }
         IReadOnlyReactiveProperty<bool> IsCurrentReplicaFullyRevealed { get; }
         IObservable<Unit> OnDialogueCompleted { get; }
-        void StartDialogue(string[] replicas);
+        void StartDialogue(Game.Data.DialogueReplica[] replicas);
         void NotifyRevealCompleted();
         void AdvanceOrSkip();
     }
 }
 
-//==== File 116 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\EnvironmentEffects\EnvironmentEffectService.cs ====
+//==== File 123 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\EnvironmentEffects\EnvironmentEffectService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -8545,7 +9082,7 @@ namespace Game.Services.EnvironmentEffects
     }
 }
 
-//==== File 117 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\EnvironmentEffects\IEnvironmentEffectService.cs ====
+//==== File 124 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\EnvironmentEffects\IEnvironmentEffectService.cs ====
 namespace Game.Services.EnvironmentEffects
 {
     public interface IEnvironmentEffectService
@@ -8553,7 +9090,7 @@ namespace Game.Services.EnvironmentEffects
     }
 }
 
-//==== File 118 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\EndlessGeneratorService.cs ====
+//==== File 125 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\EndlessGeneratorService.cs ====
 using Game.Data;
 using Game.Services.Dev;
 using Game.Services.Grid;
@@ -8847,7 +9384,7 @@ namespace Game.Services.Generation
     }
 }
 
-//==== File 119 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\GenerationContext.cs ====
+//==== File 126 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\GenerationContext.cs ====
 using UniRx;
 using Zenject;
 using Game.Data;
@@ -8871,7 +9408,7 @@ namespace Game.Services.Generation
     }
 }
 
-//==== File 120 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\IEndlessGeneratorService.cs ====
+//==== File 127 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\IEndlessGeneratorService.cs ====
 using System;
 using UniRx;
 
@@ -8884,7 +9421,7 @@ namespace Game.Services.Generation
     }
 }
 
-//==== File 121 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\IGenerationContext.cs ====
+//==== File 128 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Generation\IGenerationContext.cs ====
 using UniRx;
 using Game.Data;
 
@@ -8897,7 +9434,7 @@ namespace Game.Services.Generation
     }
 }
 
-//==== File 122 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
+//==== File 129 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Grid\GridService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -8994,7 +9531,7 @@ namespace Game.Services.Grid
     }
 }
 
-//==== File 123 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\PlacementHistoryService.cs ====
+//==== File 130 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\History\PlacementHistoryService.cs ====
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9052,7 +9589,7 @@ namespace Game.Services.History
     }
 }
 
-//==== File 124 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputContextService.cs ====
+//==== File 131 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputContextService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -9085,7 +9622,7 @@ namespace Game.Services.Input
     }
 }
 
-//==== File 125 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
+//==== File 132 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Input\InputService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -9162,7 +9699,7 @@ namespace Game.Services.Input
     }
 }
 
-//==== File 126 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\CategoryContextService.cs ====
+//==== File 133 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\CategoryContextService.cs ====
 using UniRx;
 using Game.Data;
 
@@ -9178,7 +9715,7 @@ namespace Game.Services.Menu
     }
 }
 
-//==== File 127 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\ICategoryContextService.cs ====
+//==== File 134 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\ICategoryContextService.cs ====
 using UniRx;
 using Game.Data;
 
@@ -9192,7 +9729,7 @@ namespace Game.Services.Menu
     }
 }
 
-//==== File 128 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\IMenuNavigationService.cs ====
+//==== File 135 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\IMenuNavigationService.cs ====
 using UniRx;
 
 namespace Game.Services.Menu
@@ -9215,7 +9752,7 @@ namespace Game.Services.Menu
     }
 }
 
-//==== File 129 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\IPreviewService.cs ====
+//==== File 136 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\IPreviewService.cs ====
 using System;
 using UniRx;
 using Game.Data;
@@ -9230,7 +9767,7 @@ namespace Game.Services.Menu
     }
 }
 
-//==== File 130 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\MenuNavigationService.cs ====
+//==== File 137 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\MenuNavigationService.cs ====
 using UniRx;
 
 namespace Game.Services.Menu
@@ -9244,7 +9781,7 @@ namespace Game.Services.Menu
     }
 }
 
-//==== File 131 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\PreviewService.cs ====
+//==== File 138 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Menu\PreviewService.cs ====
 using UniRx;
 using Game.Data;
 
@@ -9260,7 +9797,7 @@ namespace Game.Services.Menu
     }
 }
 
-//==== File 132 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
+//==== File 139 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\BlockPlacementService.cs ====
 using Game.Data;
 using Game.Services.Animation;
 using Game.Services.Audio;
@@ -9617,7 +10154,7 @@ namespace Game.Services.Placement
     }
 }
 
-//==== File 133 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\StructurePlacementService.cs ====
+//==== File 140 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Placement\StructurePlacementService.cs ====
 using Game.Data;
 using Game.Services.Audio;
 using Game.Services.Grid;
@@ -10068,7 +10605,7 @@ namespace Game.Services.Placement
     }
 }
 
-//==== File 134 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
+//==== File 141 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\BlockPoolService.cs ====
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10171,7 +10708,7 @@ namespace Game.Services.Pool
     }
 }
 
-//==== File 135 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\StructurePoolService.cs ====
+//==== File 142 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Pool\StructurePoolService.cs ====
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10245,7 +10782,7 @@ namespace Game.Services.Pool
     }
 }
 
-//==== File 136 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Preview\IPreviewShadowService.cs ====
+//==== File 143 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Preview\IPreviewShadowService.cs ====
 using System;
 using UniRx;
 using Game.Data;
@@ -10263,7 +10800,7 @@ namespace Game.Services.Preview
     }
 }
 
-//==== File 137 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Preview\PreviewShadowService.cs ====
+//==== File 144 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Preview\PreviewShadowService.cs ====
 using System;
 using UniRx;
 using Game.Data;
@@ -10296,7 +10833,7 @@ namespace Game.Services.Preview
     }
 }
 
-//==== File 138 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Preview\PreviewStateManager.cs ====
+//==== File 145 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Preview\PreviewStateManager.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -10387,7 +10924,7 @@ namespace Game.Services.Preview
     }
 }
 
-//==== File 139 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\ILevelProgressionService.cs ====
+//==== File 146 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\ILevelProgressionService.cs ====
 using System;
 using UniRx;
 
@@ -10413,7 +10950,7 @@ namespace Game.Services.Progression
     }
 }
 
-//==== File 140 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\IProgressionService.cs ====
+//==== File 147 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\IProgressionService.cs ====
 using System;
 using UniRx;
 
@@ -10445,7 +10982,7 @@ namespace Game.Services.Progression
     }
 }
 
-//==== File 141 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\LevelProgressionService.cs ====
+//==== File 148 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\LevelProgressionService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -10654,7 +11191,7 @@ namespace Game.Services.Progression
     }
 }
 
-//==== File 142 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\ProgressionService.cs ====
+//==== File 149 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Progression\ProgressionService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -10747,7 +11284,7 @@ namespace Game.Services.Progression
     }
 }
 
-//==== File 143 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
+//==== File 150 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Raycast\RaycastService.cs ====
 using UnityEngine;
 using Zenject;
 using Game.Data;
@@ -10809,7 +11346,7 @@ namespace Game.Services.Raycast
     }
 }
 
-//==== File 144 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Registry\ObjectRegistryService.cs ====
+//==== File 151 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Registry\ObjectRegistryService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -10863,7 +11400,7 @@ namespace Game.Services.Registry
     }
 }
 
-//==== File 145 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Rotation\RotationService.cs ====
+//==== File 152 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Rotation\RotationService.cs ====
 using System;
 using DG.Tweening;
 using UniRx;
@@ -10968,7 +11505,7 @@ namespace Game.Services.Rotation
     }
 }
 
-//==== File 146 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Settings\ISettingsService.cs ====
+//==== File 153 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Settings\ISettingsService.cs ====
 using UniRx;
 using Game.Data;
 
@@ -10987,7 +11524,7 @@ namespace Game.Services.Settings
     }
 }
 
-//==== File 147 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Settings\SettingsService.cs ====
+//==== File 154 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Settings\SettingsService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -11095,7 +11632,7 @@ namespace Game.Services.Settings
     }
 }
 
-//==== File 148 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\IShadowCalculationService.cs ====
+//==== File 155 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\IShadowCalculationService.cs ====
 using UnityEngine;
 using Game.Services.Grid;
 
@@ -11163,7 +11700,7 @@ namespace Game.Services.Shadow
     }
 }
 
-//==== File 149 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
+//==== File 156 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\ShadowValidationService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -11355,7 +11892,7 @@ namespace Game.Services.Shadow
     }
 }
 
-//==== File 150 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\TargetDensityProjectionService.cs ====
+//==== File 157 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Shadow\TargetDensityProjectionService.cs ====
 using System;
 using UniRx;
 using Zenject;
@@ -11472,7 +12009,7 @@ namespace Game.Services.Shadow
     }
 }
 
-//==== File 151 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Time\ITimeLimitService.cs ====
+//==== File 158 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Time\ITimeLimitService.cs ====
 using System;
 using UniRx;
 
@@ -11489,7 +12026,7 @@ namespace Game.Services.Time
     }
 }
 
-//==== File 152 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Time\TimeLimitService.cs ====
+//==== File 159 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Time\TimeLimitService.cs ====
 using System;
 using UniRx;
 using UnityEngine;
@@ -11577,7 +12114,7 @@ namespace Game.Services.Time
     }
 }
 
-//==== File 153 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Water\GerstnerWaveEvaluator.cs ====
+//==== File 160 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Water\GerstnerWaveEvaluator.cs ====
 using UnityEngine;
 using Game.Data;
 
@@ -11634,7 +12171,7 @@ namespace Game.Services.Water
     }
 }
 
-//==== File 154 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Water\IWaterShaderService.cs ====
+//==== File 161 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Water\IWaterShaderService.cs ====
 using UniRx;
 using Game.Data;
 
@@ -11648,7 +12185,7 @@ namespace Game.Services.Water
     }
 }
 
-//==== File 155 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Water\WaterShaderService.cs ====
+//==== File 162 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Water\WaterShaderService.cs ====
 using DG.Tweening;
 using Game.Data;
 using System;
@@ -11745,7 +12282,7 @@ namespace Game.Services.Water
     }
 }
 
-//==== File 156 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementItemView.cs ====
+//==== File 163 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementItemView.cs ====
 using Game.Services.Achievements;
 using System;
 using TMPro;
@@ -11826,7 +12363,7 @@ namespace Game.Views.UI.Achievements
     }
 }
 
-//==== File 157 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementListView.cs ====
+//==== File 164 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementListView.cs ====
 using Game.Services.Achievements;
 using System;
 using System.Collections.Generic;
@@ -11931,7 +12468,7 @@ namespace Game.Views.UI.Achievements
     }
 }
 
-//==== File 158 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementsStatisticView.cs ====
+//==== File 165 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementsStatisticView.cs ====
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -11995,7 +12532,7 @@ namespace Game.Views.UI.Achievements
     }
 }
 
-//==== File 159 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementsWindowView.cs ====
+//==== File 166 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementsWindowView.cs ====
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -12077,7 +12614,7 @@ namespace Game.Views.UI.Achievements
 }
 
 
-//==== File 160 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementToastView.cs ====
+//==== File 167 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\AchievementToastView.cs ====
 using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
@@ -12220,7 +12757,7 @@ namespace Game.Views.UI.Achievements
     }
 }
 
-//==== File 161 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\CompletedAchievementsWindowView.cs ====
+//==== File 168 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Views\UI\Achievements\CompletedAchievementsWindowView.cs ====
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -12293,7 +12830,7 @@ namespace Game.Views.UI.Achievements
     }
 }
 
-//==== File 162 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\AchievementEventBus.cs ====
+//==== File 169 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\AchievementEventBus.cs ====
 using System;
 using UniRx;
 
@@ -12311,7 +12848,7 @@ namespace Game.Services.Achievements
     }
 }
 
-//==== File 163 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\BlockPlacedEvent.cs ====
+//==== File 170 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\BlockPlacedEvent.cs ====
 namespace Game.Services.Achievements
 {
     public readonly struct BlockPlacedEvent : IAchievementEvent
@@ -12320,13 +12857,13 @@ namespace Game.Services.Achievements
     }
 }
 
-//==== File 164 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\IAchievementEvent.cs ====
+//==== File 171 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\IAchievementEvent.cs ====
 namespace Game.Services.Achievements
 {
     public interface IAchievementEvent { }
 }
 
-//==== File 165 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\IAchievementEventBus.cs ====
+//==== File 172 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\IAchievementEventBus.cs ====
 using System;
 
 namespace Game.Services.Achievements
@@ -12338,7 +12875,7 @@ namespace Game.Services.Achievements
     }
 }
 
-//==== File 166 of 166: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\LevelCompletedEvent.cs ====
+//==== File 173 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\Services\Achievements\Events\LevelCompletedEvent.cs ====
 namespace Game.Services.Achievements
 {
     public readonly struct LevelCompletedEvent : IAchievementEvent
@@ -12356,10 +12893,10 @@ namespace Game.Services.Achievements
 
 
 // ============ Statistics =============
-// Total Files: 166
-// Total Size: 423,76 KB
-// Total Lines: 12018
-// Classes: 151
-// Methods: 766
+// Total Files: 173
+// Total Size: 444,31 KB
+// Total Lines: 12541
+// Classes: 159
+// Methods: 813
 // Comments (Blocks): 0
 // =====================================
