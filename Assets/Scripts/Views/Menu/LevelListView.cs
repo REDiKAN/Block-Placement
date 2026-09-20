@@ -27,9 +27,15 @@ namespace Game.Views.Menu
 
         private readonly List<LevelButtonView> _buttons = new();
         private readonly CompositeDisposable _disposables = new();
+        private ScrollRect _scrollRect;
 
         private void Start()
         {
+            if (Content is not null)
+            {
+                _scrollRect = Content.GetComponentInParent<ScrollRect>();
+            }
+
             if (BackButton is not null)
             {
                 BackButton.OnClickAsObservable()
@@ -54,20 +60,23 @@ namespace Game.Views.Menu
             }
             _buttons.Clear();
 
-            if (category?.Levels is null || ButtonPrefab is null || Content is null) return;
+            if (category?.Levels is null || ButtonPrefab is null || Content is null)
+            {
+                ResetScrollPosition();
+                return;
+            }
 
             var categoryId = FindCategoryId(category);
             var unlockedCount = _progressionService.GetUnlockedCount(categoryId);
             var totalLevels = category.Levels.Length;
 
             if (UnlockedLevelsLabel is not null)
-                UnlockedLevelsLabel.text = $"{unlockedCount} из {totalLevels} уровней открыто";
+                UnlockedLevelsLabel.text = $"{unlockedCount} / {totalLevels}";
 
             for (var i = 0; i < category.Levels.Length; i++)
             {
                 var config = category.Levels[i];
                 if (config is null) continue;
-
                 if (category.IsSequential && !_progressionService.IsLevelUnlocked(categoryId, i))
                     continue;
 
@@ -86,19 +95,31 @@ namespace Game.Views.Menu
                     .Subscribe(_ => _previewService.ClearPreview())
                     .AddTo(_disposables);
             }
+
+            ResetScrollPosition();
+        }
+
+        private void ResetScrollPosition()
+        {
+            if (_scrollRect is null || Content is null) return;
+
+            if (Content is RectTransform rectTransform)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            }
+
+            _scrollRect.verticalNormalizedPosition = 1f;
         }
 
         private void LoadLevel(int index)
         {
             var category = _categoryContextService.SelectedCategory.Value;
             var categoryId = FindCategoryId(category);
+
             if (category is not null && category.IsSequential && !_progressionService.IsLevelUnlocked(categoryId, index))
                 return;
 
             EndlessContext.IsEndlessModeActive = false;
-
-            var selectedConfig = category?.Levels?[index];
-            LevelContext.SelectedLevelConfig = selectedConfig;
 
             if (_catalog?.Categories is not null && category is not null)
             {
@@ -111,6 +132,7 @@ namespace Game.Views.Menu
                     }
                 }
             }
+
             LevelContext.SelectedLevelId = index;
             SceneManager.LoadScene("GameScene");
         }

@@ -64,6 +64,9 @@ namespace Game.Views.UI
         {
             if (Input.GetKeyDown(KeyCode.Escape) && !_isAnimating)
             {
+                if (_contextService.CurrentContext.Value == InputContext.Dialogue)
+                    return;
+
                 if (_isPaused)
                     Resume();
                 else
