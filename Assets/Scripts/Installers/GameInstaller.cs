@@ -54,29 +54,41 @@ namespace Game.Installers
             Container.BindInstance(GameCamera);
             Container.BindInstance(GameCamera).WithId("GameCamera");
 
-            var activeConfig = LevelConfig;
-            if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
-                LevelContext.SelectedCategoryId >= 0 && LevelContext.SelectedCategoryId < LevelCatalog.Categories.Length)
+            var activeConfig = LevelContext.SelectedLevelConfig;
+
+            if (activeConfig is null)
             {
-                var activeCategory = LevelCatalog.Categories[LevelContext.SelectedCategoryId];
-                if (activeCategory is not null && activeCategory.Levels is not null &&
-                    LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < activeCategory.Levels.Length)
+                activeConfig = LevelConfig;
+                if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
+                    LevelContext.SelectedCategoryId >= 0 && LevelContext.SelectedCategoryId < LevelCatalog.Categories.Length)
                 {
-                    activeConfig = activeCategory.Levels[LevelContext.SelectedLevelId];
+                    var activeCategory = LevelCatalog.Categories[LevelContext.SelectedCategoryId];
+                    if (activeCategory is not null && activeCategory.Levels is not null &&
+                        LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < activeCategory.Levels.Length)
+                    {
+                        activeConfig = activeCategory.Levels[LevelContext.SelectedLevelId];
+                    }
                 }
             }
 
-            Container.BindInstance(activeConfig);
+            if (activeConfig is not null)
+            {
+                Debug.Log($"[GameInstaller] Binding LevelConfig: {activeConfig.name}");
+                Container.BindInstance(activeConfig);
+            }
+            else
+            {
+                Debug.LogError("[GameInstaller] CRITICAL: activeConfig is NULL! Binding nothing.");
+            }
+
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
             Container.BindInstance(LevelCatalog);
 
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
-
             if (StructureConfigs is not null && StructureConfigs.Length > 0)
                 Container.BindInstance(StructureConfigs);
-
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
 
@@ -85,10 +97,8 @@ namespace Game.Installers
 
             if (BlockAnimationConfig is not null)
                 Container.BindInstance(BlockAnimationConfig);
-
             if (StructureAnimationConfig is not null)
                 Container.BindInstance(StructureAnimationConfig);
-
             if (DialogueAnimationConfig is not null)
                 Container.BindInstance(DialogueAnimationConfig);
 

@@ -97,6 +97,9 @@ namespace Game.Views.Menu
 
             EndlessContext.IsEndlessModeActive = false;
 
+            var selectedConfig = category?.Levels?[index];
+            LevelContext.SelectedLevelConfig = selectedConfig;
+
             if (_catalog?.Categories is not null && category is not null)
             {
                 for (var i = 0; i < _catalog.Categories.Length; i++)

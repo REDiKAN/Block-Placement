@@ -22,7 +22,6 @@ namespace Game.Services.Progression
         private readonly Subject<string> _onLevelCompletedMessage = new();
         private readonly Subject<LevelTransitionData> _onTransitionRequested = new();
         private readonly CompositeDisposable _disposables = new();
-
         private readonly IShadowValidationService _validationService;
         private readonly IInputService _inputService;
         private readonly IInputContextService _contextService;
@@ -37,7 +36,6 @@ namespace Game.Services.Progression
         private readonly IDialogueService _dialogueService;
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
-
         private bool _isLevelReady;
 
         private const string NextLevelMessage = "Press Space to continue to the next level";
@@ -85,6 +83,7 @@ namespace Game.Services.Progression
                 _contextService.SetContext(InputContext.PlaceBlock);
                 return;
             }
+
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
@@ -118,7 +117,6 @@ namespace Game.Services.Progression
                         _levelIntroAnimationService.Play();
                     })
                     .AddTo(_disposables);
-
                 return;
             }
 
@@ -143,6 +141,7 @@ namespace Game.Services.Progression
 
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
+
             _onLevelCompletedMessage.OnNext(isLastLevel ? CatalogCompletedMessage : NextLevelMessage);
         }
 
@@ -184,11 +183,17 @@ namespace Game.Services.Progression
             {
                 LevelContext.SelectedCategoryId = 0;
                 LevelContext.SelectedLevelId = 0;
+                LevelContext.SelectedLevelConfig = null;
                 _onTransitionRequested.OnNext(new LevelTransitionData("MenuScene", -1));
             }
             else
             {
-                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId + 1));
+                LevelContext.SelectedLevelId++;
+                if (category?.Levels is not null && LevelContext.SelectedLevelId < category.Levels.Length)
+                {
+                    LevelContext.SelectedLevelConfig = category.Levels[LevelContext.SelectedLevelId];
+                }
+                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
             }
         }
 

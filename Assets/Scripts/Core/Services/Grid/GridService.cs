@@ -40,12 +40,17 @@ namespace Game.Services.Grid
         public void Initialize()
         {
             Array.Clear(_cells, 0, _cells.Length);
-            if (_isDeveloperMode)
-                Array.Fill(_floor, true);
-            else if (_config?.FloorMatrix?.Length == CellCount)
+
+            if (_config?.FloorMatrix?.Length == CellCount)
+            {
                 Array.Copy(_config.FloorMatrix, _floor, CellCount);
+                Debug.Log($"[GridService] Successfully loaded FloorMatrix from '{_config.name}'.");
+            }
             else
+            {
                 Array.Fill(_floor, true);
+                Debug.LogWarning($"[GridService] FloorMatrix is missing or invalid in '{_config?.name ?? "NULL"}'. Fallback to all TRUE.");
+            }
         }
 
         public bool IsCellOccupied(Vector3Int cell) =>
