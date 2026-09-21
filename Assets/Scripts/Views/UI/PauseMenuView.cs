@@ -62,17 +62,27 @@ namespace Game.Views.UI
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape) && !_isAnimating)
-            {
-                if (_contextService.CurrentContext.Value == InputContext.Dialogue)
-                    return;
+            if (!Input.GetKeyDown(KeyCode.Escape) || _isAnimating)
+                return;
 
-                if (_isPaused)
-                    Resume();
-                else
-                    Pause();
-            }
+            if (IsPauseBlocked(_contextService.CurrentContext.Value))
+                return;
+
+            if (_isPaused)
+                Resume();
+            else
+                Pause();
         }
+
+        private static bool IsPauseBlocked(InputContext context) =>
+            context switch
+            {
+                InputContext.Dialogue => true,
+                InputContext.Generating => true,
+                InputContext.LevelCompleted => true,
+                InputContext.TimeExpired => true,
+                _ => false
+            };
 
         private void Pause()
         {
