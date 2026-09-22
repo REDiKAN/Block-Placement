@@ -12,23 +12,29 @@ namespace Game.Services.Settings
         public IReadOnlyReactiveProperty<ResolutionData> CurrentResolution => _currentResolution;
         public IReadOnlyReactiveProperty<bool> IsFullscreen => _isFullscreen;
         public IReadOnlyReactiveProperty<bool> IsPreviewEnabled => _isPreviewEnabled;
+        public IReadOnlyReactiveProperty<int> CurrentFpsLimit => _currentFpsLimit;
 
         private readonly ReactiveProperty<int> _currentQualityLevel = new();
         private readonly ReactiveProperty<ResolutionData> _currentResolution = new();
         private readonly ReactiveProperty<bool> _isFullscreen = new();
         private readonly ReactiveProperty<bool> _isPreviewEnabled = new();
+        private readonly ReactiveProperty<int> _currentFpsLimit = new();
+
         private readonly CompositeDisposable _disposables = new();
         private readonly SettingsConfig _config;
+        private readonly FpsLimitConfig _fpsLimitConfig;
 
         private const string QualityKey = "settings_quality";
         private const string ResolutionKey = "settings_resolution";
         private const string FullscreenKey = "settings_fullscreen";
         private const string PreviewEnabledKey = "settings_preview_enabled";
+        private const string FpsLimitKey = "settings_fps_limit";
         private const int QualityLevelsCount = 3;
 
-        public SettingsService(SettingsConfig config)
+        public SettingsService(SettingsConfig config, FpsLimitConfig fpsLimitConfig)
         {
             _config = config;
+            _fpsLimitConfig = fpsLimitConfig;
         }
 
         public void Initialize()
@@ -38,9 +44,7 @@ namespace Game.Services.Settings
             ApplyQuality(savedQuality);
 
             var savedResolutionIndex = PlayerPrefs.GetInt(ResolutionKey, 0);
-            var resolutionIndex = _config.Resolutions is not null && savedResolutionIndex < _config.Resolutions.Length
-                ? savedResolutionIndex
-                : 0;
+            var resolutionIndex = _config.Resolutions is not null && savedResolutionIndex < _config.Resolutions.Length ? savedResolutionIndex : 0;
             _currentResolution.Value = _config.Resolutions[resolutionIndex];
             ApplyResolution(_config.Resolutions[resolutionIndex]);
 
@@ -50,6 +54,31 @@ namespace Game.Services.Settings
 
             var savedPreviewEnabled = PlayerPrefs.GetInt(PreviewEnabledKey, 0) == 1;
             _isPreviewEnabled.Value = savedPreviewEnabled;
+
+            var savedFpsIndex = PlayerPrefs.GetInt(FpsLimitKey, _fpsLimitConfig.DefaultIndex);
+            if (_fpsLimitConfig.Presets is null || savedFpsIndex < 0 || savedFpsIndex >= _fpsLimitConfig.Presets.Length)
+                savedFpsIndex = _fpsLimitConfig.DefaultIndex;
+
+            var fpsValue = _fpsLimitConfig.Presets[savedFpsIndex];
+            _currentFpsLimit.Value = fpsValue;
+            ApplyFpsLimit(fpsValue);
+        }
+
+        public void SetFpsLimitByIndex(int index)
+        {
+            if (_fpsLimitConfig.Presets is null || index < 0 || index >= _fpsLimitConfig.Presets.Length) return;
+
+            var fpsValue = _fpsLimitConfig.Presets[index];
+            _currentFpsLimit.Value = fpsValue;
+            PlayerPrefs.SetInt(FpsLimitKey, index);
+            PlayerPrefs.Save();
+            ApplyFpsLimit(fpsValue);
+        }
+
+        private static void ApplyFpsLimit(int fpsValue)
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = fpsValue;
         }
 
         public void CycleQuality()
@@ -90,16 +119,13 @@ namespace Game.Services.Settings
             PlayerPrefs.Save();
         }
 
-        private static void ApplyQuality(int level) =>
-            QualitySettings.SetQualityLevel(level, true);
+        private static void ApplyQuality(int level) => QualitySettings.SetQualityLevel(level, true);
 
         private static void ApplyResolution(ResolutionData resolution) =>
             Screen.SetResolution(resolution.Width, resolution.Height, Screen.fullScreenMode);
 
         private static void ApplyFullscreen(bool isFullscreen) =>
-            Screen.fullScreenMode = isFullscreen
-                ? FullScreenMode.FullScreenWindow
-                : FullScreenMode.Windowed;
+            Screen.fullScreenMode = isFullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
 
         public void Dispose() => _disposables?.Dispose();
     }

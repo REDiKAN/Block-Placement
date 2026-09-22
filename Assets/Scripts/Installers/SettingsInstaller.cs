@@ -8,11 +8,15 @@ namespace Game.Installers
     public class SettingsInstaller : MonoInstaller
     {
         [field: SerializeField] private SettingsConfig SettingsConfig { get; set; }
+        [field: SerializeField] private FpsLimitConfig FpsLimitConfig { get; set; }
 
         public override void InstallBindings()
         {
             if (SettingsConfig is not null)
                 Container.BindInstance(SettingsConfig);
+
+            if (FpsLimitConfig is not null)
+                Container.BindInstance(FpsLimitConfig);
 
             Bind<SettingsService>();
         }

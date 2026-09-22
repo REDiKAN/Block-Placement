@@ -1,8 +1,11 @@
+using System;
+using DG.Tweening;
 using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using Game.Data;
 using Game.Services.Menu;
 using Game.Services.Settings;
 using Game.Services.Water;
@@ -21,14 +24,19 @@ namespace Game.Views.Menu
         [field: SerializeField] private TextMeshProUGUI WaterText { get; set; }
         [field: SerializeField] private Button PreviewButton { get; set; }
         [field: SerializeField] private TextMeshProUGUI PreviewText { get; set; }
+        [field: SerializeField] private Scrollbar FpsScrollbar { get; set; }
+        [field: SerializeField] private TextMeshProUGUI FpsText { get; set; }
         [field: SerializeField] private Button BackButton { get; set; }
 
         [Inject] private ISettingsService _settingsService;
         [Inject] private IMenuNavigationService _navigationService;
         [Inject] private IWaterShaderService _waterShaderService;
+        [Inject] private FpsLimitConfig _fpsLimitConfig;
 
         private readonly CompositeDisposable _disposables = new();
         private static readonly string[] QualityNames = { "Low", "Medium", "High" };
+        private Tween _fpsTextTween;
+        private int _lastFpsValue = -2;
 
         private void Start()
         {
@@ -37,76 +45,125 @@ namespace Game.Views.Menu
                 .AddTo(_disposables);
 
             if (QualityButton is not null)
-                QualityButton.OnClickAsObservable()
-                    .Subscribe(_ => _settingsService.CycleQuality())
-                    .AddTo(_disposables);
-
+                QualityButton.OnClickAsObservable().Subscribe(_ => _settingsService.CycleQuality()).AddTo(_disposables);
             if (ResolutionButton is not null)
-                ResolutionButton.OnClickAsObservable()
-                    .Subscribe(_ => _settingsService.CycleResolution())
-                    .AddTo(_disposables);
-
+                ResolutionButton.OnClickAsObservable().Subscribe(_ => _settingsService.CycleResolution()).AddTo(_disposables);
             if (FullscreenButton is not null)
-                FullscreenButton.OnClickAsObservable()
-                    .Subscribe(_ => _settingsService.CycleFullscreen())
-                    .AddTo(_disposables);
-
+                FullscreenButton.OnClickAsObservable().Subscribe(_ => _settingsService.CycleFullscreen()).AddTo(_disposables);
             if (WaterButton is not null)
-                WaterButton.OnClickAsObservable()
-                    .Subscribe(_ => _waterShaderService.CycleConfig())
-                    .AddTo(_disposables);
-
+                WaterButton.OnClickAsObservable().Subscribe(_ => _waterShaderService.CycleConfig()).AddTo(_disposables);
             if (PreviewButton is not null)
-                PreviewButton.OnClickAsObservable()
-                    .Subscribe(_ => _settingsService.CyclePreview())
-                    .AddTo(_disposables);
-
+                PreviewButton.OnClickAsObservable().Subscribe(_ => _settingsService.CyclePreview()).AddTo(_disposables);
             if (BackButton is not null)
-                BackButton.OnClickAsObservable()
-                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.MainMenu))
-                    .AddTo(_disposables);
+                BackButton.OnClickAsObservable().Subscribe(_ => _navigationService.NavigateTo(MenuView.MainMenu)).AddTo(_disposables);
 
             _settingsService.CurrentQualityLevel
-                .Subscribe(level =>
-                {
-                    if (QualityText is not null)
-                        QualityText.text = $"Quality: {QualityNames[level]}";
-                })
+                .Subscribe(level => { if (QualityText is not null) QualityText.text = $"Quality: {QualityNames[level]}"; })
                 .AddTo(_disposables);
 
             _settingsService.CurrentResolution
-                .Subscribe(resolution =>
-                {
-                    if (ResolutionText is not null && resolution is not null)
-                        ResolutionText.text = $"Resolution: {resolution}";
-                })
+                .Subscribe(resolution => { if (ResolutionText is not null && resolution is not null) ResolutionText.text = $"Resolution: {resolution}"; })
                 .AddTo(_disposables);
 
             _settingsService.IsFullscreen
-                .Subscribe(isFullscreen =>
-                {
-                    if (FullscreenText is not null)
-                        FullscreenText.text = $"Fullscreen: {(isFullscreen ? "On" : "Off")}";
-                })
+                .Subscribe(isFullscreen => { if (FullscreenText is not null) FullscreenText.text = $"Fullscreen: {(isFullscreen ? "On" : "Off")}"; })
                 .AddTo(_disposables);
 
             _waterShaderService.CurrentConfig
-                .Subscribe(config =>
-                {
-                    if (WaterText is not null && config is not null)
-                        WaterText.text = $"Water: {config.DisplayName}";
-                })
+                .Subscribe(config => { if (WaterText is not null && config is not null) WaterText.text = $"Water: {config.DisplayName}"; })
                 .AddTo(_disposables);
 
             _settingsService.IsPreviewEnabled
-                .Subscribe(isEnabled =>
+                .Subscribe(isEnabled => { if (PreviewText is not null) PreviewText.text = $"Preview: {(isEnabled ? "On" : "Off")}"; })
+                .AddTo(_disposables);
+
+            if (FpsScrollbar is not null && _fpsLimitConfig?.Presets is not null && _fpsLimitConfig.Presets.Length > 0)
+            {
+                FpsScrollbar.OnValueChangedAsObservable()
+                    .Subscribe(val =>
+                    {
+                        var index = Mathf.RoundToInt(val * (_fpsLimitConfig.Presets.Length - 1));
+                        _settingsService.SetFpsLimitByIndex(index);
+                    })
+                    .AddTo(_disposables);
+            }
+
+            _settingsService.CurrentFpsLimit
+                .Subscribe(fps =>
                 {
-                    if (PreviewText is not null)
-                        PreviewText.text = $"Preview: {(isEnabled ? "On" : "Off")}";
+                    if (FpsText is not null)
+                        AnimateFpsText(fps);
+
+                    if (FpsScrollbar is not null && _fpsLimitConfig?.Presets is not null && _fpsLimitConfig.Presets.Length > 0)
+                    {
+                        var index = Array.IndexOf(_fpsLimitConfig.Presets, fps);
+                        if (index >= 0)
+                            FpsScrollbar.value = (float)index / (_fpsLimitConfig.Presets.Length - 1);
+                    }
                 })
                 .AddTo(_disposables);
         }
 
-        private void OnDestroy() => _disposables?.Dispose();
+        private void AnimateFpsText(int targetFps)
+        {
+            if (_lastFpsValue == targetFps) return;
+
+            _fpsTextTween?.Kill();
+
+            var startValue = _lastFpsValue < 0 ? targetFps : _lastFpsValue;
+            var currentDisplayValue = (float)startValue;
+
+            if (targetFps == -1)
+            {
+                _fpsTextTween = DOTween.To(
+                    () => currentDisplayValue,
+                    x =>
+                    {
+                        currentDisplayValue = x;
+                        if (FpsText is not null)
+                        {
+                            var displayValue = Mathf.RoundToInt(currentDisplayValue);
+                            FpsText.text = displayValue == -1 ? "FPS: Без ограничений" : $"FPS: {displayValue}";
+                        }
+                    },
+                    targetFps,
+                    0.3f
+                ).SetEase(Ease.OutCubic).SetAutoKill(true);
+            }
+            else if (startValue == -1)
+            {
+                FpsText.text = $"FPS: {targetFps}";
+            }
+            else
+            {
+                _fpsTextTween = DOTween.To(
+                    () => currentDisplayValue,
+                    x =>
+                    {
+                        currentDisplayValue = x;
+                        if (FpsText is not null)
+                            FpsText.text = $"FPS: {Mathf.RoundToInt(currentDisplayValue)}";
+                    },
+                    targetFps,
+                    0.3f
+                ).SetEase(Ease.OutCubic).SetAutoKill(true);
+            }
+
+            if (FpsText is not null)
+            {
+                FpsText.transform.DOScale(1.15f, 0.15f)
+                    .SetEase(Ease.OutBack)
+                    .OnComplete(() => FpsText.transform.DOScale(1f, 0.1f))
+                    .SetAutoKill(true);
+            }
+
+            _lastFpsValue = targetFps;
+        }
+
+        private void OnDestroy()
+        {
+            _fpsTextTween?.Kill();
+            _disposables?.Dispose();
+        }
     }
 }

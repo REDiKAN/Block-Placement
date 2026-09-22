@@ -1,5 +1,5 @@
 ﻿// ===== Combined Scripts Header =====
-// Generation Time: 18.09.2026 14:30:17
+// Generation Time: 21.09.2026 22:37:17
 // Encoding: Unicode (UTF-8)
 // Total Files: 173
 // =====================================
@@ -23,17 +23,21 @@ namespace Game.Core
 }
 
 //==== File 2 of 173: F:/Main Repositories Progject/Block-Placement/Block-Placement/Assets\Scripts\Core\LevelContext.cs ====
+using Game.Data;
+
 namespace Game.Core
 {
     public static class LevelContext
     {
         public static int SelectedLevelId { get; set; }
         public static int SelectedCategoryId { get; set; }
+        public static LevelConfig SelectedLevelConfig { get; set; }
 
         public static void Reset()
         {
             SelectedLevelId = 0;
             SelectedCategoryId = 0;
+            SelectedLevelConfig = null;
         }
     }
 }
@@ -163,29 +167,41 @@ namespace Game.Installers
             Container.BindInstance(GameCamera);
             Container.BindInstance(GameCamera).WithId("GameCamera");
 
-            var activeConfig = LevelConfig;
-            if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
-                LevelContext.SelectedCategoryId >= 0 && LevelContext.SelectedCategoryId < LevelCatalog.Categories.Length)
+            var activeConfig = LevelContext.SelectedLevelConfig;
+
+            if (activeConfig is null)
             {
-                var activeCategory = LevelCatalog.Categories[LevelContext.SelectedCategoryId];
-                if (activeCategory is not null && activeCategory.Levels is not null &&
-                    LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < activeCategory.Levels.Length)
+                activeConfig = LevelConfig;
+                if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
+                    LevelContext.SelectedCategoryId >= 0 && LevelContext.SelectedCategoryId < LevelCatalog.Categories.Length)
                 {
-                    activeConfig = activeCategory.Levels[LevelContext.SelectedLevelId];
+                    var activeCategory = LevelCatalog.Categories[LevelContext.SelectedCategoryId];
+                    if (activeCategory is not null && activeCategory.Levels is not null &&
+                        LevelContext.SelectedLevelId >= 0 && LevelContext.SelectedLevelId < activeCategory.Levels.Length)
+                    {
+                        activeConfig = activeCategory.Levels[LevelContext.SelectedLevelId];
+                    }
                 }
             }
 
-            Container.BindInstance(activeConfig);
+            if (activeConfig is not null)
+            {
+                Debug.Log($"[GameInstaller] Binding LevelConfig: {activeConfig.name}");
+                Container.BindInstance(activeConfig);
+            }
+            else
+            {
+                Debug.LogError("[GameInstaller] CRITICAL: activeConfig is NULL! Binding nothing.");
+            }
+
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
             Container.BindInstance(LevelCatalog);
 
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
-
             if (StructureConfigs is not null && StructureConfigs.Length > 0)
                 Container.BindInstance(StructureConfigs);
-
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
 
@@ -194,10 +210,8 @@ namespace Game.Installers
 
             if (BlockAnimationConfig is not null)
                 Container.BindInstance(BlockAnimationConfig);
-
             if (StructureAnimationConfig is not null)
                 Container.BindInstance(StructureAnimationConfig);
-
             if (DialogueAnimationConfig is not null)
                 Container.BindInstance(DialogueAnimationConfig);
 
@@ -3940,9 +3954,15 @@ namespace Game.Views.Menu
 
         private readonly List<LevelButtonView> _buttons = new();
         private readonly CompositeDisposable _disposables = new();
+        private ScrollRect _scrollRect;
 
         private void Start()
         {
+            if (Content is not null)
+            {
+                _scrollRect = Content.GetComponentInParent<ScrollRect>();
+            }
+
             if (BackButton is not null)
             {
                 BackButton.OnClickAsObservable()
@@ -3967,20 +3987,23 @@ namespace Game.Views.Menu
             }
             _buttons.Clear();
 
-            if (category?.Levels is null || ButtonPrefab is null || Content is null) return;
+            if (category?.Levels is null || ButtonPrefab is null || Content is null)
+            {
+                ResetScrollPosition();
+                return;
+            }
 
             var categoryId = FindCategoryId(category);
             var unlockedCount = _progressionService.GetUnlockedCount(categoryId);
             var totalLevels = category.Levels.Length;
 
             if (UnlockedLevelsLabel is not null)
-                UnlockedLevelsLabel.text = $"{unlockedCount} �� {totalLevels} ������� �������";
+                UnlockedLevelsLabel.text = $"{unlockedCount} / {totalLevels}";
 
             for (var i = 0; i < category.Levels.Length; i++)
             {
                 var config = category.Levels[i];
                 if (config is null) continue;
-
                 if (category.IsSequential && !_progressionService.IsLevelUnlocked(categoryId, i))
                     continue;
 
@@ -3999,12 +4022,27 @@ namespace Game.Views.Menu
                     .Subscribe(_ => _previewService.ClearPreview())
                     .AddTo(_disposables);
             }
+
+            ResetScrollPosition();
+        }
+
+        private void ResetScrollPosition()
+        {
+            if (_scrollRect is null || Content is null) return;
+
+            if (Content is RectTransform rectTransform)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            }
+
+            _scrollRect.verticalNormalizedPosition = 1f;
         }
 
         private void LoadLevel(int index)
         {
             var category = _categoryContextService.SelectedCategory.Value;
             var categoryId = FindCategoryId(category);
+
             if (category is not null && category.IsSequential && !_progressionService.IsLevelUnlocked(categoryId, index))
                 return;
 
@@ -4021,6 +4059,7 @@ namespace Game.Views.Menu
                     }
                 }
             }
+
             LevelContext.SelectedLevelId = index;
             SceneManager.LoadScene("GameScene");
         }
@@ -5282,14 +5321,27 @@ namespace Game.Views.UI
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape) && !_isAnimating)
-            {
-                if (_isPaused)
-                    Resume();
-                else
-                    Pause();
-            }
+            if (!Input.GetKeyDown(KeyCode.Escape) || _isAnimating)
+                return;
+
+            if (IsPauseBlocked(_contextService.CurrentContext.Value))
+                return;
+
+            if (_isPaused)
+                Resume();
+            else
+                Pause();
         }
+
+        private static bool IsPauseBlocked(InputContext context) =>
+            context switch
+            {
+                InputContext.Dialogue => true,
+                InputContext.Generating => true,
+                InputContext.LevelCompleted => true,
+                InputContext.TimeExpired => true,
+                _ => false
+            };
 
         private void Pause()
         {
@@ -6071,6 +6123,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Views;
+using Game.Services.Grid;
 
 namespace Game.Services.Animation
 {
@@ -6078,18 +6131,16 @@ namespace Game.Services.Animation
     {
         public string Id => "CascadeIntro";
         public float Duration => 2.5f;
-
         private const float CellScaleDuration = 0.35f;
         private const float CellStaggerDelay = 0.03f;
         private const float CameraMoveDuration = 0.8f;
         private const float CameraReturnDuration = 0.6f;
         private const float CameraOffsetDistance = 3f;
         private const float CameraTiltAngle = 15f;
-
         private readonly Camera _camera;
         private readonly FloorGridView _floorGridView;
         private readonly WallView[] _wallViews;
-
+        private readonly IGridService _gridService;
         private Vector3 _originalCameraPosition;
         private Quaternion _originalCameraRotation;
         private float _originalCameraSize;
@@ -6098,20 +6149,20 @@ namespace Game.Services.Animation
         public CascadeIntroStrategy(
             [Inject(Id = "GameCamera")] Camera camera,
             FloorGridView floorGridView,
-            WallView[] wallViews)
+            WallView[] wallViews,
+            IGridService gridService)
         {
             _camera = camera;
             _floorGridView = floorGridView;
             _wallViews = wallViews;
+            _gridService = gridService;
         }
 
         public IObservable<Unit> Execute(Action onComplete)
         {
             var subject = new Subject<Unit>();
-
             HideAllElements();
             StoreCameraState();
-
             var sequence = DOTween.Sequence();
             sequence.Append(CameraMoveOut());
             sequence.Join(AnimateFloorCells());
@@ -6123,7 +6174,6 @@ namespace Game.Services.Animation
                 subject.OnNext(Unit.Default);
                 subject.OnCompleted();
             });
-
             return subject;
         }
 
@@ -6140,7 +6190,6 @@ namespace Game.Services.Animation
                     }
                 }
             }
-
             if (_wallViews is not null)
             {
                 foreach (var wall in _wallViews)
@@ -6175,17 +6224,13 @@ namespace Game.Services.Animation
                 _originalCameraRotation.eulerAngles.x + CameraTiltAngle,
                 _originalCameraRotation.eulerAngles.y,
                 _originalCameraRotation.eulerAngles.z);
-
             var sequence = DOTween.Sequence();
             sequence.Join(_camera.transform.DOMove(targetPosition, CameraMoveDuration).SetEase(Ease.OutCubic));
-
             var sizeTween = _isOrthographic
                 ? _camera.DOOrthoSize(_originalCameraSize + 2f, CameraMoveDuration)
                 : _camera.DOFieldOfView(_originalCameraSize + 10f, CameraMoveDuration);
-
             sequence.Join(sizeTween.SetEase(Ease.OutCubic));
             sequence.Join(_camera.transform.DORotate(targetRotation.eulerAngles, CameraMoveDuration).SetEase(Ease.OutCubic));
-
             return sequence;
         }
 
@@ -6193,14 +6238,11 @@ namespace Game.Services.Animation
         {
             var sequence = DOTween.Sequence();
             sequence.Join(_camera.transform.DOMove(_originalCameraPosition, CameraReturnDuration).SetEase(Ease.OutCubic));
-
             var sizeTween = _isOrthographic
                 ? _camera.DOOrthoSize(_originalCameraSize, CameraReturnDuration)
                 : _camera.DOFieldOfView(_originalCameraSize, CameraReturnDuration);
-
             sequence.Join(sizeTween.SetEase(Ease.OutCubic));
             sequence.Join(_camera.transform.DORotate(_originalCameraRotation.eulerAngles, CameraReturnDuration).SetEase(Ease.OutCubic));
-
             return sequence;
         }
 
@@ -6218,7 +6260,6 @@ namespace Game.Services.Animation
                 var capturedIndex = i;
                 sequence.AppendCallback(() => AnimateCellScale(cell, capturedIndex));
             }
-
             return sequence;
         }
 
@@ -6226,22 +6267,18 @@ namespace Game.Services.Animation
         {
             var sequence = DOTween.Sequence();
             if (_wallViews is null) return sequence;
-
             var allCells = _wallViews
                 .Where(w => w is not null && w.Cells is not null)
                 .SelectMany(w => w.Cells)
                 .Where(c => c is not null)
                 .ToArray();
-
             var shuffledCells = ShuffleArray(allCells);
-
             for (var i = 0; i < shuffledCells.Length; i++)
             {
                 var cell = shuffledCells[i];
                 var capturedIndex = i;
                 sequence.AppendCallback(() => AnimateCellScale(cell, capturedIndex));
             }
-
             return sequence;
         }
 
@@ -6249,11 +6286,17 @@ namespace Game.Services.Animation
         {
             if (cellView is null) return;
 
+            if (cellView is FloorCellView floorCell)
+            {
+                var x = floorCell.Index / 5;
+                var z = floorCell.Index % 5;
+                if (!_gridService.IsFloorExists(new Vector2Int(x, z)))
+                    return;
+            }
+
             cellView.transform.localScale = Vector3.zero;
             cellView.gameObject.SetActive(true);
-
             var delay = index * CellStaggerDelay;
-
             cellView.transform.DOScale(Vector3.one, CellScaleDuration)
                 .SetEase(Ease.OutBack)
                 .SetDelay(delay)
@@ -6264,7 +6307,6 @@ namespace Game.Services.Animation
         {
             var shuffled = array.ToArray();
             var n = shuffled.Length;
-
             while (n > 1)
             {
                 n--;
@@ -6273,7 +6315,6 @@ namespace Game.Services.Animation
                 shuffled[k] = shuffled[n];
                 shuffled[n] = value;
             }
-
             return shuffled;
         }
     }
@@ -6449,6 +6490,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Views;
+using Game.Services.Grid;
 
 namespace Game.Services.Animation
 {
@@ -6456,18 +6498,16 @@ namespace Game.Services.Animation
     {
         public string Id => "RowByRow";
         public float Duration => 2.5f;
-
         private const float CellScaleDuration = 0.3f;
         private const float CellStaggerDelay = 0.02f;
         private const float CameraMoveDuration = 0.8f;
         private const float CameraReturnDuration = 0.6f;
         private const float CameraOffsetDistance = 3f;
         private const float CameraTiltAngle = 15f;
-
         private readonly Camera _camera;
         private readonly FloorGridView _floorGridView;
         private readonly WallView[] _wallViews;
-
+        private readonly IGridService _gridService;
         private Vector3 _originalCameraPosition;
         private Quaternion _originalCameraRotation;
         private float _originalCameraSize;
@@ -6476,11 +6516,13 @@ namespace Game.Services.Animation
         public RowByRowStrategy(
             [Inject(Id = "GameCamera")] Camera camera,
             FloorGridView floorGridView,
-            WallView[] wallViews)
+            WallView[] wallViews,
+            IGridService gridService)
         {
             _camera = camera;
             _floorGridView = floorGridView;
             _wallViews = wallViews;
+            _gridService = gridService;
         }
 
         public IObservable<Unit> Execute(Action onComplete)
@@ -6488,7 +6530,6 @@ namespace Game.Services.Animation
             var subject = new Subject<Unit>();
             HideAllElements();
             StoreCameraState();
-
             var sequence = DOTween.Sequence();
             sequence.Append(CameraMoveOut());
             sequence.Join(AnimateFloorCells());
@@ -6500,7 +6541,6 @@ namespace Game.Services.Animation
                 subject.OnNext(Unit.Default);
                 subject.OnCompleted();
             });
-
             return subject;
         }
 
@@ -6517,7 +6557,6 @@ namespace Game.Services.Animation
                     }
                 }
             }
-
             if (_wallViews is not null)
             {
                 foreach (var wall in _wallViews)
@@ -6552,17 +6591,13 @@ namespace Game.Services.Animation
                 _originalCameraRotation.eulerAngles.x + CameraTiltAngle,
                 _originalCameraRotation.eulerAngles.y,
                 _originalCameraRotation.eulerAngles.z);
-
             var sequence = DOTween.Sequence();
             sequence.Join(_camera.transform.DOMove(targetPosition, CameraMoveDuration).SetEase(Ease.OutCubic));
-
             var sizeTween = _isOrthographic
                 ? _camera.DOOrthoSize(_originalCameraSize + 2f, CameraMoveDuration)
                 : _camera.DOFieldOfView(_originalCameraSize + 10f, CameraMoveDuration);
-
             sequence.Join(sizeTween.SetEase(Ease.OutCubic));
             sequence.Join(_camera.transform.DORotate(targetRotation.eulerAngles, CameraMoveDuration).SetEase(Ease.OutCubic));
-
             return sequence;
         }
 
@@ -6570,14 +6605,11 @@ namespace Game.Services.Animation
         {
             var sequence = DOTween.Sequence();
             sequence.Join(_camera.transform.DOMove(_originalCameraPosition, CameraReturnDuration).SetEase(Ease.OutCubic));
-
             var sizeTween = _isOrthographic
                 ? _camera.DOOrthoSize(_originalCameraSize, CameraReturnDuration)
                 : _camera.DOFieldOfView(_originalCameraSize, CameraReturnDuration);
-
             sequence.Join(sizeTween.SetEase(Ease.OutCubic));
             sequence.Join(_camera.transform.DORotate(_originalCameraRotation.eulerAngles, CameraReturnDuration).SetEase(Ease.OutCubic));
-
             return sequence;
         }
 
@@ -6586,16 +6618,18 @@ namespace Game.Services.Animation
             var sequence = DOTween.Sequence();
             if (_floorGridView?.Cells is null) return sequence;
 
-            var cells = _floorGridView.Cells.Where(c => c is not null).ToArray();
-            var sortedCells = cells.OrderBy(c => c.transform.localPosition.z).ThenBy(c => c.transform.localPosition.x).ToArray();
+            var cells = _floorGridView.Cells
+                .Where(c => c is not null)
+                .OrderBy(c => c.transform.localPosition.z)
+                .ThenBy(c => c.transform.localPosition.x)
+                .ToArray();
 
-            for (var i = 0; i < sortedCells.Length; i++)
+            for (var i = 0; i < cells.Length; i++)
             {
-                var cell = sortedCells[i];
+                var cell = cells[i];
                 var capturedIndex = i;
                 sequence.AppendCallback(() => AnimateCellScale(cell, capturedIndex));
             }
-
             return sequence;
         }
 
@@ -6603,14 +6637,11 @@ namespace Game.Services.Animation
         {
             var sequence = DOTween.Sequence();
             if (_wallViews is null) return sequence;
-
             foreach (var wall in _wallViews)
             {
                 if (wall?.Cells is null) continue;
-
                 var cells = wall.Cells.Where(c => c is not null).ToArray();
                 var sortedCells = cells.OrderBy(c => c.transform.localPosition.y).ThenBy(c => c.transform.localPosition.x).ToArray();
-
                 for (var i = 0; i < sortedCells.Length; i++)
                 {
                     var cell = sortedCells[i];
@@ -6618,7 +6649,6 @@ namespace Game.Services.Animation
                     sequence.AppendCallback(() => AnimateCellScale(cell, capturedIndex));
                 }
             }
-
             return sequence;
         }
 
@@ -6626,11 +6656,17 @@ namespace Game.Services.Animation
         {
             if (cellView is null) return;
 
+            if (cellView is FloorCellView floorCell)
+            {
+                var x = floorCell.Index / 5;
+                var z = floorCell.Index % 5;
+                if (!_gridService.IsFloorExists(new Vector2Int(x, z)))
+                    return;
+            }
+
             cellView.transform.localScale = Vector3.zero;
             cellView.gameObject.SetActive(true);
-
             var delay = index * CellStaggerDelay;
-
             cellView.transform.DOScale(Vector3.one, CellScaleDuration)
                 .SetEase(Ease.OutQuad)
                 .SetDelay(delay)
@@ -6738,6 +6774,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using Game.Views;
+using Game.Services.Grid;
 
 namespace Game.Services.Animation
 {
@@ -6745,18 +6782,16 @@ namespace Game.Services.Animation
     {
         public string Id => "WaveFromCenter";
         public float Duration => 2.5f;
-
         private const float CellScaleDuration = 0.35f;
         private const float CellStaggerDelay = 0.04f;
         private const float CameraMoveDuration = 0.8f;
         private const float CameraReturnDuration = 0.6f;
         private const float CameraOffsetDistance = 3f;
         private const float CameraTiltAngle = 15f;
-
         private readonly Camera _camera;
         private readonly FloorGridView _floorGridView;
         private readonly WallView[] _wallViews;
-
+        private readonly IGridService _gridService;
         private Vector3 _originalCameraPosition;
         private Quaternion _originalCameraRotation;
         private float _originalCameraSize;
@@ -6765,11 +6800,13 @@ namespace Game.Services.Animation
         public WaveFromCenterStrategy(
             [Inject(Id = "GameCamera")] Camera camera,
             FloorGridView floorGridView,
-            WallView[] wallViews)
+            WallView[] wallViews,
+            IGridService gridService)
         {
             _camera = camera;
             _floorGridView = floorGridView;
             _wallViews = wallViews;
+            _gridService = gridService;
         }
 
         public IObservable<Unit> Execute(Action onComplete)
@@ -6777,7 +6814,6 @@ namespace Game.Services.Animation
             var subject = new Subject<Unit>();
             HideAllElements();
             StoreCameraState();
-
             var sequence = DOTween.Sequence();
             sequence.Append(CameraMoveOut());
             sequence.Join(AnimateFloorCells());
@@ -6789,7 +6825,6 @@ namespace Game.Services.Animation
                 subject.OnNext(Unit.Default);
                 subject.OnCompleted();
             });
-
             return subject;
         }
 
@@ -6806,7 +6841,6 @@ namespace Game.Services.Animation
                     }
                 }
             }
-
             if (_wallViews is not null)
             {
                 foreach (var wall in _wallViews)
@@ -6841,17 +6875,13 @@ namespace Game.Services.Animation
                 _originalCameraRotation.eulerAngles.x + CameraTiltAngle,
                 _originalCameraRotation.eulerAngles.y,
                 _originalCameraRotation.eulerAngles.z);
-
             var sequence = DOTween.Sequence();
             sequence.Join(_camera.transform.DOMove(targetPosition, CameraMoveDuration).SetEase(Ease.OutCubic));
-
             var sizeTween = _isOrthographic
                 ? _camera.DOOrthoSize(_originalCameraSize + 2f, CameraMoveDuration)
                 : _camera.DOFieldOfView(_originalCameraSize + 10f, CameraMoveDuration);
-
             sequence.Join(sizeTween.SetEase(Ease.OutCubic));
             sequence.Join(_camera.transform.DORotate(targetRotation.eulerAngles, CameraMoveDuration).SetEase(Ease.OutCubic));
-
             return sequence;
         }
 
@@ -6859,32 +6889,30 @@ namespace Game.Services.Animation
         {
             var sequence = DOTween.Sequence();
             sequence.Join(_camera.transform.DOMove(_originalCameraPosition, CameraReturnDuration).SetEase(Ease.OutCubic));
-
             var sizeTween = _isOrthographic
                 ? _camera.DOOrthoSize(_originalCameraSize, CameraReturnDuration)
                 : _camera.DOFieldOfView(_originalCameraSize, CameraReturnDuration);
-
             sequence.Join(sizeTween.SetEase(Ease.OutCubic));
             sequence.Join(_camera.transform.DORotate(_originalCameraRotation.eulerAngles, CameraReturnDuration).SetEase(Ease.OutCubic));
-
             return sequence;
         }
 
         private Tween AnimateFloorCells()
         {
             var sequence = DOTween.Sequence();
-            if (_floorGridView?.Cells is null) return sequence;
+            if (_floorGridView?.Cells is null || _gridService is null) return sequence;
 
-            var cells = _floorGridView.Cells.Where(c => c is not null).ToArray();
-            var sortedCells = cells.OrderBy(c => Vector2.Distance(new Vector2(c.transform.localPosition.x, c.transform.localPosition.z), new Vector2(2f, 2f))).ToArray();
+            var cells = _floorGridView.Cells
+                .Where(c => c is not null && _gridService.IsFloorExists(new Vector2Int(c.Index / 5, c.Index % 5)))
+                .OrderBy(c => Vector2.Distance(new Vector2(c.transform.localPosition.x, c.transform.localPosition.z), new Vector2(2f, 2f)))
+                .ToArray();
 
-            for (var i = 0; i < sortedCells.Length; i++)
+            for (var i = 0; i < cells.Length; i++)
             {
-                var cell = sortedCells[i];
+                var cell = cells[i];
                 var capturedIndex = i;
                 sequence.AppendCallback(() => AnimateCellScale(cell, capturedIndex));
             }
-
             return sequence;
         }
 
@@ -6892,14 +6920,11 @@ namespace Game.Services.Animation
         {
             var sequence = DOTween.Sequence();
             if (_wallViews is null) return sequence;
-
             foreach (var wall in _wallViews)
             {
                 if (wall?.Cells is null) continue;
-
                 var cells = wall.Cells.Where(c => c is not null).ToArray();
                 var sortedCells = cells.OrderBy(c => Vector2.Distance(new Vector2(c.transform.localPosition.x, c.transform.localPosition.y), new Vector2(2f, 2f))).ToArray();
-
                 for (var i = 0; i < sortedCells.Length; i++)
                 {
                     var cell = sortedCells[i];
@@ -6907,19 +6932,15 @@ namespace Game.Services.Animation
                     sequence.AppendCallback(() => AnimateCellScale(cell, capturedIndex));
                 }
             }
-
             return sequence;
         }
 
         private void AnimateCellScale(Component cellView, int index)
         {
             if (cellView is null) return;
-
             cellView.transform.localScale = Vector3.zero;
             cellView.gameObject.SetActive(true);
-
             var delay = index * CellStaggerDelay;
-
             cellView.transform.DOScale(Vector3.one, CellScaleDuration)
                 .SetEase(Ease.OutBack)
                 .SetDelay(delay)
@@ -9477,12 +9498,17 @@ namespace Game.Services.Grid
         public void Initialize()
         {
             Array.Clear(_cells, 0, _cells.Length);
-            if (_isDeveloperMode)
-                Array.Fill(_floor, true);
-            else if (_config?.FloorMatrix?.Length == CellCount)
+
+            if (_config?.FloorMatrix?.Length == CellCount)
+            {
                 Array.Copy(_config.FloorMatrix, _floor, CellCount);
+                Debug.Log($"[GridService] Successfully loaded FloorMatrix from '{_config.name}'.");
+            }
             else
+            {
                 Array.Fill(_floor, true);
+                Debug.LogWarning($"[GridService] FloorMatrix is missing or invalid in '{_config?.name ?? "NULL"}'. Fallback to all TRUE.");
+            }
         }
 
         public bool IsCellOccupied(Vector3Int cell) =>
@@ -11007,7 +11033,6 @@ namespace Game.Services.Progression
         private readonly Subject<string> _onLevelCompletedMessage = new();
         private readonly Subject<LevelTransitionData> _onTransitionRequested = new();
         private readonly CompositeDisposable _disposables = new();
-
         private readonly IShadowValidationService _validationService;
         private readonly IInputService _inputService;
         private readonly IInputContextService _contextService;
@@ -11022,7 +11047,6 @@ namespace Game.Services.Progression
         private readonly IDialogueService _dialogueService;
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
-
         private bool _isLevelReady;
 
         private const string NextLevelMessage = "Press Space to continue to the next level";
@@ -11070,6 +11094,7 @@ namespace Game.Services.Progression
                 _contextService.SetContext(InputContext.PlaceBlock);
                 return;
             }
+
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
@@ -11103,7 +11128,6 @@ namespace Game.Services.Progression
                         _levelIntroAnimationService.Play();
                     })
                     .AddTo(_disposables);
-
                 return;
             }
 
@@ -11128,6 +11152,7 @@ namespace Game.Services.Progression
 
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
+
             _onLevelCompletedMessage.OnNext(isLastLevel ? CatalogCompletedMessage : NextLevelMessage);
         }
 
@@ -11169,11 +11194,17 @@ namespace Game.Services.Progression
             {
                 LevelContext.SelectedCategoryId = 0;
                 LevelContext.SelectedLevelId = 0;
+                LevelContext.SelectedLevelConfig = null;
                 _onTransitionRequested.OnNext(new LevelTransitionData("MenuScene", -1));
             }
             else
             {
-                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId + 1));
+                LevelContext.SelectedLevelId++;
+                if (category?.Levels is not null && LevelContext.SelectedLevelId < category.Levels.Length)
+                {
+                    LevelContext.SelectedLevelConfig = category.Levels[LevelContext.SelectedLevelId];
+                }
+                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
             }
         }
 
@@ -12894,9 +12925,9 @@ namespace Game.Services.Achievements
 
 // ============ Statistics =============
 // Total Files: 173
-// Total Size: 444,31 KB
-// Total Lines: 12541
+// Total Size: 447,52 KB
+// Total Lines: 12572
 // Classes: 159
-// Methods: 813
+// Methods: 815
 // Comments (Blocks): 0
 // =====================================
