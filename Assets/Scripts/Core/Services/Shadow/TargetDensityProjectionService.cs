@@ -11,6 +11,7 @@ namespace Game.Services.Shadow
         IObservable<(int WallIndex, WallCellDensityData[] Densities)> OnDensitiesProjected { get; }
         WallCellDensityData[] GetCurrentDensities(int wallIndex);
         void SetDensities(WallCellDensityData[] wallYZ, WallCellDensityData[] wallXY);
+        void LoadLevel(LevelConfig config);
     }
 
     public class TargetDensityProjectionService : ITargetDensityProjectionService, IInitializable, IDisposable
@@ -25,17 +26,14 @@ namespace Game.Services.Shadow
 
         private WallCellDensityData[] _baseWallYZ;
         private WallCellDensityData[] _baseWallXY;
-
         private readonly WallCellDensityData[] _currentWallYZ = new WallCellDensityData[CellCount];
         private readonly WallCellDensityData[] _currentWallXY = new WallCellDensityData[CellCount];
-
         private int _currentAngle;
 
         public TargetDensityProjectionService(LevelConfig levelConfig, IRotationService rotationService)
         {
             _baseWallYZ = levelConfig.WallYZ?.CellDensities ?? Array.Empty<WallCellDensityData>();
             _baseWallXY = levelConfig.WallXY?.CellDensities ?? Array.Empty<WallCellDensityData>();
-
             rotationService.OnRotationCompleted
                 .Subscribe(Rotate)
                 .AddTo(_disposables);
@@ -43,6 +41,14 @@ namespace Game.Services.Shadow
 
         public void Initialize()
         {
+            _currentAngle = 0;
+            ProjectDensities();
+        }
+
+        public void LoadLevel(LevelConfig config)
+        {
+            _baseWallYZ = config.WallYZ?.CellDensities ?? Array.Empty<WallCellDensityData>();
+            _baseWallXY = config.WallXY?.CellDensities ?? Array.Empty<WallCellDensityData>();
             _currentAngle = 0;
             ProjectDensities();
         }
@@ -78,10 +84,9 @@ namespace Game.Services.Shadow
         private void ApplyRotation(WallCellDensityData[] source, WallCellDensityData[] target, int angle, int wallIndex)
         {
             if (source.Length != CellCount) return;
-
             Array.Clear(target, 0, CellCount);
-            var normalizedAngle = (angle % 360 + 360) % 360;
 
+            var normalizedAngle = (angle % 360 + 360) % 360;
             for (var i = 0; i < CellCount; i++)
             {
                 var row = i / GridSize;

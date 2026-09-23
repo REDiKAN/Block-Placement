@@ -1,6 +1,12 @@
+using System;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
+using Zenject;
 using Game.Data;
 using Game.Services.Animation;
 using Game.Services.Audio;
+using Game.Services.Achievements;
 using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -10,13 +16,7 @@ using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
 using Game.Services.Settings;
-using Game.Services.Achievements;
 using Game.Views;
-using System;
-using System.Collections.Generic;
-using UniRx;
-using UnityEngine;
-using Zenject;
 
 namespace Game.Services.Placement
 {
@@ -25,6 +25,7 @@ namespace Game.Services.Placement
         IObservable<Unit> OnGridChanged { get; }
         IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks { get; }
         void ClearAll();
+        void LoadLevel(LevelConfig config);
     }
 
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
@@ -50,11 +51,11 @@ namespace Game.Services.Placement
         private readonly ISettingsService _settingsService;
         private readonly ISfxService _sfxService;
         private readonly AudioConfig _audioConfig;
-        private readonly LevelConfig _levelConfig;
+        private readonly IAchievementEventBus _achievementEventBus;
         private readonly bool _isDeveloperMode;
         private readonly BlockView _previewBlock;
-        private readonly IAchievementEventBus _achievementEventBus;
 
+        private LevelConfig _levelConfig;
         private Renderer _previewRenderer;
         private Color _previewDefaultColor;
         private MaterialPropertyBlock _materialPropertyBlock;
@@ -104,11 +105,7 @@ namespace Game.Services.Placement
 
         public void Initialize()
         {
-            _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
-            _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
-
             _materialPropertyBlock = new MaterialPropertyBlock();
-
             if (_previewBlock is not null)
             {
                 _previewRenderer = _previewBlock.GetComponentInChildren<Renderer>();
@@ -121,16 +118,50 @@ namespace Game.Services.Placement
                 _previewBlock.gameObject.SetActive(false);
             }
 
+            ApplyConfig();
+            SubscribeEvents();
+        }
+
+        public void LoadLevel(LevelConfig config)
+        {
+            ClearAll();
+            _levelConfig = config;
+            ApplyConfig();
+            _onGridChanged.OnNext(Unit.Default);
+        }
+
+        public void ClearAll()
+        {
+            foreach (var kvp in _activeBlocks)
+            {
+                _gridService.SetCellOccupied(kvp.Key, false);
+                _poolService.Return(kvp.Value);
+                if (_isDeveloperMode)
+                {
+                    _registryService.Unregister(kvp.Key, PlacedObjectType.Block);
+                }
+            }
+
+            _activeBlocks.Clear();
+            _historyService.Clear();
+            _isAnimating = false;
+        }
+
+        private void ApplyConfig()
+        {
+            _isLimitEnabled = !_isDeveloperMode && _levelConfig is not null && _levelConfig.IsBlockLimitEnabled;
+            _remainingBlocksCount = _isLimitEnabled ? _levelConfig.MaxBlocks : -1;
+            PublishRemainingBlocks();
+            UpdatePreviewColor();
+        }
+
+        private void SubscribeEvents()
+        {
             _inputService.OnMouseMoved.Subscribe(UpdatePreview).AddTo(_disposables);
             _inputService.OnPrimaryClick.Subscribe(PlaceBlock).AddTo(_disposables);
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastBlock()).AddTo(_disposables);
             _rotationService.OnRotationCompleted.Subscribe(RotateActiveBlocks).AddTo(_disposables);
-
-            _settingsService.IsPreviewEnabled
-                .Subscribe(OnPreviewSettingChanged)
-                .AddTo(_disposables);
-
-            PublishRemainingBlocks();
+            _settingsService.IsPreviewEnabled.Subscribe(OnPreviewSettingChanged).AddTo(_disposables);
         }
 
         private static bool IsInputAllowedForPlacement(InputContext context) =>
@@ -139,7 +170,9 @@ namespace Game.Services.Placement
         private void OnPreviewSettingChanged(bool isEnabled)
         {
             if (!isEnabled && _previewBlock is not null)
+            {
                 _previewBlock.gameObject.SetActive(false);
+            }
         }
 
         private void UpdatePreview(Vector2 mousePosition)
@@ -156,11 +189,9 @@ namespace Game.Services.Placement
                 return;
             }
 
-            if (_previewBlock is null) return;
-
-            if (!_settingsService.IsPreviewEnabled.Value)
+            if (_previewBlock is null || !_settingsService.IsPreviewEnabled.Value)
             {
-                _previewBlock.gameObject.SetActive(false);
+                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
                 return;
             }
 
@@ -188,7 +219,6 @@ namespace Game.Services.Placement
 
             var isBlocked = _isLimitEnabled && _remainingBlocksCount <= 0;
             var targetColor = isBlocked ? BlockedPreviewColor : _previewDefaultColor;
-
             _materialPropertyBlock.SetColor("_Color", targetColor);
             _previewRenderer.SetPropertyBlock(_materialPropertyBlock);
         }
@@ -196,13 +226,7 @@ namespace Game.Services.Placement
         private void PlaceBlock(Vector2 mousePosition)
         {
             if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
-
-            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value))
-            {
-                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
-                return;
-            }
-
+            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value)) return;
             if (_isDeveloperMode && _contextService.CurrentContext.Value != InputContext.PlaceBlock) return;
             if (_isLimitEnabled && _remainingBlocksCount <= 0) return;
             if (_isAnimating) return;
@@ -229,15 +253,18 @@ namespace Game.Services.Placement
             _gridService.SetCellOccupied(cell, true);
             block.SetPosition(cell);
             _activeBlocks[cell] = block;
-
             _historyService.RecordPlacement(new PlacementRecord(new[] { cell }, config));
 
             if (_isDeveloperMode)
+            {
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
+            }
 
             var placeClip = config?.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
             if (placeClip is not null)
+            {
                 _sfxService.Play(placeClip);
+            }
 
             if (_isLimitEnabled)
             {
@@ -262,13 +289,7 @@ namespace Game.Services.Placement
         private void RemoveLastBlock()
         {
             if (_levelConfig is not null && _levelConfig.Mode != GameMode.Blocks) return;
-
-            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value))
-            {
-                if (_previewBlock is not null) _previewBlock.gameObject.SetActive(false);
-                return;
-            }
-
+            if (!IsInputAllowedForPlacement(_contextService.CurrentContext.Value)) return;
             if (_isAnimating) return;
             if (!_historyService.TryPop(out var record)) return;
 
@@ -286,16 +307,19 @@ namespace Game.Services.Placement
         private void OnBlockDespawned(PlacementRecord record, BlockView block)
         {
             _poolService.Return(block);
-
             var cell = record.Cells[0];
             _activeBlocks.Remove(cell);
 
             if (_isDeveloperMode)
+            {
                 _registryService.Unregister(cell, PlacedObjectType.Block);
+            }
 
             var removeClip = (record.Config as BlockConfig)?.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
             if (removeClip is not null)
+            {
                 _sfxService.Play(removeClip);
+            }
 
             if (_isLimitEnabled)
             {
@@ -326,24 +350,12 @@ namespace Game.Services.Placement
 
             _activeBlocks.Clear();
             foreach (var kvp in newActiveBlocks)
+            {
                 _activeBlocks.Add(kvp.Key, kvp.Value);
+            }
 
             _gridService.Rotate(angle);
             _historyService.Rotate(angle, gridSize);
-            _onGridChanged.OnNext(Unit.Default);
-        }
-
-        public void ClearAll()
-        {
-            foreach (var kvp in _activeBlocks)
-            {
-                _gridService.SetCellOccupied(kvp.Key, false);
-                _poolService.Return(kvp.Value);
-                if (_isDeveloperMode) _registryService.Unregister(kvp.Key, PlacedObjectType.Block);
-            }
-
-            _activeBlocks.Clear();
-            _historyService.Clear();
             _onGridChanged.OnNext(Unit.Default);
         }
 

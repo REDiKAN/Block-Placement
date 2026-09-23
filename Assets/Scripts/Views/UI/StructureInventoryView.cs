@@ -20,29 +20,40 @@ namespace Game.Views.UI
 
         private void Start()
         {
-            if (_levelConfig is null || _levelConfig.Mode != GameMode.Structures || _levelConfig.AvailableStructures is null)
+            PopulateInventory(_levelConfig);
+
+            _placementService.OnStructureCountChanged
+                .Subscribe(UpdateItem)
+                .AddTo(_disposables);
+
+            _placementService.OnLevelChanged
+                .Subscribe(OnLevelChanged)
+                .AddTo(_disposables);
+        }
+
+        private void OnLevelChanged(LevelConfig newConfig)
+        {
+            ClearInventory();
+            PopulateInventory(newConfig);
+        }
+
+        private void PopulateInventory(LevelConfig config)
+        {
+            if (config is null || config.Mode != GameMode.Structures || config.AvailableStructures is null)
             {
                 gameObject.SetActive(false);
                 return;
             }
 
-            PopulateInventory();
+            gameObject.SetActive(true);
 
-            _placementService.OnStructureCountChanged
-                .Subscribe(UpdateItem)
-                .AddTo(_disposables);
-        }
-
-        private void PopulateInventory()
-        {
             if (ItemPrefab is null || Content is null) return;
 
-            foreach (var spawnData in _levelConfig.AvailableStructures)
+            foreach (var spawnData in config.AvailableStructures)
             {
                 if (spawnData is null || spawnData.Config is null) continue;
 
                 var item = Instantiate(ItemPrefab, Content);
-
                 if (item.NameText is not null)
                     item.NameText.text = spawnData.Config.DisplayName;
 
@@ -56,14 +67,23 @@ namespace Game.Views.UI
             }
         }
 
+        private void ClearInventory()
+        {
+            foreach (var item in _items)
+            {
+                if (item is not null) Destroy(item.gameObject);
+            }
+            _items.Clear();
+        }
+
         private void UpdateItem((StructureConfig Config, int Remaining) data)
         {
-            if (_levelConfig?.AvailableStructures is null) return;
-
-            for (var i = 0; i < _levelConfig.AvailableStructures.Length; i++)
+            for (var i = 0; i < _items.Count; i++)
             {
-                var spawnData = _levelConfig.AvailableStructures[i];
-                if (spawnData is not null && spawnData.Config == data.Config && i < _items.Count)
+                if (_items[i] is null) continue;
+
+                var itemName = _items[i].NameText is not null ? _items[i].NameText.text : string.Empty;
+                if (itemName == data.Config.DisplayName)
                 {
                     UpdateItemCount(_items[i], data.Remaining);
                     break;
@@ -94,10 +114,7 @@ namespace Game.Views.UI
         private void OnDestroy()
         {
             _disposables?.Dispose();
-            foreach (var item in _items)
-            {
-                if (item is not null) Destroy(item.gameObject);
-            }
+            ClearInventory();
         }
     }
 }

@@ -5,10 +5,8 @@ using UniRx;
 using Zenject;
 using Game.Services.Progression;
 using Game.Services.Input;
-using Game.Core;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using Game.Data;
+using UnityEngine.UI;
 
 namespace Game.Views.UI
 {
@@ -55,10 +53,6 @@ namespace Game.Views.UI
 
             _progressionService.OnLevelCompletedMessage
                 .Subscribe(ShowMessage)
-                .AddTo(_disposables);
-
-            _progressionService.OnTransitionRequested
-                .Subscribe(ExecuteTransition)
                 .AddTo(_disposables);
 
             _contextService.CurrentContext
@@ -238,12 +232,6 @@ namespace Game.Views.UI
             }
 
             MessageText.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
-        }
-
-        private void ExecuteTransition(LevelTransitionData data)
-        {
-            LevelContext.SelectedLevelId = data.NextLevelId;
-            SceneManager.LoadScene(data.SceneName);
         }
 
         private void OnDestroy()

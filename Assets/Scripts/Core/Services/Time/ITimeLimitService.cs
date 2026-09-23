@@ -1,5 +1,6 @@
 using System;
 using UniRx;
+using Game.Data;
 
 namespace Game.Services.Time
 {
@@ -11,5 +12,6 @@ namespace Game.Services.Time
         void StartTimer(float seconds);
         void StopTimer();
         void ResetTimer();
+        void LoadLevel(LevelConfig config);
     }
 }

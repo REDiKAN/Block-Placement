@@ -16,6 +16,7 @@ namespace Game.Services.Grid
         bool IsFloorExists(Vector2Int cell);
         void SetFloorExists(Vector2Int cell, bool exists);
         void Rotate(int angle);
+        void LoadLevel(LevelConfig config);
     }
 
     public class GridService : IGridService, IInitializable
@@ -25,10 +26,12 @@ namespace Game.Services.Grid
 
         private const int Size = 5;
         private const int CellCount = 25;
+
         private readonly bool[,,] _cells = new bool[Size, Size, Size];
         private readonly bool[] _floor = new bool[CellCount];
         private readonly Subject<Vector2Int> _onFloorCellChanged = new();
-        private readonly LevelConfig _config;
+
+        private LevelConfig _config;
         private readonly bool _isDeveloperMode;
 
         public GridService(LevelConfig config, [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
@@ -40,17 +43,20 @@ namespace Game.Services.Grid
         public void Initialize()
         {
             Array.Clear(_cells, 0, _cells.Length);
-
             if (_config?.FloorMatrix?.Length == CellCount)
             {
                 Array.Copy(_config.FloorMatrix, _floor, CellCount);
-                Debug.Log($"[GridService] Successfully loaded FloorMatrix from '{_config.name}'.");
             }
             else
             {
                 Array.Fill(_floor, true);
-                Debug.LogWarning($"[GridService] FloorMatrix is missing or invalid in '{_config?.name ?? "NULL"}'. Fallback to all TRUE.");
             }
+        }
+
+        public void LoadLevel(LevelConfig config)
+        {
+            _config = config;
+            Initialize();
         }
 
         public bool IsCellOccupied(Vector3Int cell) =>

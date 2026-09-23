@@ -14,6 +14,7 @@ namespace Game.Services.Rotation
         IObservable<int> OnRotationCompleted { get; }
         IReadOnlyReactiveProperty<bool> IsRotating { get; }
         Vector3Int[] CurrentInitialBlocks { get; }
+        void LoadLevel(LevelConfig config);
     }
 
     public class RotationService : IRotationService, IInitializable, IDisposable
@@ -23,6 +24,7 @@ namespace Game.Services.Rotation
         public Vector3Int[] CurrentInitialBlocks => _currentInitialBlocks;
 
         private const int GridSize = 5;
+
         private readonly Subject<int> _onRotationCompleted = new();
         private readonly ReactiveProperty<bool> _isRotating = new(false);
         private readonly IInputService _inputService;
@@ -30,6 +32,7 @@ namespace Game.Services.Rotation
         private readonly RotationConfig _config;
         private readonly Transform _pivot;
         private readonly CompositeDisposable _disposables = new();
+
         private Vector3Int[] _currentInitialBlocks;
         private Tween _rotationTween;
         private int _lastAngle;
@@ -58,6 +61,12 @@ namespace Game.Services.Rotation
                 .AddTo(_disposables);
         }
 
+        public void LoadLevel(LevelConfig config)
+        {
+            _currentInitialBlocks = (Vector3Int[])config.InitialBlocks.Clone();
+            _pivot.localRotation = Quaternion.identity;
+        }
+
         private void Rotate(int angle)
         {
             if (_isRotating.Value) return;
@@ -67,6 +76,7 @@ namespace Game.Services.Rotation
             _isRotating.Value = true;
             _lastAngle = angle;
             RotateInitialBlocks(angle);
+
             var targetRotation = _pivot.eulerAngles + new Vector3(0f, angle, 0f);
             _rotationTween = _pivot.DORotate(targetRotation, _config.Duration)
                 .SetEase(Ease.Linear)
@@ -85,8 +95,8 @@ namespace Game.Services.Rotation
             }
         }
 
-        public void SetTargetBlocks(Vector3Int[] blocks)
-            => _currentInitialBlocks = (Vector3Int[])blocks.Clone();
+        public void SetTargetBlocks(Vector3Int[] blocks) =>
+            _currentInitialBlocks = (Vector3Int[])blocks.Clone();
 
         private void OnRotationComplete()
         {

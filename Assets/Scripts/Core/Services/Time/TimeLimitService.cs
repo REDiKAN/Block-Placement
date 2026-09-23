@@ -7,6 +7,7 @@ using Game.Services.Shadow;
 
 namespace Game.Services.Time
 {
+
     public class TimeLimitService : ITimeLimitService, IInitializable, IDisposable
     {
         public IReadOnlyReactiveProperty<float> RemainingTime => _remainingTime;
@@ -19,9 +20,9 @@ namespace Game.Services.Time
         private readonly CompositeDisposable _disposables = new();
 
         private readonly IShadowValidationService _validationService;
-        private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
 
+        private LevelConfig _levelConfig;
         private float _initialTime;
 
         public TimeLimitService(
@@ -42,7 +43,15 @@ namespace Game.Services.Time
 
             if (_isDeveloperMode) return;
             if (_levelConfig is null || !_levelConfig.IsTimeLimitEnabled || _levelConfig.TimeLimitSeconds <= 0f) return;
+            StartTimer(_levelConfig.TimeLimitSeconds);
+        }
 
+        public void LoadLevel(LevelConfig config)
+        {
+            StopTimer();
+            _levelConfig = config;
+            if (_isDeveloperMode) return;
+            if (_levelConfig is null || !_levelConfig.IsTimeLimitEnabled || _levelConfig.TimeLimitSeconds <= 0f) return;
             StartTimer(_levelConfig.TimeLimitSeconds);
         }
 
@@ -57,7 +66,6 @@ namespace Game.Services.Time
                 .Subscribe(_ =>
                 {
                     var next = _remainingTime.Value - UnityEngine.Time.deltaTime;
-
                     if (next <= 0f)
                     {
                         _remainingTime.Value = 0f;
@@ -65,7 +73,6 @@ namespace Game.Services.Time
                         _onTimeExpired.OnNext(Unit.Default);
                         return;
                     }
-
                     _remainingTime.Value = next;
                 })
                 .AddTo(_disposables);
@@ -76,7 +83,6 @@ namespace Game.Services.Time
         public void ResetTimer()
         {
             StopTimer();
-
             if (_initialTime > 0f)
                 StartTimer(_initialTime);
         }

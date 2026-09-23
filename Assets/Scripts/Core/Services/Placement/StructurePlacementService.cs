@@ -22,18 +22,23 @@ namespace Game.Services.Placement
     {
         IObservable<Unit> OnGridChanged { get; }
         IObservable<(StructureConfig Config, int Remaining)> OnStructureCountChanged { get; }
+        IObservable<LevelConfig> OnLevelChanged { get; }
         int GetRemainingCount(StructureConfig config);
         void SelectStructure(StructureConfig config);
         void ClearSelection();
+        void ClearAll();
+        void LoadLevel(LevelConfig config);
     }
 
     public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable, ITickable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
         public IObservable<(StructureConfig Config, int Remaining)> OnStructureCountChanged => _onStructureCountChanged;
+        public IObservable<LevelConfig> OnLevelChanged => _onLevelChanged;
 
         private readonly Subject<Unit> _onGridChanged = new();
         private readonly Subject<(StructureConfig Config, int Remaining)> _onStructureCountChanged = new();
+        private readonly Subject<LevelConfig> _onLevelChanged = new();
         private readonly CompositeDisposable _disposables = new();
 
         private readonly IInputService _inputService;
@@ -46,10 +51,10 @@ namespace Game.Services.Placement
         private readonly IStructureAnimationService _animationService;
         private readonly ISfxService _sfxService;
         private readonly AudioConfig _audioConfig;
-        private readonly LevelConfig _levelConfig;
         private readonly IRotationService _rotationService;
         private readonly Camera _gameCamera;
 
+        private LevelConfig _levelConfig;
         private StructureConfig _selectedConfig;
         private StructureView _previewInstance;
         private readonly Dictionary<Vector3Int, StructureView> _activeStructures = new();
@@ -65,9 +70,7 @@ namespace Game.Services.Placement
 
         private const float OffGridSmoothTime = 0.08f;
         private const float SnapSmoothTime = 0.02f;
-
         private static readonly Vector3 CellCenterOffset = new(0.5f, 0.5f, 0.5f);
-
         private static readonly Vector3Int[] _directions =
         {
             Vector3Int.up, Vector3Int.down,
@@ -109,18 +112,66 @@ namespace Game.Services.Placement
 
         public void Initialize()
         {
+            ApplyConfig();
+            SubscribeEvents();
+        }
+
+        public void LoadLevel(LevelConfig config)
+        {
+            ClearAll();
+            _levelConfig = config;
+            ApplyConfig();
+            _onLevelChanged.OnNext(config);
+            _onGridChanged.OnNext(Unit.Default);
+        }
+
+        public void ClearAll()
+        {
+            foreach (var kvp in _activeStructures)
+            {
+                _poolService.Return(kvp.Value);
+            }
+            _activeStructures.Clear();
+
+            var gridSize = _gridService.GridSize;
+            for (var x = 0; x < gridSize; x++)
+                for (var y = 0; y < gridSize; y++)
+                    for (var z = 0; z < gridSize; z++)
+                    {
+                        var cell = new Vector3Int(x, y, z);
+                        if (_gridService.IsCellOccupied(cell))
+                        {
+                            _gridService.SetCellOccupied(cell, false);
+                            _registryService.Unregister(cell, PlacedObjectType.Block);
+                        }
+                    }
+
+            _historyService.Clear();
+            _isAnimating = false;
+            _selectedConfig = null;
+            ReturnPreviewToPool();
+        }
+
+        private void ApplyConfig()
+        {
             _currentAngle = 0;
             _localPreviewAngle = 0;
+            _remainingCounts.Clear();
 
             if (_levelConfig is not null && _levelConfig.AvailableStructures is not null)
             {
                 foreach (var spawnData in _levelConfig.AvailableStructures)
                 {
                     if (spawnData is not null && spawnData.Config is not null)
+                    {
                         _remainingCounts[spawnData.Config] = spawnData.MaxCount;
+                    }
                 }
             }
+        }
 
+        private void SubscribeEvents()
+        {
             _inputService.OnMouseMoved.Subscribe(UpdatePreview).AddTo(_disposables);
             _inputService.OnPrimaryClick.Subscribe(PlaceStructure).AddTo(_disposables);
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastStructure()).AddTo(_disposables);
@@ -148,11 +199,8 @@ namespace Game.Services.Placement
         private static bool IsInputAllowedForPlacement(InputContext context) =>
             context is InputContext.PlaceBlock or InputContext.None;
 
-        public int GetRemainingCount(StructureConfig config)
-        {
-            if (config is null) return 0;
-            return _remainingCounts.TryGetValue(config, out var count) ? count : -1;
-        }
+        public int GetRemainingCount(StructureConfig config) =>
+            config is null ? 0 : (_remainingCounts.TryGetValue(config, out var count) ? count : -1);
 
         private void RotatePreview(int angleDelta)
         {
@@ -161,10 +209,10 @@ namespace Game.Services.Placement
             if (_rotationService.IsRotating.Value) return;
 
             _localPreviewAngle = (_localPreviewAngle + angleDelta + 360) % 360;
-
             if (_previewInstance is not null)
+            {
                 _previewInstance.transform.rotation = Quaternion.Euler(0f, TotalPreviewAngle, 0f);
-
+            }
             UpdatePreview(_lastMousePosition);
         }
 
@@ -254,6 +302,7 @@ namespace Game.Services.Placement
             {
                 _previewInstance = _poolService.Get(_selectedConfig);
                 if (_previewInstance is null) return;
+
                 _previewInstance.SetInteractionEnabled(false);
                 _previewInstance.transform.rotation = Quaternion.Euler(0f, TotalPreviewAngle, 0f);
             }
@@ -302,8 +351,8 @@ namespace Game.Services.Placement
             if (structure is null) return;
 
             structure.transform.rotation = Quaternion.Euler(0f, TotalPreviewAngle, 0f);
-
             var worldCells = new Vector3Int[rotatedCoords.Length];
+
             for (var i = 0; i < rotatedCoords.Length; i++)
             {
                 worldCells[i] = originCell + rotatedCoords[i];
@@ -313,7 +362,6 @@ namespace Game.Services.Placement
 
             structure.SetPosition(originCell);
             structure.SetInteractionEnabled(true);
-
             _activeStructures[worldCells[0]] = structure;
             _previewInstance = null;
             _isSnapped = false;
@@ -321,7 +369,10 @@ namespace Game.Services.Placement
             _historyService.RecordPlacement(new PlacementRecord(worldCells, _selectedConfig));
 
             var placeClip = _selectedConfig.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
-            if (placeClip is not null) _sfxService.Play(placeClip);
+            if (placeClip is not null)
+            {
+                _sfxService.Play(placeClip);
+            }
 
             if (_remainingCounts.TryGetValue(_selectedConfig, out var currentCount) && currentCount > 0)
             {
@@ -361,7 +412,10 @@ namespace Game.Services.Placement
                 _activeStructures.Remove(record.Cells[0]);
 
                 var removeClip = config.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
-                if (removeClip is not null) _sfxService.Play(removeClip);
+                if (removeClip is not null)
+                {
+                    _sfxService.Play(removeClip);
+                }
 
                 if (_remainingCounts.TryGetValue(config, out var currentCount) && currentCount >= 0)
                 {
@@ -371,11 +425,11 @@ namespace Game.Services.Placement
 
                 _isAnimating = true;
                 _contextService.SetContext(InputContext.Generating);
-                _animationService.AnimateDespawn(structure, () => OnStructureDespawned(structure, config));
+                _animationService.AnimateDespawn(structure, () => OnStructureDespawned(structure));
             }
         }
 
-        private void OnStructureDespawned(StructureView structure, StructureConfig config)
+        private void OnStructureDespawned(StructureView structure)
         {
             _poolService.Return(structure);
             _isAnimating = false;
@@ -392,7 +446,6 @@ namespace Game.Services.Placement
             {
                 var origin = kvp.Key;
                 var structure = kvp.Value;
-
                 var newOrigin = angle == 90
                     ? new Vector3Int(origin.z, origin.y, gridSize - 1 - origin.x)
                     : new Vector3Int(gridSize - 1 - origin.z, origin.y, origin.x);
@@ -403,7 +456,9 @@ namespace Game.Services.Placement
 
             _activeStructures.Clear();
             foreach (var kvp in newActiveStructures)
+            {
                 _activeStructures.Add(kvp.Key, kvp.Value);
+            }
 
             _onGridChanged.OnNext(Unit.Default);
         }
@@ -413,11 +468,9 @@ namespace Game.Services.Placement
             if (localCoords is null || localCoords.Length == 0) return false;
 
             var hasConnection = false;
-
             foreach (var local in localCoords)
             {
                 var worldCell = origin + local;
-
                 if (!_gridService.IsWithinBounds(worldCell)) return false;
                 if (_gridService.IsCellOccupied(worldCell)) return false;
 
@@ -440,7 +493,6 @@ namespace Game.Services.Placement
                     }
                 }
             }
-
             return hasConnection;
         }
 

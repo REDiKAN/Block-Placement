@@ -18,7 +18,6 @@ namespace Game.Services.Progression
     public interface ILevelProgressionService
     {
         IObservable<string> OnLevelCompletedMessage { get; }
-        IObservable<LevelTransitionData> OnTransitionRequested { get; }
         void RequestRestart();
     }
 }

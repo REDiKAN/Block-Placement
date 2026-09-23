@@ -8,6 +8,7 @@ using Game.Services.Generation;
 using Game.Services.Grid;
 using Game.Services.History;
 using Game.Services.Input;
+using Game.Services.Loading;
 using Game.Services.Placement;
 using Game.Services.Pool;
 using Game.Services.Progression;
@@ -139,6 +140,7 @@ namespace Game.Installers
             Bind<DialogueService>();
             Bind<LevelAutoTesterService>();
             Bind<DialogueAudioService>();
+            Bind<LevelLoaderService>();
 
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();

@@ -11,17 +11,18 @@ using Game.Services.Placement;
 using Game.Services.Shadow;
 using Game.Services.Time;
 using Game.Services.Achievements;
+using Game.Services.Loading;
+using UnityEngine.SceneManagement;
 
 namespace Game.Services.Progression
 {
     public class LevelProgressionService : ILevelProgressionService, IInitializable, IDisposable
     {
         public IObservable<string> OnLevelCompletedMessage => _onLevelCompletedMessage;
-        public IObservable<LevelTransitionData> OnTransitionRequested => _onTransitionRequested;
 
         private readonly Subject<string> _onLevelCompletedMessage = new();
-        private readonly Subject<LevelTransitionData> _onTransitionRequested = new();
         private readonly CompositeDisposable _disposables = new();
+
         private readonly IShadowValidationService _validationService;
         private readonly IInputService _inputService;
         private readonly IInputContextService _contextService;
@@ -34,8 +35,10 @@ namespace Game.Services.Progression
         private readonly ILevelIntroAnimationService _levelIntroAnimationService;
         private readonly IAchievementEventBus _achievementEventBus;
         private readonly IDialogueService _dialogueService;
+        private readonly ILevelLoaderService _levelLoaderService;
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
+
         private bool _isLevelReady;
 
         private const string NextLevelMessage = "Press Space to continue to the next level";
@@ -56,6 +59,7 @@ namespace Game.Services.Progression
             ILevelIntroAnimationService levelIntroAnimationService,
             IAchievementEventBus achievementEventBus,
             IDialogueService dialogueService,
+            ILevelLoaderService levelLoaderService,
             LevelConfig levelConfig,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
@@ -71,6 +75,7 @@ namespace Game.Services.Progression
             _levelIntroAnimationService = levelIntroAnimationService;
             _achievementEventBus = achievementEventBus;
             _dialogueService = dialogueService;
+            _levelLoaderService = levelLoaderService;
             _levelConfig = levelConfig;
             _isDeveloperMode = isDeveloperMode;
         }
@@ -109,7 +114,6 @@ namespace Game.Services.Progression
             {
                 _contextService.SetContext(InputContext.Dialogue);
                 _dialogueService.StartDialogue(dialogueConfig.Replicas);
-
                 _dialogueService.OnDialogueCompleted
                     .Subscribe(_ =>
                     {
@@ -123,13 +127,20 @@ namespace Game.Services.Progression
             _levelIntroAnimationService.Play();
         }
 
-        public void RequestRestart() =>
-            _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
+        public void RequestRestart()
+        {
+            var config = LevelContext.SelectedLevelConfig;
+            if (config is not null)
+            {
+                _levelLoaderService.LoadLevel(config)
+                    .Subscribe(_ => _contextService.SetContext(InputContext.PlaceBlock))
+                    .AddTo(_disposables);
+            }
+        }
 
         private void HandleLevelCompleted()
         {
             if (!_isLevelReady) return;
-
             _achievementEventBus.Publish(new LevelCompletedEvent(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId));
             _contextService.SetContext(InputContext.LevelCompleted);
 
@@ -141,14 +152,12 @@ namespace Game.Services.Progression
 
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
-
             _onLevelCompletedMessage.OnNext(isLastLevel ? CatalogCompletedMessage : NextLevelMessage);
         }
 
         private void HandleTimeExpired()
         {
             if (!_isLevelReady) return;
-
             _contextService.SetContext(InputContext.TimeExpired);
             _onLevelCompletedMessage.OnNext(TimeExpiredMessage);
         }
@@ -156,7 +165,6 @@ namespace Game.Services.Progression
         private void HandleTransitionRequest()
         {
             var currentContext = _contextService.CurrentContext.Value;
-
             if (currentContext == InputContext.TimeExpired)
             {
                 RequestRestart();
@@ -175,7 +183,6 @@ namespace Game.Services.Progression
             }
 
             _progressionService.MarkLevelCompleted(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId);
-
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 
@@ -184,7 +191,7 @@ namespace Game.Services.Progression
                 LevelContext.SelectedCategoryId = 0;
                 LevelContext.SelectedLevelId = 0;
                 LevelContext.SelectedLevelConfig = null;
-                _onTransitionRequested.OnNext(new LevelTransitionData("MenuScene", -1));
+                SceneManager.LoadScene("MenuScene");
             }
             else
             {
@@ -192,8 +199,10 @@ namespace Game.Services.Progression
                 if (category?.Levels is not null && LevelContext.SelectedLevelId < category.Levels.Length)
                 {
                     LevelContext.SelectedLevelConfig = category.Levels[LevelContext.SelectedLevelId];
+                    _levelLoaderService.LoadLevel(LevelContext.SelectedLevelConfig)
+                        .Subscribe(_ => _contextService.SetContext(InputContext.PlaceBlock))
+                        .AddTo(_disposables);
                 }
-                _onTransitionRequested.OnNext(new LevelTransitionData("GameScene", LevelContext.SelectedLevelId));
             }
         }
 
@@ -203,7 +212,6 @@ namespace Game.Services.Progression
                 LevelContext.SelectedCategoryId < 0 ||
                 LevelContext.SelectedCategoryId >= _catalog.Categories.Length)
                 return null;
-
             return _catalog.Categories[LevelContext.SelectedCategoryId];
         }
 
