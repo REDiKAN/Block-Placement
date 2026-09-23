@@ -2,6 +2,7 @@ using System;
 using UniRx;
 using Game.Data;
 using Game.Services.Animation;
+using Game.Services.EnvironmentEffects;
 using Game.Services.Grid;
 using Game.Services.Input;
 using Game.Services.Placement;
@@ -14,6 +15,7 @@ namespace Game.Services.Loading
     public class LevelLoaderService : ILevelLoaderService, IDisposable
     {
         private readonly ILevelTransitionAnimationService _transitionAnimation;
+        private readonly IEnvironmentEffectService _environmentEffects;
         private readonly IBlockPlacementService _blockPlacement;
         private readonly IStructurePlacementService _structurePlacement;
         private readonly IGridService _gridService;
@@ -25,6 +27,7 @@ namespace Game.Services.Loading
 
         public LevelLoaderService(
             ILevelTransitionAnimationService transitionAnimation,
+            IEnvironmentEffectService environmentEffects,
             IBlockPlacementService blockPlacement,
             IStructurePlacementService structurePlacement,
             IGridService gridService,
@@ -34,6 +37,7 @@ namespace Game.Services.Loading
             IInputContextService inputContext)
         {
             _transitionAnimation = transitionAnimation;
+            _environmentEffects = environmentEffects;
             _blockPlacement = blockPlacement;
             _structurePlacement = structurePlacement;
             _gridService = gridService;
@@ -51,6 +55,7 @@ namespace Game.Services.Loading
                 .Concat(Observable.Defer(() =>
                 {
                     ApplyLevelData(config);
+                    _environmentEffects.Regenerate();
                     return _transitionAnimation.PlayAppearAnimation();
                 }))
                 .Do(_ => _inputContext.SetContext(InputContext.PlaceBlock));

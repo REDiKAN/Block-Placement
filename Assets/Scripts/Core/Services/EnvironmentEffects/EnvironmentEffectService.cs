@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Zenject;
 using Game.Views.Effects;
+using Zenject;
 
 namespace Game.Services.EnvironmentEffects
 {
@@ -14,17 +14,19 @@ namespace Game.Services.EnvironmentEffects
             _effectViews = effectViews;
         }
 
-        public void Initialize()
+        public void Initialize() => Regenerate();
+
+        public void Regenerate()
         {
             foreach (var view in _effectViews)
             {
                 if (view is null) continue;
 
-                var isSelected = UnityEngine.Random.value <= view.Probability;
+                var isSelected = Random.value <= view.Probability;
 
-                if (isSelected)
+                if (isSelected && !view.IsVisible)
                     view.Show();
-                else
+                else if (!isSelected && view.IsVisible)
                     view.Hide();
             }
         }

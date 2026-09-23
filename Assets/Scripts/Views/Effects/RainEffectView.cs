@@ -10,6 +10,8 @@ namespace Game.Views.Effects
         [field: SerializeField, Range(0f, 1f)] public float Probability { get; private set; }
         [field: SerializeField] public ParticleSystem ParticleSystem { get; private set; }
 
+        public bool IsVisible => gameObject.activeInHierarchy;
+
         private Tween _fadeTween;
         private RainConfig _rainConfig;
 
@@ -30,8 +32,8 @@ namespace Game.Views.Effects
             var targetRate = _rainConfig.States[randomIndex].TargetRate;
 
             ParticleSystem.Play();
-            _fadeTween?.Kill();
 
+            _fadeTween?.Kill();
             _fadeTween = DOTween.To(
                 () => ParticleSystem.emission.rateOverTime.constant,
                 value =>

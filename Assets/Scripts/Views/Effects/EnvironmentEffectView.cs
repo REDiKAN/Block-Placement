@@ -6,8 +6,9 @@ namespace Game.Views.Effects
     {
         [field: SerializeField, Range(0f, 1f)] public float Probability { get; private set; }
 
-        public void Show() => gameObject.SetActive(true);
+        public bool IsVisible => gameObject.activeInHierarchy;
 
+        public void Show() => gameObject.SetActive(true);
         public void Hide() => gameObject.SetActive(false);
     }
 }
