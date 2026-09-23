@@ -12,10 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 273ef6dc9a19cc04b961bb52d6bdea4c, type: 3}
   m_Name: LevelCompletedUIConfig
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelCompletedUIConfig
-  <BarFillDuration>k__BackingField: 0.3
-  <LetterDuration>k__BackingField: 0.15
-  <StaggerDelay>k__BackingField: 0.03
-  <OffsetY>k__BackingField: 15
+  <BarFillDuration>k__BackingField: 0.12
+  <LetterDuration>k__BackingField: 0.1
+  <StaggerDelay>k__BackingField: 0.02
+  <OffsetY>k__BackingField: 12
   <ScaleEase>k__BackingField: 27
   <PositionEase>k__BackingField: 9
-  <FadeDuration>k__BackingField: 0.4
+  <FadeDuration>k__BackingField: 0.3
+  <HideTextDuration>k__BackingField: 0.1
+  <HideBarDuration>k__BackingField: 0.1
+  <HideTextStaggerDelay>k__BackingField: 0.005
+  <HideTextEase>k__BackingField: 26
+  <HideTextPositionEase>k__BackingField: 8
+  <HideBarEase>k__BackingField: 5

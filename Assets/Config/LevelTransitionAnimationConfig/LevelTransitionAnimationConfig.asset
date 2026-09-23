@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6901c9478e81f44fa6fe1928d125486, type: 3}
   m_Name: LevelTransitionAnimationConfig
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelTransitionAnimationConfig
-  <DisappearDuration>k__BackingField: 2
-  <BlockStaggerDelay>k__BackingField: 0.1
+  <DisappearDuration>k__BackingField: 1.6
+  <BlockStaggerDelay>k__BackingField: 0.06
   <BlockFlyHeight>k__BackingField: 50
   <BlockFlyEase>k__BackingField: 8
-  <AppearDuration>k__BackingField: 2
-  <CellStaggerDelay>k__BackingField: 0.02
+  <AppearDuration>k__BackingField: 1.6
+  <CellStaggerDelay>k__BackingField: 0.015

@@ -1,12 +1,12 @@
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UniRx;
 using Zenject;
+using Game.Data;
 using Game.Services.Progression;
 using Game.Services.Input;
-using Game.Data;
-using UnityEngine.UI;
 
 namespace Game.Views.UI
 {
@@ -30,6 +30,7 @@ namespace Game.Views.UI
         private Vector3[] _originalCenters;
         private int _characterCount;
         private float _currentTime;
+        private bool _isHiding;
 
         private void Start()
         {
@@ -59,13 +60,16 @@ namespace Game.Views.UI
                 .Subscribe(ctx =>
                 {
                     if (ctx != InputContext.LevelCompleted && ctx != InputContext.TimeExpired)
-                        HideMessage();
+                        PlayHideAnimation();
                 })
                 .AddTo(_disposables);
         }
 
         private void ShowMessage(string message)
         {
+            _isHiding = false;
+            gameObject.SetActive(true);
+
             if (CanvasGroup is not null)
             {
                 CanvasGroup.alpha = 1f;
@@ -104,27 +108,80 @@ namespace Game.Views.UI
             _animationSequence.AppendCallback(StartTextAnimation);
         }
 
-        private void HideMessage()
+        private void PlayHideAnimation()
         {
+            if (_isHiding) return;
+            if (!gameObject.activeInHierarchy) return;
             if (CanvasGroup is not null && CanvasGroup.alpha <= 0f) return;
+
+            _isHiding = true;
 
             _animationSequence?.Kill();
             _textAnimationTween?.Kill();
 
-            if (LeftBarImage is not null) LeftBarImage.fillAmount = 0f;
-            if (RightBarImage is not null) RightBarImage.fillAmount = 0f;
+            if (CanvasGroup is not null)
+                CanvasGroup.blocksRaycasts = false;
 
-            ResetVertices();
+            if (MessageText is null || _characterCount == 0)
+            {
+                HideInstantly();
+                return;
+            }
+
+            _animationSequence = DOTween.Sequence();
+
+            var totalTextDuration = (_characterCount - 1) * _config.HideTextStaggerDelay + _config.HideTextDuration;
+            if (totalTextDuration <= 0f) totalTextDuration = 0.01f;
+
+            _currentTime = totalTextDuration;
+
+            var hideTween = DOTween.To(
+                () => _currentTime,
+                x =>
+                {
+                    _currentTime = x;
+                    UpdateHideVertices();
+                },
+                0f,
+                totalTextDuration
+            ).SetEase(Ease.Linear).SetUpdate(true);
+
+            _animationSequence.Append(hideTween);
+
+            _animationSequence.AppendCallback(() =>
+            {
+                var barSequence = DOTween.Sequence();
+
+                if (LeftBarImage is not null)
+                    barSequence.Join(LeftBarImage.DOFillAmount(0f, _config.HideBarDuration).SetEase(_config.HideBarEase));
+
+                if (RightBarImage is not null)
+                    barSequence.Join(RightBarImage.DOFillAmount(0f, _config.HideBarDuration).SetEase(_config.HideBarEase));
+
+                barSequence.OnComplete(HideInstantly);
+            });
+        }
+
+        private void HideInstantly()
+        {
+            _isHiding = false;
 
             if (MessageText is not null)
                 MessageText.text = string.Empty;
 
-            _animationSequence = DOTween.Sequence();
+            if (LeftBarImage is not null)
+                LeftBarImage.fillAmount = 0f;
+
+            if (RightBarImage is not null)
+                RightBarImage.fillAmount = 0f;
+
             if (CanvasGroup is not null)
             {
+                CanvasGroup.alpha = 0f;
                 CanvasGroup.blocksRaycasts = false;
-                _animationSequence.Append(CanvasGroup.DOFade(0f, _config.FadeDuration));
             }
+
+            gameObject.SetActive(false);
         }
 
         private void CacheVertices()
@@ -211,9 +268,9 @@ namespace Game.Views.UI
             MessageText.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
         }
 
-        private void ResetVertices()
+        private void UpdateHideVertices()
         {
-            if (MessageText is null || MessageText.textInfo is null || _originalVertices is null) return;
+            if (MessageText is null || MessageText.textInfo is null) return;
             var textInfo = MessageText.textInfo;
 
             for (var i = 0; i < _characterCount; i++)
@@ -225,9 +282,21 @@ namespace Game.Views.UI
                 var vIndex = charInfo.vertexIndex;
                 var meshVerts = textInfo.meshInfo[matIndex].vertices;
 
+                var reverseIndex = _characterCount - 1 - i;
+                var letterEndTime = reverseIndex * _config.HideTextStaggerDelay;
+                var localProgress = Mathf.Clamp01((_currentTime - letterEndTime) / _config.HideTextDuration);
+
+                var scale = DOVirtual.EasedValue(0f, 1f, localProgress, _config.HideTextEase);
+                var yOffset = DOVirtual.EasedValue(_config.OffsetY, 0f, localProgress, _config.HideTextPositionEase);
+
+                var center = _originalCenters[i];
+
                 for (var v = 0; v < 4; v++)
                 {
-                    meshVerts[vIndex + v] = _originalVertices[i][v];
+                    var vert = _originalVertices[i][v];
+                    vert = center + (vert - center) * scale;
+                    vert.y += yOffset;
+                    meshVerts[vIndex + v] = vert;
                 }
             }
 
