@@ -1,4 +1,5 @@
 using Game.Data;
+using Game.Services.Animation;
 using Game.Services.Audio;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -7,10 +8,10 @@ using Game.Services.Pool;
 using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
-using Game.Services.Animation;
 using Game.Views;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -28,10 +29,13 @@ namespace Game.Services.Placement
         void ClearSelection();
         void ClearAll();
         void LoadLevel(LevelConfig config);
+
+        IReadOnlyList<StructureView> GetActiveStructures();
     }
 
     public class StructurePlacementService : IStructurePlacementService, IInitializable, IDisposable, ITickable
     {
+        public IReadOnlyList<StructureView> GetActiveStructures() => _activeStructures.Values.ToList();
         public IObservable<Unit> OnGridChanged => _onGridChanged;
         public IObservable<(StructureConfig Config, int Remaining)> OnStructureCountChanged => _onStructureCountChanged;
         public IObservable<LevelConfig> OnLevelChanged => _onLevelChanged;

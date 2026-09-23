@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using UniRx;
-using UnityEngine;
-using Zenject;
 using Game.Data;
+using Game.Services.Achievements;
 using Game.Services.Animation;
 using Game.Services.Audio;
-using Game.Services.Achievements;
 using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.History;
@@ -17,6 +12,12 @@ using Game.Services.Registry;
 using Game.Services.Rotation;
 using Game.Services.Settings;
 using Game.Views;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UniRx;
+using UnityEngine;
+using Zenject;
 
 namespace Game.Services.Placement
 {
@@ -26,17 +27,20 @@ namespace Game.Services.Placement
         IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks { get; }
         void ClearAll();
         void LoadLevel(LevelConfig config);
+        IReadOnlyList<BlockView> GetActiveBlocks();
     }
 
     public class BlockPlacementService : IBlockPlacementService, IInitializable, IDisposable
     {
         public IObservable<Unit> OnGridChanged => _onGridChanged;
         public IReadOnlyReactiveProperty<(bool IsEnabled, int Remaining)> RemainingBlocks => _remainingBlocks;
+        public IReadOnlyList<BlockView> GetActiveBlocks() => _activeBlocks.Values.ToList();
 
         private readonly Subject<Unit> _onGridChanged = new();
         private readonly ReactiveProperty<(bool IsEnabled, int Remaining)> _remainingBlocks = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly Dictionary<Vector3Int, BlockView> _activeBlocks = new();
+
 
         private readonly IInputService _inputService;
         private readonly IRaycastService _raycastService;

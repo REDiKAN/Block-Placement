@@ -1324,6 +1324,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4390f2298bbed404dbc35fed8235dcde, type: 2}
   <DialogueAnimationConfig>k__BackingField: {fileID: 11400000, guid: 4aa6f6c0b8c967a469a6d1b39c4d074d, type: 2}
   <LevelCompletedUIConfig>k__BackingField: {fileID: 11400000, guid: 4e23f8ee5da54304a803563f535fce98, type: 2}
+  <LevelTransitionAnimationConfig>k__BackingField: {fileID: 11400000, guid: 6bc59a5c32558ca4e926c12fa3b0cceb, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -45,6 +45,7 @@ namespace Game.Installers
         [field: SerializeField] public AchievementConfig[] AchievementConfigs { get; private set; }
         [field: SerializeField] public DialogueAnimationConfig DialogueAnimationConfig { get; private set; }
         [field: SerializeField] public LevelCompletedUIConfig LevelCompletedUIConfig { get; private set; }
+        [field: SerializeField] public LevelTransitionAnimationConfig LevelTransitionAnimationConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -104,6 +105,8 @@ namespace Game.Installers
                 Container.BindInstance(DialogueAnimationConfig);
             if (LevelCompletedUIConfig is not null)
                 Container.BindInstance(LevelCompletedUIConfig);
+            if (LevelTransitionAnimationConfig is not null)
+                Container.BindInstance(LevelTransitionAnimationConfig);
 
             Container.BindInterfacesTo<AchievementEventBus>().AsCached();
             Container.BindInterfacesTo<AchievementService>().AsCached();
@@ -140,6 +143,7 @@ namespace Game.Installers
             Bind<DialogueService>();
             Bind<LevelAutoTesterService>();
             Bind<DialogueAudioService>();
+            Bind<LevelTransitionAnimationService>();
             Bind<LevelLoaderService>();
 
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();

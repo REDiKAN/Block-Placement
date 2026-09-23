@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6901c9478e81f44fa6fe1928d125486, type: 3}
+  m_Name: LevelTransitionAnimationConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.LevelTransitionAnimationConfig
+  <DisappearDuration>k__BackingField: 2
+  <BlockStaggerDelay>k__BackingField: 0.1
+  <BlockFlyHeight>k__BackingField: 50
+  <BlockFlyEase>k__BackingField: 8
+  <AppearDuration>k__BackingField: 2
+  <CellStaggerDelay>k__BackingField: 0.02
