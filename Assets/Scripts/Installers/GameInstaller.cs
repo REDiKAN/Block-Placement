@@ -43,6 +43,7 @@ namespace Game.Installers
         [field: SerializeField] public StructureAnimationConfig StructureAnimationConfig { get; private set; }
         [field: SerializeField] public AchievementConfig[] AchievementConfigs { get; private set; }
         [field: SerializeField] public DialogueAnimationConfig DialogueAnimationConfig { get; private set; }
+        [field: SerializeField] public LevelCompletedUIConfig LevelCompletedUIConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -55,7 +56,6 @@ namespace Game.Installers
             Container.BindInstance(GameCamera).WithId("GameCamera");
 
             var activeConfig = LevelContext.SelectedLevelConfig;
-
             if (activeConfig is null)
             {
                 activeConfig = LevelConfig;
@@ -101,6 +101,8 @@ namespace Game.Installers
                 Container.BindInstance(StructureAnimationConfig);
             if (DialogueAnimationConfig is not null)
                 Container.BindInstance(DialogueAnimationConfig);
+            if (LevelCompletedUIConfig is not null)
+                Container.BindInstance(LevelCompletedUIConfig);
 
             Container.BindInterfacesTo<AchievementEventBus>().AsCached();
             Container.BindInterfacesTo<AchievementService>().AsCached();
