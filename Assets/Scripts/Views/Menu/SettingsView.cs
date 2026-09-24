@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UniRx;
@@ -31,7 +31,6 @@ namespace Game.Views.Menu
         [Inject] private ISettingsService _settingsService;
         [Inject] private IMenuNavigationService _navigationService;
         [Inject] private IWaterShaderService _waterShaderService;
-        [Inject] private FpsLimitConfig _fpsLimitConfig;
 
         private readonly CompositeDisposable _disposables = new();
         private static readonly string[] QualityNames = { "Low", "Medium", "High" };
@@ -46,14 +45,19 @@ namespace Game.Views.Menu
 
             if (QualityButton is not null)
                 QualityButton.OnClickAsObservable().Subscribe(_ => _settingsService.CycleQuality()).AddTo(_disposables);
+
             if (ResolutionButton is not null)
                 ResolutionButton.OnClickAsObservable().Subscribe(_ => _settingsService.CycleResolution()).AddTo(_disposables);
+
             if (FullscreenButton is not null)
                 FullscreenButton.OnClickAsObservable().Subscribe(_ => _settingsService.CycleFullscreen()).AddTo(_disposables);
+
             if (WaterButton is not null)
                 WaterButton.OnClickAsObservable().Subscribe(_ => _waterShaderService.CycleConfig()).AddTo(_disposables);
+
             if (PreviewButton is not null)
                 PreviewButton.OnClickAsObservable().Subscribe(_ => _settingsService.CyclePreview()).AddTo(_disposables);
+
             if (BackButton is not null)
                 BackButton.OnClickAsObservable().Subscribe(_ => _navigationService.NavigateTo(MenuView.MainMenu)).AddTo(_disposables);
 
@@ -77,12 +81,12 @@ namespace Game.Views.Menu
                 .Subscribe(isEnabled => { if (PreviewText is not null) PreviewText.text = $"Preview: {(isEnabled ? "On" : "Off")}"; })
                 .AddTo(_disposables);
 
-            if (FpsScrollbar is not null && _fpsLimitConfig?.Presets is not null && _fpsLimitConfig.Presets.Length > 0)
+            if (FpsScrollbar is not null && _settingsService.AllPresets is not null && _settingsService.AllPresets.Count > 0)
             {
                 FpsScrollbar.OnValueChangedAsObservable()
                     .Subscribe(val =>
                     {
-                        var index = Mathf.RoundToInt(val * (_fpsLimitConfig.Presets.Length - 1));
+                        var index = Mathf.RoundToInt(val * (_settingsService.AllPresets.Count - 1));
                         _settingsService.SetFpsLimitByIndex(index);
                     })
                     .AddTo(_disposables);
@@ -94,11 +98,11 @@ namespace Game.Views.Menu
                     if (FpsText is not null)
                         AnimateFpsText(fps);
 
-                    if (FpsScrollbar is not null && _fpsLimitConfig?.Presets is not null && _fpsLimitConfig.Presets.Length > 0)
+                    if (FpsScrollbar is not null && _settingsService.AllPresets is not null && _settingsService.AllPresets.Count > 0)
                     {
-                        var index = Array.IndexOf(_fpsLimitConfig.Presets, fps);
+                        var index = FindPresetIndex(_settingsService.AllPresets, fps);
                         if (index >= 0)
-                            FpsScrollbar.value = (float)index / (_fpsLimitConfig.Presets.Length - 1);
+                            FpsScrollbar.value = (float)index / (_settingsService.AllPresets.Count - 1);
                     }
                 })
                 .AddTo(_disposables);
@@ -107,11 +111,11 @@ namespace Game.Views.Menu
         private void AnimateFpsText(int targetFps)
         {
             if (_lastFpsValue == targetFps) return;
-
             _fpsTextTween?.Kill();
 
             var startValue = _lastFpsValue < 0 ? targetFps : _lastFpsValue;
             var currentDisplayValue = (float)startValue;
+            var label = _settingsService.GetPresetLabel(targetFps);
 
             if (targetFps == -1)
             {
@@ -123,7 +127,7 @@ namespace Game.Views.Menu
                         if (FpsText is not null)
                         {
                             var displayValue = Mathf.RoundToInt(currentDisplayValue);
-                            FpsText.text = displayValue == -1 ? "FPS: Без ограничений" : $"FPS: {displayValue}";
+                            FpsText.text = displayValue == -1 ? "FPS: No limit" : $"FPS: {displayValue}";
                         }
                     },
                     targetFps,
@@ -132,7 +136,7 @@ namespace Game.Views.Menu
             }
             else if (startValue == -1)
             {
-                FpsText.text = $"FPS: {targetFps}";
+                FpsText.text = $"FPS: {label}";
             }
             else
             {
@@ -146,7 +150,12 @@ namespace Game.Views.Menu
                     },
                     targetFps,
                     0.3f
-                ).SetEase(Ease.OutCubic).SetAutoKill(true);
+                ).SetEase(Ease.OutCubic).SetAutoKill(true)
+                .OnComplete(() =>
+                {
+                    if (FpsText is not null)
+                        FpsText.text = $"FPS: {label}";
+                });
             }
 
             if (FpsText is not null)
@@ -158,6 +167,16 @@ namespace Game.Views.Menu
             }
 
             _lastFpsValue = targetFps;
+        }
+
+        private static int FindPresetIndex(IReadOnlyList<int> presets, int value)
+        {
+            if (presets is null) return -1;
+            for (var i = 0; i < presets.Count; i++)
+            {
+                if (presets[i] == value) return i;
+            }
+            return -1;
         }
 
         private void OnDestroy()

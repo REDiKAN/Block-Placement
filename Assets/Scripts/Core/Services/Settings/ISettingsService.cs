@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UniRx;
 using Game.Data;
 
@@ -10,11 +11,12 @@ namespace Game.Services.Settings
         IReadOnlyReactiveProperty<bool> IsFullscreen { get; }
         IReadOnlyReactiveProperty<bool> IsPreviewEnabled { get; }
         IReadOnlyReactiveProperty<int> CurrentFpsLimit { get; }
-
+        IReadOnlyList<int> AllPresets { get; }
         void CycleQuality();
         void CycleResolution();
         void CycleFullscreen();
         void CyclePreview();
         void SetFpsLimitByIndex(int index);
+        string GetPresetLabel(int presetValue);
     }
 }
