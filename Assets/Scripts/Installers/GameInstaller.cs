@@ -46,6 +46,7 @@ namespace Game.Installers
         [field: SerializeField] public DialogueAnimationConfig DialogueAnimationConfig { get; private set; }
         [field: SerializeField] public LevelCompletedUIConfig LevelCompletedUIConfig { get; private set; }
         [field: SerializeField] public LevelTransitionAnimationConfig LevelTransitionAnimationConfig { get; private set; }
+        [field: SerializeField] public DialogueBackgroundUIConfig DialogueBackgroundUIConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -93,6 +94,8 @@ namespace Game.Installers
                 Container.BindInstance(StructureConfigs);
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
+            if (DialogueBackgroundUIConfig is not null)
+                Container.BindInstance(DialogueBackgroundUIConfig);
 
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
