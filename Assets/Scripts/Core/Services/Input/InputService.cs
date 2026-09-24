@@ -28,6 +28,7 @@ namespace Game.Services.Input
         private readonly Subject<Unit> _onRotatePreviewRight = new();
         private readonly Subject<Unit> _onNextLevelRequested = new();
         private readonly CompositeDisposable _disposables = new();
+
         private Vector3 _lastMousePosition;
 
         public IObservable<Vector2> OnMouseMoved => _onMouseMoved;
@@ -42,6 +43,7 @@ namespace Game.Services.Input
         public void Tick()
         {
             var currentPosition = UnityEngine.Input.mousePosition;
+
             if (currentPosition != _lastMousePosition)
             {
                 _onMouseMoved.OnNext((Vector2)currentPosition);
@@ -66,7 +68,7 @@ namespace Game.Services.Input
             if (UnityEngine.Input.GetKeyDown(KeyCode.E))
                 _onRotatePreviewRight.OnNext(Unit.Default);
 
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Space))
+            if (UnityEngine.Input.anyKeyDown)
                 _onNextLevelRequested.OnNext(Unit.Default);
         }
 

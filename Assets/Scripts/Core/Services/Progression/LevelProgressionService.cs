@@ -41,10 +41,10 @@ namespace Game.Services.Progression
 
         private bool _isLevelReady;
 
-        private const string NextLevelMessage = "Press Space to continue to the next level";
-        private const string CatalogCompletedMessage = "Press Space to return to the main menu, you have completely completed the level catalog";
-        private const string TimeExpiredMessage = "Time's up, press Space to restart";
-        private const string EndlessLevelCompletedMessage = "Press Space to generate next level";
+        private const string NextLevelMessage = "Press any key to continue to the next level";
+        private const string CatalogCompletedMessage = "Press any key to return to the main menu, you have completely completed the level catalog";
+        private const string TimeExpiredMessage = "Time's up, press any key to restart";
+        private const string EndlessLevelCompletedMessage = "Press any key to generate next level";
 
         public LevelProgressionService(
             IShadowValidationService validationService,
