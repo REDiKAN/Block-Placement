@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7de2d6dfdb60854088ea671ff727387, type: 3}
+  m_Name: StructureInventoryAnimationConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.StructureInventoryAnimationConfig
+  <IntroDuration>k__BackingField: 0.4
+  <IntroStaggerDelay>k__BackingField: 0.05
+  <IntroOffsetY>k__BackingField: -200
+  <IntroEase>k__BackingField: 27
+  <OutroDuration>k__BackingField: 0.3
+  <OutroStaggerDelay>k__BackingField: 0.03
+  <OutroOffsetY>k__BackingField: -200
+  <OutroEase>k__BackingField: 26
+  <SelectionDuration>k__BackingField: 0.2
+  <SelectionOffsetY>k__BackingField: 20
+  <SelectionEase>k__BackingField: 9

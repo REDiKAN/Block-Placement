@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bba819cff0c5a14dbba90e216ae84e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.Effects.RainEffectView
-  <Probability>k__BackingField: 0.7
+  <Probability>k__BackingField: 0.1
   <ParticleSystem>k__BackingField: {fileID: 7449372535745743204}
 --- !u!4 &7071890155099080557 stripped
 Transform:
@@ -296,4 +296,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2b61c287ef76ae41a812f12850d9a31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Views.Effects.EnvironmentEffectView
-  <Probability>k__BackingField: 0.3
+  <Probability>k__BackingField: 0.05

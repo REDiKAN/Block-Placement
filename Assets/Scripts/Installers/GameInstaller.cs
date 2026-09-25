@@ -50,6 +50,7 @@ namespace Game.Installers
         [field: SerializeField] public DialogueBackgroundUIConfig DialogueBackgroundUIConfig { get; private set; }
         [field: SerializeField] public SettingsConfig SettingsConfig { get; private set; }
         [field: SerializeField] public FpsLimitConfig FpsLimitConfig { get; private set; }
+        [field: SerializeField] public StructureInventoryAnimationConfig StructureInventoryAnimationConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -60,7 +61,6 @@ namespace Game.Installers
             Container.BindInstance(BlocksParent);
             Container.BindInstance(GameCamera);
             Container.BindInstance(GameCamera).WithId("GameCamera");
-
             var activeConfig = LevelContext.SelectedLevelConfig;
             if (activeConfig is null)
             {
@@ -76,7 +76,6 @@ namespace Game.Installers
                     }
                 }
             }
-
             if (activeConfig is not null)
             {
                 Debug.Log($"[GameInstaller] Binding LevelConfig: {activeConfig.name}");
@@ -86,21 +85,17 @@ namespace Game.Installers
             {
                 Debug.LogError("[GameInstaller] CRITICAL: activeConfig is NULL! Binding nothing.");
             }
-
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
             Container.BindInstance(LevelCatalog);
-
             if (BlockConfigs is not null && BlockConfigs.Length > 0)
                 Container.BindInstance(BlockConfigs);
             if (StructureConfigs is not null && StructureConfigs.Length > 0)
                 Container.BindInstance(StructureConfigs);
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
-
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
-
             if (BlockAnimationConfig is not null)
                 Container.BindInstance(BlockAnimationConfig);
             if (StructureAnimationConfig is not null)
@@ -117,10 +112,10 @@ namespace Game.Installers
                 Container.BindInstance(SettingsConfig);
             if (FpsLimitConfig is not null)
                 Container.BindInstance(FpsLimitConfig);
-
+            if (StructureInventoryAnimationConfig is not null)
+                Container.BindInstance(StructureInventoryAnimationConfig);
             Container.BindInterfacesTo<AchievementEventBus>().AsCached();
             Container.BindInterfacesTo<AchievementService>().AsCached();
-
             Bind<InputService>();
             Bind<InputContextService>();
             Bind<GridService>();
@@ -156,11 +151,9 @@ namespace Game.Installers
             Bind<SettingsService>();
             Bind<LevelTransitionAnimationService>();
             Bind<LevelLoaderService>();
-
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<RowByRowStrategy>().AsSingle().Lazy();
-
             Container.Bind<AchievementToastView>().FromComponentInHierarchy().AsCached();
         }
 
