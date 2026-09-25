@@ -11,9 +11,11 @@ namespace Game.Services.Dialogue
         private readonly IDialogueService _dialogueService;
         private readonly AudioConfig _audioConfig;
         private readonly CompositeDisposable _disposables = new();
-
         private AudioSource _audioSource;
         private GameObject _audioObject;
+        private float _volume = 1f;
+
+        private const string DialogueVolumeKey = "settings_dialogue_volume";
 
         public DialogueAudioService(
             IDialogueService dialogueService,
@@ -35,9 +37,19 @@ namespace Game.Services.Dialogue
             if (_audioConfig is not null && _audioConfig.SfxMixerGroup is not null)
                 _audioSource.outputAudioMixerGroup = _audioConfig.SfxMixerGroup;
 
+            _volume = PlayerPrefs.GetFloat(DialogueVolumeKey, _audioConfig is not null ? _audioConfig.DefaultDialogueVolume : 1f);
+            _audioSource.volume = _volume;
+
             _dialogueService.CurrentAudioClip
                 .Subscribe(OnAudioClipChanged)
                 .AddTo(_disposables);
+        }
+
+        public void SetVolume(float volume)
+        {
+            _volume = volume;
+            if (_audioSource is not null)
+                _audioSource.volume = volume;
         }
 
         private void OnAudioClipChanged(AudioClip clip)
@@ -50,18 +62,15 @@ namespace Game.Services.Dialogue
             if (clip is null) return;
 
             _audioSource.clip = clip;
-            var volume = _audioConfig is not null ? _audioConfig.DefaultSfxVolume : 1f;
-            _audioSource.volume = volume;
+            _audioSource.volume = _volume;
             _audioSource.Play();
         }
 
         public void Dispose()
         {
             _disposables?.Dispose();
-            if (_audioSource is not null)
-                _audioSource.Stop();
-            if (_audioObject is not null)
-                UnityEngine.Object.Destroy(_audioObject);
+            if (_audioSource is not null) _audioSource.Stop();
+            if (_audioObject is not null) UnityEngine.Object.Destroy(_audioObject);
         }
     }
 }

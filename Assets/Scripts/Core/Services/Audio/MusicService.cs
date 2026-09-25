@@ -9,12 +9,14 @@ namespace Game.Services.Audio
     {
         private readonly AudioConfig _config;
         private readonly AudioClip _startMusicClip;
-
         private AudioSource _currentSource;
         private AudioSource _nextSource;
         private GameObject _currentObject;
         private GameObject _nextObject;
         private Sequence _crossfadeSequence;
+        private float _volume = 1f;
+
+        private const string MusicVolumeKey = "settings_music_volume";
 
         public MusicService(AudioConfig config, [InjectOptional] AudioClip startMusicClip)
         {
@@ -25,15 +27,23 @@ namespace Game.Services.Audio
         public void Initialize()
         {
             InitializeAudioSources();
-
-            if (_startMusicClip != null && _config is not null)
+            _volume = PlayerPrefs.GetFloat(MusicVolumeKey, _config is not null ? _config.DefaultMusicVolume : 1f);
+            if (_startMusicClip is not null && _config is not null)
                 Play(_startMusicClip);
+        }
+
+        public void SetVolume(float volume)
+        {
+            _volume = volume;
+            if (_currentSource is not null)
+                _currentSource.volume = volume;
+            if (_nextSource is not null)
+                _nextSource.volume = volume;
         }
 
         private void InitializeAudioSources()
         {
-            if (_config is null)
-                return;
+            if (_config is null) return;
 
             _currentObject = new GameObject("MusicSource_Current");
             Object.DontDestroyOnLoad(_currentObject);
@@ -54,8 +64,7 @@ namespace Game.Services.Audio
 
         public void Play(AudioClip clip)
         {
-            if (clip == null || _config is null || _currentSource is null || _nextSource is null)
-                return;
+            if (clip is null || _config is null || _currentSource is null || _nextSource is null) return;
 
             _crossfadeSequence?.Kill();
 
@@ -69,18 +78,14 @@ namespace Game.Services.Audio
         {
             _crossfadeSequence?.Kill();
             _crossfadeSequence = null;
-
-            if (_currentSource != null && _currentSource.isPlaying)
-                _currentSource.Stop();
-
-            if (_nextSource != null && _nextSource.isPlaying)
-                _nextSource.Stop();
+            if (_currentSource is not null && _currentSource.isPlaying) _currentSource.Stop();
+            if (_nextSource is not null && _nextSource.isPlaying) _nextSource.Stop();
         }
 
         private void StartImmediately(AudioClip clip)
         {
             _currentSource.clip = clip;
-            _currentSource.volume = _config.DefaultMusicVolume;
+            _currentSource.volume = _volume;
             _currentSource.Play();
         }
 
@@ -90,13 +95,12 @@ namespace Game.Services.Audio
             _nextSource.volume = 0f;
             _nextSource.Play();
 
-            var targetVolume = _config.DefaultMusicVolume;
             var duration = _config.CrossfadeDuration;
 
             _crossfadeSequence = DOTween.Sequence()
                 .Join(_currentSource.DOFade(0f, duration))
-                .Join(_nextSource.DOFade(targetVolume, duration))
-                .OnComplete(() => SwapSources());
+                .Join(_nextSource.DOFade(_volume, duration))
+                .OnComplete(SwapSources);
         }
 
         private void SwapSources()
@@ -104,39 +108,26 @@ namespace Game.Services.Audio
             var temp = _currentSource;
             _currentSource = _nextSource;
             _nextSource = temp;
-
             _nextSource.Stop();
             _nextSource.clip = null;
+        }
+
+        public void GetSpectrumData(float[] samples, int channel, FFTWindow window)
+        {
+            if (_currentSource is not null && _currentSource.isPlaying)
+                _currentSource.GetSpectrumData(samples, channel, window);
+            else
+                System.Array.Clear(samples, 0, samples.Length);
         }
 
         public void Dispose()
         {
             _crossfadeSequence?.Kill();
             _crossfadeSequence = null;
-
-            if (_currentSource != null)
-                _currentSource.Stop();
-
-            if (_nextSource != null)
-                _nextSource.Stop();
-
-            if (_currentObject != null)
-                Object.Destroy(_currentObject);
-
-            if (_nextObject != null)
-                Object.Destroy(_nextObject);
-        }
-
-        public void GetSpectrumData(float[] samples, int channel, FFTWindow window)
-        {
-            if (_currentSource != null && _currentSource.isPlaying)
-            {
-                _currentSource.GetSpectrumData(samples, channel, window);
-            }
-            else
-            {
-                System.Array.Clear(samples, 0, samples.Length);
-            }
+            if (_currentSource is not null) _currentSource.Stop();
+            if (_nextSource is not null) _nextSource.Stop();
+            if (_currentObject is not null) Object.Destroy(_currentObject);
+            if (_nextObject is not null) Object.Destroy(_nextObject);
         }
     }
 }

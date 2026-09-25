@@ -1240,7 +1240,6 @@ GameObject:
   - component: {fileID: 114461251}
   - component: {fileID: 114461253}
   - component: {fileID: 114461254}
-  - component: {fileID: 114461255}
   - component: {fileID: 114461256}
   m_Layer: 0
   m_Name: SceneContext
@@ -1326,6 +1325,8 @@ MonoBehaviour:
   <LevelCompletedUIConfig>k__BackingField: {fileID: 11400000, guid: 4e23f8ee5da54304a803563f535fce98, type: 2}
   <LevelTransitionAnimationConfig>k__BackingField: {fileID: 11400000, guid: 6bc59a5c32558ca4e926c12fa3b0cceb, type: 2}
   <DialogueBackgroundUIConfig>k__BackingField: {fileID: 11400000, guid: 6db797f2ff8010640818f428b3257fe7, type: 2}
+  <SettingsConfig>k__BackingField: {fileID: 11400000, guid: 60c7409f7fe35bb4daca6dad12cd9b83, type: 2}
+  <FpsLimitConfig>k__BackingField: {fileID: 11400000, guid: 981f9c53a6719d648bed61b07bf3587a, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1343,7 +1344,6 @@ MonoBehaviour:
   - {fileID: 114461251}
   - {fileID: 114461253}
   - {fileID: 114461254}
-  - {fileID: 114461255}
   - {fileID: 114461256}
   _installerPrefabs: []
   _autoRun: 1
@@ -1390,20 +1390,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Installers.WaterInstaller
   <Catalog>k__BackingField: {fileID: 11400000, guid: 401d50f789e705c40a9ba2805e1eef15, type: 2}
---- !u!114 &114461255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 114461248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79c1dec5e9bd5ac4da1ac1d4a68c99e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Installers.SettingsInstaller
-  <SettingsConfig>k__BackingField: {fileID: 11400000, guid: 60c7409f7fe35bb4daca6dad12cd9b83, type: 2}
-  <FpsLimitConfig>k__BackingField: {fileID: 11400000, guid: 981f9c53a6719d648bed61b07bf3587a, type: 2}
 --- !u!114 &114461256
 MonoBehaviour:
   m_ObjectHideFlags: 0

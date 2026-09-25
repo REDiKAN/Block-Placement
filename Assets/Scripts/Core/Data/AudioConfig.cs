@@ -22,5 +22,8 @@ namespace Game.Data
         [field: Title("Music Settings", CustomColor.Cyan, CustomColor.Blue)]
         [field: SerializeField, Range(0f, 1f)] public float DefaultMusicVolume { get; private set; } = 0.8f;
         [field: SerializeField, Range(0.1f, 5f)] public float CrossfadeDuration { get; private set; } = 1.5f;
+
+        [field: Title("Dialogue Settings", CustomColor.Red, CustomColor.Orange)]
+        [field: SerializeField, Range(0f, 1f)] public float DefaultDialogueVolume { get; private set; } = 1f;
     }
 }

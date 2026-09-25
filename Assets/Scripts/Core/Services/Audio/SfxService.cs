@@ -12,6 +12,9 @@ namespace Game.Services.Audio
         private readonly LinkedList<PooledAudioSource> _activeSources = new();
         private readonly List<GameObject> _poolObjects = new();
         private readonly AudioConfig _config;
+        private float _volumeMultiplier = 1f;
+
+        private const string SfxVolumeKey = "settings_sfx_volume";
 
         public SfxService(AudioConfig config)
         {
@@ -21,12 +24,14 @@ namespace Game.Services.Audio
         public void Initialize()
         {
             InitializePool();
+            _volumeMultiplier = PlayerPrefs.GetFloat(SfxVolumeKey, _config is not null ? _config.DefaultSfxVolume : 1f);
         }
+
+        public void SetVolume(float volume) => _volumeMultiplier = volume;
 
         private void InitializePool()
         {
-            if (_config is null)
-                return;
+            if (_config is null) return;
 
             for (var i = 0; i < _config.SfxPoolSize; i++)
             {
@@ -40,24 +45,21 @@ namespace Game.Services.Audio
 
                 var pooledSource = gameObject.AddComponent<PooledAudioSource>();
                 pooledSource.Setup(audioSource);
-
                 _availablePool.Enqueue(pooledSource);
             }
         }
 
-        public void Play(AudioClip clip) => Play(clip, _config.DefaultSfxVolume);
+        public void Play(AudioClip clip) => Play(clip, _config is not null ? _config.DefaultSfxVolume : 1f);
 
         public void Play(AudioClip clip, float volume)
         {
-            if (clip == null || _config is null)
-                return;
+            if (clip is null || _config is null) return;
 
             var source = GetAvailableSource();
-            if (source is null)
-                return;
+            if (source is null) return;
 
             _activeSources.AddLast(source);
-            source.Play(clip, volume, _config.SfxMixerGroup, () => HandleSourceCompleted(source));
+            source.Play(clip, volume * _volumeMultiplier, _config.SfxMixerGroup, () => HandleSourceCompleted(source));
         }
 
         private PooledAudioSource GetAvailableSource()
@@ -86,16 +88,14 @@ namespace Game.Services.Audio
         {
             foreach (var source in _activeSources)
                 source.Stop();
-
             _activeSources.Clear();
             _availablePool.Clear();
 
             foreach (var gameObject in _poolObjects)
             {
-                if (gameObject != null)
+                if (gameObject is not null)
                     Object.Destroy(gameObject);
             }
-
             _poolObjects.Clear();
         }
     }

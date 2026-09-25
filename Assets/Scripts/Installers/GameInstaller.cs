@@ -15,6 +15,7 @@ using Game.Services.Progression;
 using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
+using Game.Services.Settings;
 using Game.Services.Shadow;
 using Game.Services.Time;
 using Game.Views;
@@ -47,6 +48,8 @@ namespace Game.Installers
         [field: SerializeField] public LevelCompletedUIConfig LevelCompletedUIConfig { get; private set; }
         [field: SerializeField] public LevelTransitionAnimationConfig LevelTransitionAnimationConfig { get; private set; }
         [field: SerializeField] public DialogueBackgroundUIConfig DialogueBackgroundUIConfig { get; private set; }
+        [field: SerializeField] public SettingsConfig SettingsConfig { get; private set; }
+        [field: SerializeField] public FpsLimitConfig FpsLimitConfig { get; private set; }
 
         public override void InstallBindings()
         {
@@ -94,8 +97,6 @@ namespace Game.Installers
                 Container.BindInstance(StructureConfigs);
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
-            if (DialogueBackgroundUIConfig is not null)
-                Container.BindInstance(DialogueBackgroundUIConfig);
 
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
@@ -110,6 +111,12 @@ namespace Game.Installers
                 Container.BindInstance(LevelCompletedUIConfig);
             if (LevelTransitionAnimationConfig is not null)
                 Container.BindInstance(LevelTransitionAnimationConfig);
+            if (DialogueBackgroundUIConfig is not null)
+                Container.BindInstance(DialogueBackgroundUIConfig);
+            if (SettingsConfig is not null)
+                Container.BindInstance(SettingsConfig);
+            if (FpsLimitConfig is not null)
+                Container.BindInstance(FpsLimitConfig);
 
             Container.BindInterfacesTo<AchievementEventBus>().AsCached();
             Container.BindInterfacesTo<AchievementService>().AsCached();
@@ -146,6 +153,7 @@ namespace Game.Installers
             Bind<DialogueService>();
             Bind<LevelAutoTesterService>();
             Bind<DialogueAudioService>();
+            Bind<SettingsService>();
             Bind<LevelTransitionAnimationService>();
             Bind<LevelLoaderService>();
 
