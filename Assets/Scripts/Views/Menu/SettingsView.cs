@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UniRx;
@@ -40,6 +41,8 @@ namespace Game.Views.Menu
         [Inject] private FpsLimitConfig _fpsLimitConfig;
 
         private readonly CompositeDisposable _disposables = new();
+        private readonly Dictionary<TextMeshProUGUI, (Tween Tween, float LastValue)> _textAnimations = new();
+
         private static readonly string[] QualityNames = { "Low", "Medium", "High" };
         private Tween _fpsTextTween;
         private int _lastFpsValue = -2;
@@ -149,7 +152,7 @@ namespace Game.Views.Menu
             _settingsService.CurrentMusicVolume
                 .Subscribe(volume =>
                 {
-                    if (MusicText is not null) MusicText.text = $"Music: {Mathf.RoundToInt(volume * 100)}%";
+                    AnimateVolumeText(MusicText, volume, "Music: ");
                     if (MusicScrollbar is not null)
                     {
                         _isSyncingUI = true;
@@ -162,7 +165,7 @@ namespace Game.Views.Menu
             _settingsService.CurrentSfxVolume
                 .Subscribe(volume =>
                 {
-                    if (SfxText is not null) SfxText.text = $"SFX: {Mathf.RoundToInt(volume * 100)}%";
+                    AnimateVolumeText(SfxText, volume, "SFX: ");
                     if (SfxScrollbar is not null)
                     {
                         _isSyncingUI = true;
@@ -175,7 +178,7 @@ namespace Game.Views.Menu
             _settingsService.CurrentDialogueVolume
                 .Subscribe(volume =>
                 {
-                    if (DialogueText is not null) DialogueText.text = $"Dialogue: {Mathf.RoundToInt(volume * 100)}%";
+                    AnimateVolumeText(DialogueText, volume, "Dialogue: ");
                     if (DialogueScrollbar is not null)
                     {
                         _isSyncingUI = true;
@@ -239,9 +242,55 @@ namespace Game.Views.Menu
             _lastFpsValue = targetFps;
         }
 
+        private void AnimateVolumeText(TextMeshProUGUI text, float targetVolume01, string prefix)
+        {
+            if (text is null) return;
+            var targetPercent = targetVolume01 * 100f;
+
+            if (!_textAnimations.TryGetValue(text, out var state))
+            {
+                state = (null, targetPercent);
+                _textAnimations[text] = state;
+                text.text = $"{prefix}{Mathf.RoundToInt(targetPercent)}%";
+                return;
+            }
+
+            if (Mathf.Approximately(state.LastValue, targetPercent))
+            {
+                text.text = $"{prefix}{Mathf.RoundToInt(targetPercent)}%";
+                return;
+            }
+
+            state.Tween?.Kill();
+            var currentDisplayValue = state.LastValue;
+
+            var tween = DOTween.To(
+                () => currentDisplayValue,
+                x =>
+                {
+                    currentDisplayValue = x;
+                    text.text = $"{prefix}{Mathf.RoundToInt(currentDisplayValue)}%";
+                },
+                targetPercent,
+                0.3f
+            ).SetEase(Ease.OutCubic).SetAutoKill(true);
+
+            text.transform.DOScale(1.15f, 0.15f)
+                .SetEase(Ease.OutBack)
+                .OnComplete(() => text.transform.DOScale(1f, 0.1f))
+                .SetAutoKill(true);
+
+            _textAnimations[text] = (tween, targetPercent);
+        }
+
         private void OnDestroy()
         {
             _fpsTextTween?.Kill();
+            foreach (var kvp in _textAnimations)
+            {
+                kvp.Value.Tween?.Kill();
+            }
+            _textAnimations.Clear();
             _disposables?.Dispose();
         }
     }
