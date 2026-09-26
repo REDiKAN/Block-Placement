@@ -6,6 +6,7 @@ using Zenject;
 using Game.Data;
 using Game.Services.Input;
 using Game.Services.Water;
+using Game.Services.Achievements;
 
 namespace Game.Views
 {
@@ -18,11 +19,12 @@ namespace Game.Views
         [field: SerializeField, Range(0f, 3f)] private float SettleDuration { get; set; } = 1.5f;
         [field: SerializeField] public bool IsInteractable { get; private set; } = true;
 
-        [Inject] private IWaterShaderService _waterShaderService;
-        [Inject] private IInputService _inputService;
-        [Inject] private IInputContextService _contextService;
-        [Inject] private FloatingDecorInteractionConfig _interactionConfig;
-        [Inject(Id = "GameCamera")] private Camera _gameCamera;
+        [InjectOptional] private IWaterShaderService _waterShaderService;
+        [InjectOptional] private IInputService _inputService;
+        [InjectOptional] private IInputContextService _contextService;
+        [InjectOptional] private FloatingDecorInteractionConfig _interactionConfig;
+        [Inject(Id = "GameCamera", Optional = true)] private Camera _gameCamera;
+        [InjectOptional] private IAchievementEventBus _achievementEventBus;
 
         private const float DegenerateEpsilon = 1e-6f;
         private Vector3 _basePosition;
@@ -66,6 +68,7 @@ namespace Game.Views
             {
                 if (hit.collider == _collider)
                 {
+                    _achievementEventBus?.Publish(DecorSunkEvent.Default);
                     PlayDiveAnimation();
                 }
             }

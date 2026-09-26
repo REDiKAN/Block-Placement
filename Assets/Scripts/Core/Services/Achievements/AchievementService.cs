@@ -17,7 +17,6 @@ namespace Game.Services.Achievements
         private readonly AchievementConfig[] _configs;
         private readonly IAchievementEventBus _eventBus;
         private readonly Dictionary<string, AchievementRuntimeData> _runtimeDataMap = new();
-
         private const string PlayerPrefsPrefix = "achievement_";
 
         public AchievementService(
@@ -36,19 +35,23 @@ namespace Game.Services.Achievements
 
                 var savedProgress = PlayerPrefs.GetInt($"{PlayerPrefsPrefix}{config.Id}_progress", 0);
                 var isCompleted = PlayerPrefs.GetInt($"{PlayerPrefsPrefix}{config.Id}_completed", 0) == 1;
-
                 var runtimeData = new AchievementRuntimeData(config, savedProgress, isCompleted);
+
                 _runtimeDataMap[config.Id] = runtimeData;
                 Achievements.Add(runtimeData);
             }
 
             _eventBus.Subscribe<BlockPlacedEvent>()
-                     .Subscribe(_ => HandleEvent(AchievementConditionType.PlaceBlocks))
-                     .AddTo(_disposables);
+                .Subscribe(_ => HandleEvent(AchievementConditionType.PlaceBlocks))
+                .AddTo(_disposables);
 
             _eventBus.Subscribe<LevelCompletedEvent>()
-                     .Subscribe(_ => HandleEvent(AchievementConditionType.CompleteLevels))
-                     .AddTo(_disposables);
+                .Subscribe(_ => HandleEvent(AchievementConditionType.CompleteLevels))
+                .AddTo(_disposables);
+
+            _eventBus.Subscribe<DecorSunkEvent>()
+                .Subscribe(_ => HandleEvent(AchievementConditionType.Quack))
+                .AddTo(_disposables);
         }
 
         private void HandleEvent(AchievementConditionType conditionType)
