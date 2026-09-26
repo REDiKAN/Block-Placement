@@ -1328,6 +1328,7 @@ MonoBehaviour:
   <SettingsConfig>k__BackingField: {fileID: 11400000, guid: 60c7409f7fe35bb4daca6dad12cd9b83, type: 2}
   <FpsLimitConfig>k__BackingField: {fileID: 11400000, guid: 981f9c53a6719d648bed61b07bf3587a, type: 2}
   <StructureInventoryAnimationConfig>k__BackingField: {fileID: 11400000, guid: 5e99b9c85a1084a45962cfb95884c704, type: 2}
+  <FloatingDecorInteractionConfig>k__BackingField: {fileID: 11400000, guid: 4be6ed13014371d4ba28f8d0772b09b8, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6488,10 +6489,11 @@ GameObject:
   m_Component:
   - component: {fileID: 508717583}
   - component: {fileID: 508717587}
+  - component: {fileID: 508717588}
   - component: {fileID: 508717586}
   - component: {fileID: 508717585}
   - component: {fileID: 508717584}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Floating Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6608,6 +6610,25 @@ MonoBehaviour:
   <BobStrength>k__BackingField: 0.6
   <HorizontalFollow>k__BackingField: 0
   <SettleDuration>k__BackingField: 2
+  <IsInteractable>k__BackingField: 1
+--- !u!114 &508717588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508717582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bbcf08d415f1784a9fba048e246648e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloatingDecorView
+  <WaterTransform>k__BackingField: {fileID: 508717583}
+  <MaxTiltDegrees>k__BackingField: 10
+  <BobStrength>k__BackingField: 1
+  <HorizontalFollow>k__BackingField: 0.25
+  <SettleDuration>k__BackingField: 1.5
+  <IsInteractable>k__BackingField: 1
 --- !u!1 &513488879
 GameObject:
   m_ObjectHideFlags: 0
@@ -15948,10 +15969,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1608507775}
   - component: {fileID: 1608507779}
+  - component: {fileID: 1608507780}
   - component: {fileID: 1608507778}
   - component: {fileID: 1608507777}
   - component: {fileID: 1608507776}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Floating Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16068,6 +16090,25 @@ MonoBehaviour:
   <BobStrength>k__BackingField: 0.6
   <HorizontalFollow>k__BackingField: 0
   <SettleDuration>k__BackingField: 2
+  <IsInteractable>k__BackingField: 1
+--- !u!114 &1608507780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608507774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bbcf08d415f1784a9fba048e246648e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Views.FloatingDecorView
+  <WaterTransform>k__BackingField: {fileID: 1608507775}
+  <MaxTiltDegrees>k__BackingField: 10
+  <BobStrength>k__BackingField: 1
+  <HorizontalFollow>k__BackingField: 0.25
+  <SettleDuration>k__BackingField: 1.5
+  <IsInteractable>k__BackingField: 1
 --- !u!1001 &1612095196
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18458,6 +18499,7 @@ MonoBehaviour:
   <BobStrength>k__BackingField: 0.6
   <HorizontalFollow>k__BackingField: 0.05
   <SettleDuration>k__BackingField: 0.5
+  <IsInteractable>k__BackingField: 1
 --- !u!1001 &1856414598
 PrefabInstance:
   m_ObjectHideFlags: 0

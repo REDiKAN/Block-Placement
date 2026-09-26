@@ -1,5 +1,10 @@
+using System;
+using DG.Tweening;
+using UniRx;
 using UnityEngine;
 using Zenject;
+using Game.Data;
+using Game.Services.Input;
 using Game.Services.Water;
 
 namespace Game.Views
@@ -11,11 +16,15 @@ namespace Game.Views
         [field: SerializeField, Range(0f, 1f)] private float BobStrength { get; set; } = 1f;
         [field: SerializeField, Range(0f, 1f)] private float HorizontalFollow { get; set; } = 0.25f;
         [field: SerializeField, Range(0f, 3f)] private float SettleDuration { get; set; } = 1.5f;
+        [field: SerializeField] public bool IsInteractable { get; private set; } = true;
 
         [Inject] private IWaterShaderService _waterShaderService;
+        [Inject] private IInputService _inputService;
+        [Inject] private IInputContextService _contextService;
+        [Inject] private FloatingDecorInteractionConfig _interactionConfig;
+        [Inject(Id = "GameCamera")] private Camera _gameCamera;
 
         private const float DegenerateEpsilon = 1e-6f;
-
         private Vector3 _basePosition;
         private Vector3 _baseForward;
         private Vector2 _localBaseXZ;
@@ -27,9 +36,67 @@ namespace Game.Views
         private Vector3 _forward;
         private Vector3 _right;
 
+        private float _diveOffsetY;
+        private Sequence _diveSequence;
+        private readonly CompositeDisposable _disposables = new();
+        private Collider _collider;
+
+        private void Start()
+        {
+            _collider = GetComponent<Collider>();
+            if (_inputService is null) return;
+
+            _inputService.OnPrimaryClick
+                .Subscribe(TryDive)
+                .AddTo(_disposables);
+        }
+
+        private void TryDive(Vector2 mousePosition)
+        {
+            if (!IsInteractable) return;
+            if (_interactionConfig is null || _gameCamera is null || _collider is null) return;
+
+            var ctx = _contextService?.CurrentContext.Value ?? InputContext.None;
+            if (ctx != InputContext.PlaceBlock && ctx != InputContext.None) return;
+
+            if (_diveSequence is not null && _diveSequence.IsPlaying()) return;
+
+            var ray = _gameCamera.ScreenPointToRay(mousePosition);
+            if (Physics.Raycast(ray, out var hit, _interactionConfig.MaxDistance, _interactionConfig.InteractableLayer))
+            {
+                if (hit.collider == _collider)
+                {
+                    PlayDiveAnimation();
+                }
+            }
+        }
+
+        private void PlayDiveAnimation()
+        {
+            _diveSequence?.Kill();
+            _diveSequence = DOTween.Sequence();
+
+            _diveSequence.Append(
+                DOTween.To(() => _diveOffsetY, x => _diveOffsetY = x, _interactionConfig.DiveDepth, _interactionConfig.DiveDownDuration)
+                    .SetEase(_interactionConfig.DiveDownEase)
+            );
+
+            _diveSequence.Append(
+                DOTween.To(() => _diveOffsetY, x => _diveOffsetY = x, _interactionConfig.JumpHeight, _interactionConfig.JumpUpDuration)
+                    .SetEase(_interactionConfig.JumpUpEase)
+            );
+
+            _diveSequence.Append(
+                DOTween.To(() => _diveOffsetY, x => _diveOffsetY = x, 0f, _interactionConfig.SettleDownDuration)
+                    .SetEase(_interactionConfig.SettleDownEase)
+            );
+
+            _diveSequence.OnComplete(() => _diveSequence = null);
+        }
+
         private void LateUpdate()
         {
-            if (_waterShaderService.CurrentConfig.Value is null)
+            if (_waterShaderService?.CurrentConfig.Value is null)
                 return;
 
             if (!_isInitialized)
@@ -44,15 +111,21 @@ namespace Game.Views
                 displacement.x * HorizontalFollow * settle,
                 displacement.y * BobStrength * settle,
                 displacement.z * HorizontalFollow * settle);
-            transform.position = _basePosition + WaterTransform.TransformVector(_offset);
+
+            var finalPosition = _basePosition + WaterTransform.TransformVector(_offset);
+            finalPosition += Vector3.up * _diveOffsetY;
+            transform.position = finalPosition;
 
             _up = Vector3.RotateTowards(Vector3.up, WaterTransform.TransformDirection(normal).normalized, _maxTiltRadians * settle, 1f);
             _forward = Vector3.ProjectOnPlane(_baseForward, _up);
+
             if (_forward.sqrMagnitude < DegenerateEpsilon)
                 _forward = _baseForward;
+
             _forward.Normalize();
             _right = Vector3.Cross(_up, _forward).normalized;
             _forward = Vector3.Cross(_right, _up).normalized;
+
             transform.rotation = Quaternion.LookRotation(_forward, _up);
         }
 
@@ -60,7 +133,6 @@ namespace Game.Views
         {
             if (WaterTransform is null)
             {
-                Debug.LogError("[FloatingDecorView] WaterTransform is not assigned.");
                 enabled = false;
                 return;
             }
@@ -68,10 +140,17 @@ namespace Game.Views
             _basePosition = transform.position;
             _baseForward = transform.rotation * Vector3.forward;
             _maxTiltRadians = MaxTiltDegrees * Mathf.Deg2Rad;
+
             var localBase = WaterTransform.InverseTransformPoint(_basePosition);
             _localBaseXZ = new Vector2(localBase.x, localBase.z);
             _settleStartTime = Time.time;
             _isInitialized = true;
+        }
+
+        private void OnDestroy()
+        {
+            _diveSequence?.Kill();
+            _disposables?.Dispose();
         }
     }
 }

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7dfed55f60e5af419da455c7a5b407c, type: 3}
+  m_Name: FloatingDecorInteractionConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.FloatingDecorInteractionConfig
+  <InteractableLayer>k__BackingField:
+    serializedVersion: 2
+    m_Bits: 128
+  <MaxDistance>k__BackingField: 100
+  <DiveDepth>k__BackingField: -0.5
+  <DiveDownDuration>k__BackingField: 0.2
+  <DiveUpDuration>k__BackingField: 0.4
+  <DiveDownEase>k__BackingField: 5
+  <DiveUpEase>k__BackingField: 27
+  <DiveUpAmplitude>k__BackingField: 1.2
+  <DiveUpPeriod>k__BackingField: 0.3
