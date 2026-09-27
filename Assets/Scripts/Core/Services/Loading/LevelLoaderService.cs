@@ -1,7 +1,9 @@
 using System;
 using UniRx;
+using Zenject;
 using Game.Data;
 using Game.Services.Animation;
+using Game.Services.Dev;
 using Game.Services.EnvironmentEffects;
 using Game.Services.Grid;
 using Game.Services.Input;
@@ -23,6 +25,8 @@ namespace Game.Services.Loading
         private readonly ITargetDensityProjectionService _densityProjection;
         private readonly ITimeLimitService _timeLimit;
         private readonly IInputContextService _inputContext;
+        private readonly ILevelAutoTesterService _autoTesterService;
+
         private readonly CompositeDisposable _disposables = new();
 
         public LevelLoaderService(
@@ -34,7 +38,8 @@ namespace Game.Services.Loading
             IRotationService rotationService,
             ITargetDensityProjectionService densityProjection,
             ITimeLimitService timeLimit,
-            IInputContextService inputContext)
+            IInputContextService inputContext,
+            [InjectOptional] ILevelAutoTesterService autoTesterService)
         {
             _transitionAnimation = transitionAnimation;
             _environmentEffects = environmentEffects;
@@ -45,6 +50,7 @@ namespace Game.Services.Loading
             _densityProjection = densityProjection;
             _timeLimit = timeLimit;
             _inputContext = inputContext;
+            _autoTesterService = autoTesterService;
         }
 
         public IObservable<Unit> LoadLevel(LevelConfig config)
@@ -69,6 +75,7 @@ namespace Game.Services.Loading
             _timeLimit.LoadLevel(config);
             _blockPlacement.LoadLevel(config);
             _structurePlacement.LoadLevel(config);
+            _autoTesterService?.LoadLevel(config);
         }
 
         public void Dispose() => _disposables?.Dispose();

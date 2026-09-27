@@ -1,4 +1,5 @@
 using UniRx;
+using Game.Data;
 
 namespace Game.Services.Dev
 {
@@ -25,5 +26,6 @@ namespace Game.Services.Dev
         void ResumeTest();
         void StepTest();
         void StopTest();
+        void LoadLevel(LevelConfig config);
     }
 }

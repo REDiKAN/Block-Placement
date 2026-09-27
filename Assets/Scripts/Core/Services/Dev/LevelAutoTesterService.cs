@@ -38,7 +38,7 @@ namespace Game.Services.Dev
         private readonly CompositeDisposable _disposables = new();
         private readonly CompositeDisposable _testDisposables = new();
 
-        private readonly LevelConfig _levelConfig;
+        private LevelConfig _levelConfig;
         private readonly IBlockPoolService _blockPoolService;
         private readonly IStructurePoolService _structurePoolService;
         private readonly IGridService _gridService;
@@ -51,12 +51,13 @@ namespace Game.Services.Dev
 
         private float _delay;
         private List<Vector3Int> _blockQueue;
-
         private int _currentIndex;
         private bool _isWaitingForAnimation;
 
         private readonly Dictionary<StructureConfig, int> _availableStructureCounts = new();
         private readonly List<StructurePlacement> _placedStructures = new();
+        private readonly List<BlockView> _spawnedBlocks = new();
+
         private WallCellDensityData[] _targetWallYZDensities;
         private WallCellDensityData[] _targetWallXYDensities;
         private bool[] _targetWallYZ;
@@ -68,6 +69,7 @@ namespace Game.Services.Dev
         private const float ViolationPenalty = 10000f;
         private const float DensityReward = 100f;
         private const float BoolReward = 500f;
+
         private static readonly int[] ValidAngles = { 0, 90, 180, 270 };
         private static readonly Vector3Int[] Directions =
         {
@@ -112,6 +114,17 @@ namespace Game.Services.Dev
                 .AddTo(_disposables);
         }
 
+        public void LoadLevel(LevelConfig config)
+        {
+            if (_state.Value != AutoTesterState.Idle)
+            {
+                StopTest();
+            }
+
+            ClearSpawnedObjects();
+            _levelConfig = config;
+        }
+
         public void StartTest(float delay)
         {
             if (_state.Value != AutoTesterState.Idle) return;
@@ -119,6 +132,7 @@ namespace Game.Services.Dev
 
             _delay = delay;
             InitializeQueues();
+
             if (IsEmptyQueue()) return;
 
             _state.Value = AutoTesterState.Running;
@@ -152,13 +166,16 @@ namespace Game.Services.Dev
                 if (_levelConfig is null) return;
                 _delay = 0f;
                 InitializeQueues();
+
                 if (IsEmptyQueue()) return;
 
                 _state.Value = AutoTesterState.Paused;
+
                 if (_levelConfig.Mode == GameMode.Structures)
                 {
                     InitializeStructureSolver();
                 }
+
                 ExecuteSpawn();
             }
             else if (_state.Value == AutoTesterState.Paused)
@@ -176,7 +193,6 @@ namespace Game.Services.Dev
             _isWaitingForAnimation = false;
             _blockQueue?.Clear();
             _availableStructureCounts.Clear();
-            _placedStructures.Clear();
             _targetWallYZ = null;
             _targetWallXY = null;
         }
@@ -187,7 +203,8 @@ namespace Game.Services.Dev
             _spawnedCount.Value = 0;
             _blockQueue?.Clear();
             _availableStructureCounts.Clear();
-            _placedStructures.Clear();
+            ClearSpawnedObjects();
+
             _isBlockLimitEnabled.Value = _levelConfig.IsBlockLimitEnabled;
             _isTimeLimitEnabled.Value = _levelConfig.IsTimeLimitEnabled;
 
@@ -227,7 +244,6 @@ namespace Game.Services.Dev
         {
             _targetWallYZDensities = _projectionService.GetCurrentDensities(0);
             _targetWallXYDensities = _projectionService.GetCurrentDensities(1);
-
             _targetWallYZ = new bool[CellCount];
             _targetWallXY = new bool[CellCount];
 
@@ -316,6 +332,7 @@ namespace Game.Services.Dev
             _gridService.SetCellOccupied(cell, true);
             block.SetPosition(cell);
             _objectRegistryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, "AutoTestBlock"));
+            _spawnedBlocks.Add(block);
             _spawnedCount.Value++;
 
             _blockAnimationService.AnimateSpawn(block, () =>
@@ -382,6 +399,43 @@ namespace Game.Services.Dev
             });
         }
 
+        private void ClearSpawnedObjects()
+        {
+            foreach (var block in _spawnedBlocks)
+            {
+                if (block is null) continue;
+
+                var pos = new Vector3Int(
+                    Mathf.FloorToInt(block.transform.position.x),
+                    Mathf.FloorToInt(block.transform.position.y),
+                    Mathf.FloorToInt(block.transform.position.z));
+
+                if (_gridService.IsWithinBounds(pos))
+                {
+                    _gridService.SetCellOccupied(pos, false);
+                }
+                _objectRegistryService.Unregister(pos, PlacedObjectType.Block);
+                _blockPoolService.Return(block);
+            }
+            _spawnedBlocks.Clear();
+
+            foreach (var placement in _placedStructures)
+            {
+                if (placement.View is null) continue;
+
+                foreach (var cell in placement.WorldCells)
+                {
+                    if (_gridService.IsWithinBounds(cell))
+                    {
+                        _gridService.SetCellOccupied(cell, false);
+                    }
+                    _objectRegistryService.Unregister(cell, PlacedObjectType.Block);
+                }
+                _structurePoolService.Return(placement.View);
+            }
+            _placedStructures.Clear();
+        }
+
         private StructurePlacementCandidate FindBestStructurePlacementWithBacktracking()
         {
             var candidates = GenerateAllValidPlacements();
@@ -440,10 +494,12 @@ namespace Game.Services.Dev
                 _gridService.SetCellOccupied(cell, false);
                 _objectRegistryService.Unregister(cell, PlacedObjectType.Block);
             }
+
             if (placement.View != null)
             {
                 _structurePoolService.Return(placement.View);
             }
+
             _availableStructureCounts[placement.Config]++;
             _placedStructures.Remove(placement);
         }
@@ -455,6 +511,7 @@ namespace Game.Services.Dev
                 _gridService.SetCellOccupied(cell, true);
                 _objectRegistryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, placement.Config.DisplayName));
             }
+
             var structure = _structurePoolService.Get(placement.Config);
             if (structure != null)
             {
@@ -462,6 +519,7 @@ namespace Game.Services.Dev
                 structure.transform.rotation = Quaternion.Euler(0f, placement.Angle, 0f);
                 placement.View = structure;
             }
+
             _availableStructureCounts[placement.Config]--;
             _placedStructures.Add(placement);
         }
@@ -469,7 +527,6 @@ namespace Game.Services.Dev
         private List<StructurePlacementCandidate> GenerateAllValidPlacements()
         {
             var candidates = new List<StructurePlacementCandidate>();
-
             var availableConfigs = _availableStructureCounts
                 .Where(kvp => kvp.Value > 0)
                 .Select(kvp => kvp.Key)
@@ -629,7 +686,6 @@ namespace Game.Services.Dev
         private int CalculateDensityFromGrid(int wallIndex, int cellIndex, bool[,,] grid)
         {
             var density = 0;
-
             if (wallIndex == 0)
             {
                 var y = cellIndex / GridSize;
@@ -650,7 +706,6 @@ namespace Game.Services.Dev
                         density++;
                 }
             }
-
             return density;
         }
 
@@ -683,12 +738,12 @@ namespace Game.Services.Dev
 
                 var config = kvp.Key;
                 var countNeeded = kvp.Value;
-
                 var tempGrid = (bool[,,])simulatedGrid.Clone();
 
                 for (var placed = 0; placed < countNeeded; placed++)
                 {
                     var canPlace = false;
+
                     foreach (var angle in GetUniqueAngles(config))
                     {
                         var rotatedCoords = GetRotatedLocalCoordinates(config.LocalCoordinates, angle);
@@ -698,6 +753,7 @@ namespace Game.Services.Dev
                             for (var z = 0; z < GridSize && !canPlace; z++)
                             {
                                 var origin = new Vector3Int(x, 0, z);
+
                                 if (ValidatePlacementInGrid(origin, rotatedCoords, tempGrid))
                                 {
                                     foreach (var local in rotatedCoords)
@@ -712,11 +768,14 @@ namespace Game.Services.Dev
                                 }
                             }
                         }
+
                         if (canPlace) break;
                     }
+
                     if (!canPlace) return false;
                 }
             }
+
             return true;
         }
 
@@ -725,9 +784,11 @@ namespace Game.Services.Dev
             if (localCoords is null || localCoords.Length == 0) return false;
 
             var hasConnection = false;
+
             foreach (var local in localCoords)
             {
                 var worldCell = origin + local;
+
                 if (!_gridService.IsWithinBounds(worldCell)) return false;
                 if (grid[worldCell.x, worldCell.y, worldCell.z]) return false;
 
@@ -750,6 +811,7 @@ namespace Game.Services.Dev
                     }
                 }
             }
+
             return hasConnection;
         }
 
@@ -770,9 +832,11 @@ namespace Game.Services.Dev
             if (localCoords is null || localCoords.Length == 0) return false;
 
             var hasConnection = false;
+
             foreach (var local in localCoords)
             {
                 var worldCell = origin + local;
+
                 if (!_gridService.IsWithinBounds(worldCell)) return false;
                 if (_gridService.IsCellOccupied(worldCell)) return false;
 
@@ -795,6 +859,7 @@ namespace Game.Services.Dev
                     }
                 }
             }
+
             return hasConnection;
         }
 
@@ -821,6 +886,7 @@ namespace Game.Services.Dev
         public void Dispose()
         {
             StopTest();
+            ClearSpawnedObjects();
             _disposables?.Dispose();
             _testDisposables?.Dispose();
         }
