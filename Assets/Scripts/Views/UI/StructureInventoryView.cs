@@ -14,6 +14,8 @@ namespace Game.Views.UI
     {
         [field: SerializeField] private Transform Content { get; set; }
         [field: SerializeField] private StructureInventoryItemView ItemPrefab { get; set; }
+        [field: SerializeField] private ScrollRect ScrollRect { get; set; }
+        [field: SerializeField] private RectTransform Viewport { get; set; }
 
         [Inject] private LevelConfig _levelConfig;
         [Inject] private IStructurePlacementService _placementService;
@@ -111,7 +113,6 @@ namespace Game.Views.UI
             }
 
             LayoutItems();
-            PlayIntro();
         }
 
         private void PopulateDevInventory()
@@ -139,7 +140,6 @@ namespace Game.Views.UI
             }
 
             LayoutItems();
-            PlayIntro();
         }
 
         private void LayoutItems()
@@ -154,6 +154,9 @@ namespace Game.Views.UI
 
             var count = _items.Count;
             var totalWidth = count * cellSize.x + (count > 1 ? (count - 1) * spacing.x : 0f);
+
+            contentRect.sizeDelta = new Vector2(totalWidth, contentRect.sizeDelta.y);
+
             var startX = -totalWidth / 2f + cellSize.x / 2f;
 
             for (var i = 0; i < count; i++)
@@ -166,6 +169,30 @@ namespace Game.Views.UI
                 rt.sizeDelta = cellSize;
                 var x = startX + i * (cellSize.x + spacing.x);
                 _items[i].Initialize(new Vector2(x, 0f));
+            }
+
+            UpdateScrollability();
+            PlayIntro();
+        }
+
+        private void UpdateScrollability()
+        {
+            if (ScrollRect is null || Content is null) return;
+            var contentRect = Content as RectTransform;
+            if (contentRect is null) return;
+
+            var viewport = Viewport != null ? Viewport : ScrollRect.viewport;
+            if (viewport is null) return;
+
+            var viewportWidth = viewport.rect.width;
+            var contentWidth = contentRect.sizeDelta.x;
+            var isScrollable = contentWidth > viewportWidth;
+
+            ScrollRect.enabled = isScrollable;
+
+            if (!isScrollable)
+            {
+                contentRect.anchoredPosition = Vector2.zero;
             }
         }
 
@@ -226,6 +253,14 @@ namespace Game.Views.UI
 
             if (_layoutGroup is not null) _layoutGroup.enabled = true;
             if (_sizeFitter is not null) _sizeFitter.enabled = true;
+
+            if (Content is RectTransform contentRect)
+            {
+                contentRect.sizeDelta = Vector2.zero;
+                contentRect.anchoredPosition = Vector2.zero;
+            }
+
+            if (ScrollRect is not null) ScrollRect.enabled = false;
         }
 
         private void UpdateItem((StructureConfig Config, int Remaining) data)
