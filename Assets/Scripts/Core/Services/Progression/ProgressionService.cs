@@ -9,7 +9,6 @@ namespace Game.Services.Progression
     public class ProgressionService : IProgressionService, IInitializable, IDisposable
     {
         public IObservable<ProgressionData> OnProgressionChanged => _onProgressionChanged;
-
         private readonly Subject<ProgressionData> _onProgressionChanged = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly LevelCatalog _catalog;
@@ -33,10 +32,14 @@ namespace Game.Services.Progression
         {
             var category = GetCategory(categoryId);
             if (category?.Levels is null) return default;
+
             var completedCount = GetCompletedCount(categoryId);
             var totalLevels = category.Levels.Length;
-            var progressPercent = totalLevels > 0 ? (float)completedCount / totalLevels * 100f : 0f;
-            return new ProgressionData(categoryId, completedCount, totalLevels, progressPercent);
+
+            var clampedCompletedCount = Mathf.Min(completedCount, totalLevels);
+            var progressPercent = totalLevels > 0 ? (float)clampedCompletedCount / totalLevels * 100f : 0f;
+
+            return new ProgressionData(categoryId, clampedCompletedCount, totalLevels, progressPercent);
         }
 
         public bool IsLevelUnlocked(int categoryId, int levelIndex)
@@ -60,8 +63,13 @@ namespace Game.Services.Progression
         {
             var category = GetCategory(categoryId);
             if (category is null || !category.IsSequential) return;
+            if (category.Levels is null) return;
+
             var completedCount = GetCompletedCount(categoryId);
+
             if (levelIndex != completedCount) return;
+            if (completedCount >= category.Levels.Length) return;
+
             PlayerPrefs.SetInt(BuildPlayerPrefsKey(categoryId), completedCount + 1);
             PlayerPrefs.Save();
             PublishProgression(categoryId);

@@ -160,6 +160,7 @@ namespace Game.Views.UI
             Time.timeScale = 1f;
             LevelContext.SelectedLevelId = 0;
             LevelContext.SelectedCategoryId = 0;
+            LevelContext.SelectedLevelConfig = null;
             EndlessContext.IsEndlessModeActive = false;
             SceneManager.LoadScene("MenuScene");
         }

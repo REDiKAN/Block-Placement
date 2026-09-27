@@ -71,6 +71,7 @@ namespace Game.Views.Menu
 
             EndlessContext.Settings = settings;
             EndlessContext.IsEndlessModeActive = true;
+            LevelContext.SelectedLevelConfig = null;
             SceneManager.LoadScene("GameScene");
         }
 

@@ -134,6 +134,7 @@ namespace Game.Views.Menu
             }
 
             LevelContext.SelectedLevelId = index;
+            LevelContext.SelectedLevelConfig = null;
             SceneManager.LoadScene("GameScene");
         }
 
