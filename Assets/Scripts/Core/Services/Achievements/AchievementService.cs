@@ -32,17 +32,19 @@ namespace Game.Services.Achievements
             foreach (var config in _configs)
             {
                 if (config is null) continue;
-
                 var savedProgress = PlayerPrefs.GetInt($"{PlayerPrefsPrefix}{config.Id}_progress", 0);
                 var isCompleted = PlayerPrefs.GetInt($"{PlayerPrefsPrefix}{config.Id}_completed", 0) == 1;
                 var runtimeData = new AchievementRuntimeData(config, savedProgress, isCompleted);
-
                 _runtimeDataMap[config.Id] = runtimeData;
                 Achievements.Add(runtimeData);
             }
 
             _eventBus.Subscribe<BlockPlacedEvent>()
                 .Subscribe(_ => HandleEvent(AchievementConditionType.PlaceBlocks))
+                .AddTo(_disposables);
+
+            _eventBus.Subscribe<StructurePlacedEvent>()
+                .Subscribe(_ => HandleEvent(AchievementConditionType.PlaceStructures))
                 .AddTo(_disposables);
 
             _eventBus.Subscribe<LevelCompletedEvent>()

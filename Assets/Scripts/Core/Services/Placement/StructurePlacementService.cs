@@ -1,4 +1,5 @@
 using Game.Data;
+using Game.Services.Achievements;
 using Game.Services.Animation;
 using Game.Services.Audio;
 using Game.Services.Grid;
@@ -73,6 +74,7 @@ namespace Game.Services.Placement
         private const float OffGridSmoothTime = 0.08f;
         private const float SnapSmoothTime = 0.02f;
         private static readonly Vector3 CellCenterOffset = new(0.5f, 0.5f, 0.5f);
+        private readonly IAchievementEventBus _achievementEventBus;
         private static readonly Vector3Int[] _directions =
         {
             Vector3Int.up, Vector3Int.down,
@@ -95,6 +97,7 @@ namespace Game.Services.Placement
             AudioConfig audioConfig,
             LevelConfig levelConfig,
             IRotationService rotationService,
+            IAchievementEventBus achievementEventBus,
             [Inject(Id = "GameCamera")] Camera gameCamera)
         {
             _inputService = inputService;
@@ -109,6 +112,7 @@ namespace Game.Services.Placement
             _audioConfig = audioConfig;
             _levelConfig = levelConfig;
             _rotationService = rotationService;
+            _achievementEventBus = achievementEventBus;
             _gameCamera = gameCamera;
         }
 
@@ -365,6 +369,7 @@ namespace Game.Services.Placement
             _isAnimating = false;
             _contextService.SetContext(InputContext.PlaceBlock);
             _onGridChanged.OnNext(Unit.Default);
+            _achievementEventBus.Publish(StructurePlacedEvent.Default);
         }
 
         private void RemoveLastStructure()

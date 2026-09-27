@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1aac72ddfc5c3114caecddef56f7eb6c, type: 3}
-  m_Name: Achievement_10Blocks
+  m_Name: Achievement_200Blocks
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.AchievementConfig
-  <Id>k__BackingField: blocks_10
-  <Title>k__BackingField: First 10 blocks
+  <Id>k__BackingField: blocks_200
+  <Title>k__BackingField: First 200 blocks
   <Description>k__BackingField: text
   <UIPrefab>k__BackingField: {fileID: 7203008219226235252, guid: 079687b42b680de49a2168e5ae9fd12a, type: 3}
   <Icon>k__BackingField: {fileID: 1702758509, guid: 605bbe7db04630a4893ad8db3bdf3437, type: 3}
   <ConditionType>k__BackingField: 0
-  <TargetValue>k__BackingField: 10
+  <TargetValue>k__BackingField: 200
