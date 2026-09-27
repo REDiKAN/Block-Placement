@@ -166,6 +166,13 @@ namespace Game.Services.Placement
             _inputService.OnSecondaryClick.Subscribe(_ => RemoveLastBlock()).AddTo(_disposables);
             _rotationService.OnRotationCompleted.Subscribe(RotateActiveBlocks).AddTo(_disposables);
             _settingsService.IsPreviewEnabled.Subscribe(OnPreviewSettingChanged).AddTo(_disposables);
+
+            _devModeService.IsStructureMode
+                .Subscribe(isStructureMode =>
+                {
+                    if (isStructureMode) ClearAll();
+                })
+                .AddTo(_disposables);
         }
 
         private static bool IsInputAllowedForPlacement(InputContext context) =>

@@ -12,10 +12,13 @@ namespace Game.Services.Dev
         IReadOnlyReactiveProperty<bool> IsBlockLimitEnabled { get; }
         IReadOnlyReactiveProperty<bool> IsTimeLimitEnabled { get; }
         IReadOnlyReactiveProperty<float> TimeLimitSeconds { get; }
+        IReadOnlyReactiveProperty<bool> IsStructureMode { get; }
         void SetActiveBlockConfig(BlockConfig config);
         void SetBlockLimitEnabled(bool enabled);
         void SetTimeLimitEnabled(bool enabled);
         void SetTimeLimitSeconds(float seconds);
+        void EnterStructureMode();
+        void EnterBlockMode();
     }
 
     public class DevModeService : IDevModeService
@@ -24,14 +27,19 @@ namespace Game.Services.Dev
         public IReadOnlyReactiveProperty<bool> IsBlockLimitEnabled => _isBlockLimitEnabled;
         public IReadOnlyReactiveProperty<bool> IsTimeLimitEnabled => _isTimeLimitEnabled;
         public IReadOnlyReactiveProperty<float> TimeLimitSeconds => _timeLimitSeconds;
+        public IReadOnlyReactiveProperty<bool> IsStructureMode => _isStructureMode;
 
         private readonly ReactiveProperty<BlockConfig> _activeBlockConfig = new();
         private readonly ReactiveProperty<bool> _isBlockLimitEnabled = new(false);
         private readonly ReactiveProperty<bool> _isTimeLimitEnabled = new(false);
         private readonly ReactiveProperty<float> _timeLimitSeconds = new(60f);
+        private readonly ReactiveProperty<bool> _isStructureMode = new(false);
+
         private readonly IInputContextService _contextService;
 
-        public DevModeService(IInputContextService contextService, [InjectOptional] BlockConfig[] configs)
+        public DevModeService(
+            IInputContextService contextService,
+            [InjectOptional] BlockConfig[] configs)
         {
             _contextService = contextService;
             if (configs is not null && configs.Length > 0)
@@ -45,9 +53,19 @@ namespace Game.Services.Dev
         }
 
         public void SetBlockLimitEnabled(bool enabled) => _isBlockLimitEnabled.Value = enabled;
-
         public void SetTimeLimitEnabled(bool enabled) => _isTimeLimitEnabled.Value = enabled;
-
         public void SetTimeLimitSeconds(float seconds) => _timeLimitSeconds.Value = seconds;
+
+        public void EnterStructureMode()
+        {
+            _isStructureMode.Value = true;
+            _contextService.SetContext(InputContext.PlaceStructure);
+        }
+
+        public void EnterBlockMode()
+        {
+            _isStructureMode.Value = false;
+            _contextService.SetContext(InputContext.PlaceBlock);
+        }
     }
 }

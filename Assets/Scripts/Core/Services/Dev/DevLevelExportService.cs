@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -11,6 +12,7 @@ using Game.Data;
 using Game.Services.Dev;
 using Game.Services.Grid;
 using Game.Services.Shadow;
+using Game.Services.Placement;
 
 namespace Game.Services.Dev
 {
@@ -29,19 +31,22 @@ namespace Game.Services.Dev
         private readonly IShadowDensityService _densityService;
         private readonly IShadowCalculationService _calculationService;
         private readonly IDevModeService _devModeService;
+        private readonly IStructurePlacementService _structurePlacementService;
 
         public DevLevelExportService(
             IDevInputService devInputService,
             IGridService gridService,
             IShadowDensityService densityService,
             IShadowCalculationService calculationService,
-            IDevModeService devModeService)
+            IDevModeService devModeService,
+            IStructurePlacementService structurePlacementService)
         {
             _devInputService = devInputService;
             _gridService = gridService;
             _densityService = densityService;
             _calculationService = calculationService;
             _devModeService = devModeService;
+            _structurePlacementService = structurePlacementService;
         }
 
         public void Initialize()
@@ -87,12 +92,29 @@ namespace Game.Services.Dev
 
             var wallYZData = new WallData();
             wallYZData.SetDensities(yzDensities);
-
             var wallXYData = new WallData();
             wallXYData.SetDensities(xyDensities);
 
             var config = ScriptableObject.CreateInstance<LevelConfig>();
             config.SetData(blocks.ToArray(), floorMatrix, wallYZData, wallXYData);
+
+            var placedStructures = _structurePlacementService.GetPlacedStructureConfigs();
+            var isStructureMode = placedStructures.Count > 0;
+
+            if (isStructureMode)
+            {
+                config.SetMode(GameMode.Structures);
+                var spawnDataArray = new StructureSpawnData[placedStructures.Count];
+                for (var i = 0; i < placedStructures.Count; i++)
+                {
+                    spawnDataArray[i] = new StructureSpawnData(placedStructures[i], -1);
+                }
+                config.SetAvailableStructures(spawnDataArray);
+            }
+            else
+            {
+                config.SetMode(GameMode.Blocks);
+            }
 
             var isBlockLimitEnabled = _devModeService.IsBlockLimitEnabled.Value;
             var maxBlocks = isBlockLimitEnabled ? blocks.Count : -1;

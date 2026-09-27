@@ -8,6 +8,7 @@ namespace Game.Services.Input
     {
         None,
         PlaceBlock,
+        PlaceStructure,
         LevelCompleted,
         Paused,
         Generating,

@@ -6,6 +6,7 @@ using Zenject;
 using Game.Data;
 using Game.Services.Placement;
 using Game.Services.Input;
+using Game.Services.Dev;
 
 namespace Game.Views.UI
 {
@@ -18,6 +19,9 @@ namespace Game.Views.UI
         [Inject] private IStructurePlacementService _placementService;
         [Inject] private IInputContextService _contextService;
         [Inject] private StructureInventoryAnimationConfig _animationConfig;
+        [Inject] private IDevModeService _devModeService;
+        [Inject(Id = "IsDeveloperMode")] private bool _isDeveloperMode;
+        [InjectOptional] private StructureConfig[] _allStructureConfigs;
 
         private readonly List<StructureInventoryItemView> _items = new();
         private readonly CompositeDisposable _disposables = new();
@@ -29,23 +33,38 @@ namespace Game.Views.UI
         {
             _layoutGroup = Content.GetComponent<GridLayoutGroup>();
             _sizeFitter = Content.GetComponent<ContentSizeFitter>();
-            PopulateInventory(_levelConfig);
+
+            if (_isDeveloperMode && _devModeService.IsStructureMode.Value)
+                PopulateDevInventory();
+            else
+                PopulateInventory(_levelConfig);
 
             _placementService.OnStructureCountChanged
                 .Subscribe(UpdateItem)
                 .AddTo(_disposables);
-
             _placementService.OnLevelChanged
                 .Subscribe(OnLevelChanged)
                 .AddTo(_disposables);
-
             _placementService.SelectedStructure
                 .Subscribe(HandleSelectionChange)
                 .AddTo(_disposables);
-
             _contextService.CurrentContext
                 .Subscribe(HandleContextChange)
                 .AddTo(_disposables);
+
+            if (_isDeveloperMode)
+            {
+                _devModeService.IsStructureMode
+                    .Subscribe(isStructureMode =>
+                    {
+                        ClearInventory();
+                        if (isStructureMode)
+                            PopulateDevInventory();
+                        else
+                            PopulateInventory(_levelConfig);
+                    })
+                    .AddTo(_disposables);
+            }
         }
 
         private void HandleContextChange(InputContext context)
@@ -56,17 +75,25 @@ namespace Game.Views.UI
 
         private void OnLevelChanged(LevelConfig newConfig)
         {
+            if (_isDeveloperMode && _devModeService.IsStructureMode.Value) return;
             ClearInventory();
             PopulateInventory(newConfig);
         }
 
         private void PopulateInventory(LevelConfig config)
         {
+            if (_isDeveloperMode && _devModeService.IsStructureMode.Value)
+            {
+                PopulateDevInventory();
+                return;
+            }
+
             if (config is null || config.Mode != GameMode.Structures || config.AvailableStructures is null)
             {
                 gameObject.SetActive(false);
                 return;
             }
+
             gameObject.SetActive(true);
             if (ItemPrefab is null || Content is null) return;
 
@@ -83,17 +110,47 @@ namespace Game.Views.UI
                 _items.Add(item);
             }
 
+            LayoutItems();
+            PlayIntro();
+        }
+
+        private void PopulateDevInventory()
+        {
+            if (_allStructureConfigs is null || _allStructureConfigs.Length == 0)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            gameObject.SetActive(true);
+            if (ItemPrefab is null || Content is null) return;
+
+            foreach (var config in _allStructureConfigs)
+            {
+                if (config is null) continue;
+                var item = Instantiate(ItemPrefab, Content);
+                if (item.NameText is not null)
+                    item.NameText.text = config.DisplayName;
+                item.SetIcon(config.Icon);
+                var capturedConfig = config;
+                item.Button.onClick.AddListener(() => _placementService.SelectStructure(capturedConfig));
+                UpdateItemCount(item, -1);
+                _items.Add(item);
+            }
+
+            LayoutItems();
+            PlayIntro();
+        }
+
+        private void LayoutItems()
+        {
             var contentRect = Content as RectTransform;
             if (contentRect is null) return;
-
             var cellSize = _layoutGroup is not null ? _layoutGroup.cellSize : new Vector2(150f, 150f);
             var spacing = _layoutGroup is not null ? _layoutGroup.spacing : new Vector2(50f, 0f);
 
-            if (_layoutGroup is not null)
-                _layoutGroup.enabled = false;
-
-            if (_sizeFitter is not null)
-                _sizeFitter.enabled = false;
+            if (_layoutGroup is not null) _layoutGroup.enabled = false;
+            if (_sizeFitter is not null) _sizeFitter.enabled = false;
 
             var count = _items.Count;
             var totalWidth = count * cellSize.x + (count > 1 ? (count - 1) * spacing.x : 0f);
@@ -103,17 +160,13 @@ namespace Game.Views.UI
             {
                 var rt = _items[i].GetComponent<RectTransform>();
                 if (rt is null) continue;
-
                 rt.anchorMin = new Vector2(0.5f, 0.5f);
                 rt.anchorMax = new Vector2(0.5f, 0.5f);
                 rt.pivot = new Vector2(0.5f, 0.5f);
                 rt.sizeDelta = cellSize;
-
                 var x = startX + i * (cellSize.x + spacing.x);
                 _items[i].Initialize(new Vector2(x, 0f));
             }
-
-            PlayIntro();
         }
 
         private void PlayIntro()
@@ -170,17 +223,15 @@ namespace Game.Views.UI
             }
             _items.Clear();
             _lastSelectedConfig = null;
-            if (_layoutGroup is not null)
-                _layoutGroup.enabled = true;
-            if (_sizeFitter is not null)
-                _sizeFitter.enabled = true;
+
+            if (_layoutGroup is not null) _layoutGroup.enabled = true;
+            if (_sizeFitter is not null) _sizeFitter.enabled = true;
         }
 
         private void UpdateItem((StructureConfig Config, int Remaining) data)
         {
             var item = FindItemByConfig(data.Config);
             if (item is null) return;
-
             UpdateItemCount(item, data.Remaining);
             item.SetInteractable(data.Remaining != 0);
         }

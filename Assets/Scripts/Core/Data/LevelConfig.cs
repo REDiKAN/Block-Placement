@@ -20,7 +20,6 @@ namespace Game.Data
     public class WallData
     {
         [field: SerializeField] public WallCellDensityData[] CellDensities { get; private set; }
-
         public void SetDensities(WallCellDensityData[] densities) => CellDensities = densities;
     }
 
@@ -92,5 +91,7 @@ namespace Game.Data
         }
 
         public void SetAvailableStructures(StructureSpawnData[] structures) => AvailableStructures = structures;
+
+        public void SetMode(GameMode mode) => Mode = mode;
     }
 }

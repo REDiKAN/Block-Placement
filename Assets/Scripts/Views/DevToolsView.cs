@@ -15,6 +15,7 @@ namespace Game.Views
     {
         [field: SerializeField] private GameObject _mainMenu;
         [field: SerializeField] private GameObject _blockSubMenu;
+        [field: SerializeField] private GameObject _structureSubMenu;
         [field: SerializeField] private GameObject _floorEditorPanel;
         [field: SerializeField] private GameObject _densityEditorPanel;
         [field: SerializeField] private GameObject _timeLimitPanel;
@@ -24,6 +25,8 @@ namespace Game.Views
         [field: SerializeField] private Toggle _blockLimitToggle;
         [field: SerializeField] private Toggle _timeLimitToggle;
         [field: SerializeField] private TMP_InputField _timeLimitInput;
+        [field: SerializeField] private Button _structureModeButton;
+        [field: SerializeField] private Button _backFromStructureButton;
 
         [Inject] private readonly IDevModeService _devModeService;
         [Inject] private readonly IInputContextService _contextService;
@@ -42,7 +45,6 @@ namespace Game.Views
                 _devModeService.IsBlockLimitEnabled
                     .Subscribe(value => _blockLimitToggle.isOn = value)
                     .AddTo(_disposables);
-
                 _blockLimitToggle.OnValueChangedAsObservable()
                     .Subscribe(value => _devModeService.SetBlockLimitEnabled(value))
                     .AddTo(_disposables);
@@ -53,7 +55,6 @@ namespace Game.Views
                 _devModeService.IsTimeLimitEnabled
                     .Subscribe(value => _timeLimitToggle.isOn = value)
                     .AddTo(_disposables);
-
                 _timeLimitToggle.OnValueChangedAsObservable()
                     .Subscribe(value => _devModeService.SetTimeLimitEnabled(value))
                     .AddTo(_disposables);
@@ -78,19 +79,23 @@ namespace Game.Views
                     })
                     .AddTo(_disposables);
             }
+
+            if (_structureModeButton is not null)
+                _structureModeButton.onClick.AddListener(OpenStructureMode);
+
+            if (_backFromStructureButton is not null)
+                _backFromStructureButton.onClick.AddListener(ExitStructureMode);
         }
 
         private void PopulateBlockMenu()
         {
             if (_blockConfigs is null || _blockItemPrefab is null || _blockListContent is null) return;
-
             foreach (var config in _blockConfigs)
             {
                 var button = Instantiate(_blockItemPrefab, _blockListContent, false);
                 var textComponent = button.GetComponentInChildren<TextMeshProUGUI>();
                 if (textComponent is not null)
                     textComponent.text = config.DisplayName;
-
                 var capturedConfig = config;
                 button.onClick.AddListener(() => SelectBlock(capturedConfig));
                 _spawnedBlockButtons.Add(button);
@@ -147,6 +152,25 @@ namespace Game.Views
             _contextService.SetContext(InputContext.None);
         }
 
+        public void OpenStructureMode()
+        {
+            _mainMenu.SetActive(false);
+            _blockSubMenu.SetActive(false);
+            _floorEditorPanel.SetActive(false);
+            _densityEditorPanel.SetActive(false);
+            if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
+            if (_levelGeneratorPanel is not null) _levelGeneratorPanel.SetActive(false);
+            if (_structureSubMenu is not null) _structureSubMenu.SetActive(true);
+            _devModeService.EnterStructureMode();
+        }
+
+        public void ExitStructureMode()
+        {
+            if (_structureSubMenu is not null) _structureSubMenu.SetActive(false);
+            _devModeService.EnterBlockMode();
+            ShowMainMenu();
+        }
+
         public void ShowMainMenu()
         {
             _blockSubMenu.SetActive(false);
@@ -154,6 +178,7 @@ namespace Game.Views
             _densityEditorPanel.SetActive(false);
             if (_timeLimitPanel is not null) _timeLimitPanel.SetActive(false);
             if (_levelGeneratorPanel is not null) _levelGeneratorPanel.SetActive(false);
+            if (_structureSubMenu is not null) _structureSubMenu.SetActive(false);
             _mainMenu.SetActive(true);
         }
 
