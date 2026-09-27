@@ -37,10 +37,8 @@ namespace Game.Views.UI
         {
             if (RootObject is not null)
                 RootObject.SetActive(false);
-
             if (LeftBarImage is not null)
                 LeftBarImage.fillAmount = 0f;
-
             if (RightBarImage is not null)
                 RightBarImage.fillAmount = 0f;
 
@@ -64,6 +62,9 @@ namespace Game.Views.UI
                 Hide();
                 return;
             }
+
+            if (TextComponent is not null)
+                TextComponent.text = string.Empty;
 
             if (!_areBarsVisible)
             {
@@ -129,7 +130,6 @@ namespace Game.Views.UI
         private void StartAnimation(string text)
         {
             _animationTween?.Kill();
-
             if (TextComponent is null) return;
 
             TextComponent.text = text;
@@ -198,7 +198,6 @@ namespace Game.Views.UI
 
                 var scale = DOVirtual.EasedValue(0f, 1f, localProgress, _animationConfig.ScaleEase);
                 var yOffset = DOVirtual.EasedValue(_animationConfig.OffsetY, 0f, localProgress, _animationConfig.PositionEase);
-
                 var center = _originalCenters[i];
 
                 for (var v = 0; v < 4; v++)

@@ -5,6 +5,9 @@ namespace Game.Data
         PlaceBlocks,
         PlaceStructures,
         CompleteLevels,
-        Quack
+        Quack,
+        CompleteWithRain,
+        CompleteWithFog,
+        CompleteWithRainAndFog
     }
 }

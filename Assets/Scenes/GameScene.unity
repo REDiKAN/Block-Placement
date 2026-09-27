@@ -1323,6 +1323,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4390f2298bbed404dbc35fed8235dcde, type: 2}
   - {fileID: 11400000, guid: 41ca620e561c539458448a82cb23c32b, type: 2}
   - {fileID: 11400000, guid: 33fadb4df78dcae45bde6b8b49f6b68a, type: 2}
+  - {fileID: 11400000, guid: ccda21be8c8f1ec42b945ba650653d5f, type: 2}
+  - {fileID: 11400000, guid: b70952adcecbc3a47a652b132378299f, type: 2}
+  - {fileID: 11400000, guid: 2b1903c005f5ddf46993a4a37e45aa8e, type: 2}
   <DialogueAnimationConfig>k__BackingField: {fileID: 11400000, guid: 4aa6f6c0b8c967a469a6d1b39c4d074d, type: 2}
   <LevelCompletedUIConfig>k__BackingField: {fileID: 11400000, guid: 4e23f8ee5da54304a803563f535fce98, type: 2}
   <LevelTransitionAnimationConfig>k__BackingField: {fileID: 11400000, guid: 6bc59a5c32558ca4e926c12fa3b0cceb, type: 2}
@@ -15362,11 +15365,11 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 10
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0

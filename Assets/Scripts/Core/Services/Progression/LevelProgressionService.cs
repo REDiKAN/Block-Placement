@@ -12,6 +12,8 @@ using Game.Services.Shadow;
 using Game.Services.Time;
 using Game.Services.Achievements;
 using Game.Services.Loading;
+using Game.Services.EnvironmentEffects;
+using Game.Views.Effects;
 using UnityEngine.SceneManagement;
 
 namespace Game.Services.Progression
@@ -36,6 +38,7 @@ namespace Game.Services.Progression
         private readonly IAchievementEventBus _achievementEventBus;
         private readonly IDialogueService _dialogueService;
         private readonly ILevelLoaderService _levelLoaderService;
+        private readonly IEnvironmentEffectService _environmentEffectService;
         private readonly LevelConfig _levelConfig;
         private readonly bool _isDeveloperMode;
 
@@ -60,6 +63,7 @@ namespace Game.Services.Progression
             IAchievementEventBus achievementEventBus,
             IDialogueService dialogueService,
             ILevelLoaderService levelLoaderService,
+            IEnvironmentEffectService environmentEffectService,
             LevelConfig levelConfig,
             [Inject(Id = "IsDeveloperMode")] bool isDeveloperMode)
         {
@@ -76,6 +80,7 @@ namespace Game.Services.Progression
             _achievementEventBus = achievementEventBus;
             _dialogueService = dialogueService;
             _levelLoaderService = levelLoaderService;
+            _environmentEffectService = environmentEffectService;
             _levelConfig = levelConfig;
             _isDeveloperMode = isDeveloperMode;
         }
@@ -172,7 +177,15 @@ namespace Game.Services.Progression
         {
             if (!_isLevelReady) return;
 
-            _achievementEventBus.Publish(new LevelCompletedEvent(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId));
+            var hasRain = _environmentEffectService.IsEffectVisible<RainEffectView>();
+            var hasFog = _environmentEffectService.IsEffectVisible<EnvironmentEffectView>();
+
+            _achievementEventBus.Publish(new LevelCompletedEvent(
+                LevelContext.SelectedCategoryId,
+                LevelContext.SelectedLevelId,
+                hasRain,
+                hasFog));
+
             _contextService.SetContext(InputContext.LevelCompleted);
 
             if (_generationContext.IsEndlessModeActive.Value)

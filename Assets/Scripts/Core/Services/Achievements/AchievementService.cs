@@ -40,41 +40,67 @@ namespace Game.Services.Achievements
             }
 
             _eventBus.Subscribe<BlockPlacedEvent>()
-                .Subscribe(_ => HandleEvent(AchievementConditionType.PlaceBlocks))
+                .Subscribe(_ => HandleSimpleEvent(AchievementConditionType.PlaceBlocks))
                 .AddTo(_disposables);
 
             _eventBus.Subscribe<StructurePlacedEvent>()
-                .Subscribe(_ => HandleEvent(AchievementConditionType.PlaceStructures))
-                .AddTo(_disposables);
-
-            _eventBus.Subscribe<LevelCompletedEvent>()
-                .Subscribe(_ => HandleEvent(AchievementConditionType.CompleteLevels))
+                .Subscribe(_ => HandleSimpleEvent(AchievementConditionType.PlaceStructures))
                 .AddTo(_disposables);
 
             _eventBus.Subscribe<DecorSunkEvent>()
-                .Subscribe(_ => HandleEvent(AchievementConditionType.Quack))
+                .Subscribe(_ => HandleSimpleEvent(AchievementConditionType.Quack))
+                .AddTo(_disposables);
+
+            _eventBus.Subscribe<LevelCompletedEvent>()
+                .Subscribe(HandleLevelCompletedEvent)
                 .AddTo(_disposables);
         }
 
-        private void HandleEvent(AchievementConditionType conditionType)
+        private void HandleLevelCompletedEvent(LevelCompletedEvent evt)
+        {
+            foreach (var runtimeData in Achievements)
+            {
+                if (runtimeData.IsCompleted.Value) continue;
+
+                var conditionMet = runtimeData.Config.ConditionType switch
+                {
+                    AchievementConditionType.CompleteLevels => true,
+                    AchievementConditionType.CompleteWithRain => evt.HasRain && !evt.HasFog,
+                    AchievementConditionType.CompleteWithFog => !evt.HasRain && evt.HasFog,
+                    AchievementConditionType.CompleteWithRainAndFog => evt.HasRain && evt.HasFog,
+                    _ => false
+                };
+
+                if (!conditionMet) continue;
+
+                UpdateAndSaveProgress(runtimeData);
+            }
+        }
+
+        private void HandleSimpleEvent(AchievementConditionType conditionType)
         {
             foreach (var runtimeData in Achievements)
             {
                 if (runtimeData.Config.ConditionType != conditionType) continue;
                 if (runtimeData.IsCompleted.Value) continue;
 
-                var newProgress = runtimeData.CurrentProgress.Value + 1;
-                runtimeData.UpdateProgress(newProgress);
+                UpdateAndSaveProgress(runtimeData);
+            }
+        }
 
-                if (runtimeData.IsCompleted.Value)
-                {
-                    SaveState(runtimeData.Config.Id, newProgress, true);
-                    _onAchievementUnlocked.OnNext(runtimeData);
-                }
-                else
-                {
-                    SaveState(runtimeData.Config.Id, newProgress, false);
-                }
+        private void UpdateAndSaveProgress(AchievementRuntimeData runtimeData)
+        {
+            var newProgress = runtimeData.CurrentProgress.Value + 1;
+            runtimeData.UpdateProgress(newProgress);
+
+            if (runtimeData.IsCompleted.Value)
+            {
+                SaveState(runtimeData.Config.Id, newProgress, true);
+                _onAchievementUnlocked.OnNext(runtimeData);
+            }
+            else
+            {
+                SaveState(runtimeData.Config.Id, newProgress, false);
             }
         }
 
