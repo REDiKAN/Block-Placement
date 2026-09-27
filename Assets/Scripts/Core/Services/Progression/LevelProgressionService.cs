@@ -109,31 +109,61 @@ namespace Game.Services.Progression
                 })
                 .AddTo(_disposables);
 
-            var dialogueConfig = _levelConfig != null ? _levelConfig.DialogueConfig : null;
+            TryStartDialogueAndIntro(_levelConfig);
+        }
+
+        private void TryStartDialogueAndIntro(LevelConfig config)
+        {
+            var dialogueConfig = config != null ? config.DialogueConfig : null;
             if (dialogueConfig != null && dialogueConfig.Replicas != null && dialogueConfig.Replicas.Length > 0)
             {
                 _contextService.SetContext(InputContext.Dialogue);
                 _dialogueService.StartDialogue(dialogueConfig.Replicas);
+
                 _dialogueService.OnDialogueCompleted
+                    .Take(1)
                     .Subscribe(_ =>
                     {
                         _contextService.SetContext(InputContext.None);
                         _levelIntroAnimationService.Play();
                     })
                     .AddTo(_disposables);
-                return;
             }
+            else
+            {
+                _levelIntroAnimationService.Play();
+            }
+        }
 
-            _levelIntroAnimationService.Play();
+        private void TryStartDialogueSeamless(LevelConfig config)
+        {
+            var dialogueConfig = config != null ? config.DialogueConfig : null;
+            if (dialogueConfig != null && dialogueConfig.Replicas != null && dialogueConfig.Replicas.Length > 0)
+            {
+                _contextService.SetContext(InputContext.Dialogue);
+                _dialogueService.StartDialogue(dialogueConfig.Replicas);
+
+                _dialogueService.OnDialogueCompleted
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        _contextService.SetContext(InputContext.PlaceBlock);
+                    })
+                    .AddTo(_disposables);
+            }
+            else
+            {
+                _contextService.SetContext(InputContext.PlaceBlock);
+            }
         }
 
         public void RequestRestart()
         {
-            var config = LevelContext.SelectedLevelConfig;
+            var config = LevelContext.SelectedLevelConfig ?? _levelConfig;
             if (config is not null)
             {
                 _levelLoaderService.LoadLevel(config)
-                    .Subscribe(_ => _contextService.SetContext(InputContext.PlaceBlock))
+                    .Subscribe(_ => TryStartDialogueSeamless(config))
                     .AddTo(_disposables);
             }
         }
@@ -141,6 +171,7 @@ namespace Game.Services.Progression
         private void HandleLevelCompleted()
         {
             if (!_isLevelReady) return;
+
             _achievementEventBus.Publish(new LevelCompletedEvent(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId));
             _contextService.SetContext(InputContext.LevelCompleted);
 
@@ -158,6 +189,7 @@ namespace Game.Services.Progression
         private void HandleTimeExpired()
         {
             if (!_isLevelReady) return;
+
             _contextService.SetContext(InputContext.TimeExpired);
             _onLevelCompletedMessage.OnNext(TimeExpiredMessage);
         }
@@ -183,6 +215,7 @@ namespace Game.Services.Progression
             }
 
             _progressionService.MarkLevelCompleted(LevelContext.SelectedCategoryId, LevelContext.SelectedLevelId);
+
             var category = GetActiveCategory();
             var isLastLevel = category is null || category.Levels is null || LevelContext.SelectedLevelId >= category.Levels.Length - 1;
 
@@ -200,7 +233,7 @@ namespace Game.Services.Progression
                 {
                     LevelContext.SelectedLevelConfig = category.Levels[LevelContext.SelectedLevelId];
                     _levelLoaderService.LoadLevel(LevelContext.SelectedLevelConfig)
-                        .Subscribe(_ => _contextService.SetContext(InputContext.PlaceBlock))
+                        .Subscribe(_ => TryStartDialogueSeamless(LevelContext.SelectedLevelConfig))
                         .AddTo(_disposables);
                 }
             }
@@ -212,6 +245,7 @@ namespace Game.Services.Progression
                 LevelContext.SelectedCategoryId < 0 ||
                 LevelContext.SelectedCategoryId >= _catalog.Categories.Length)
                 return null;
+
             return _catalog.Categories[LevelContext.SelectedCategoryId];
         }
 

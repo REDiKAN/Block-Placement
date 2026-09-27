@@ -13,5 +13,6 @@ namespace Game.Services.Dialogue
         void StartDialogue(Game.Data.DialogueReplica[] replicas);
         void NotifyRevealCompleted();
         void AdvanceOrSkip();
+        void Reset();
     }
 }

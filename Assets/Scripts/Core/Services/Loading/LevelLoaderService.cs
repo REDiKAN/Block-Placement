@@ -26,7 +26,6 @@ namespace Game.Services.Loading
         private readonly ITimeLimitService _timeLimit;
         private readonly IInputContextService _inputContext;
         private readonly ILevelAutoTesterService _autoTesterService;
-
         private readonly CompositeDisposable _disposables = new();
 
         public LevelLoaderService(
@@ -56,15 +55,13 @@ namespace Game.Services.Loading
         public IObservable<Unit> LoadLevel(LevelConfig config)
         {
             _inputContext.SetContext(InputContext.Generating);
-
             return _transitionAnimation.PlayDisappearAnimation()
                 .Concat(Observable.Defer(() =>
                 {
                     ApplyLevelData(config);
                     _environmentEffects.Regenerate();
                     return _transitionAnimation.PlayAppearAnimation();
-                }))
-                .Do(_ => _inputContext.SetContext(InputContext.PlaceBlock));
+                }));
         }
 
         private void ApplyLevelData(LevelConfig config)

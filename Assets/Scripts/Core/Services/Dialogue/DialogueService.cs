@@ -31,8 +31,19 @@ namespace Game.Services.Dialogue
 
         public void Initialize() { }
 
+        public void Reset()
+        {
+            _replicas = null;
+            _currentIndex = 0;
+            _isCurrentReplicaFullyRevealed.Value = true;
+            _currentReplica.Value = string.Empty;
+            _currentAudioClip.Value = null;
+        }
+
         public void StartDialogue(DialogueReplica[] replicas)
         {
+            if (replicas == null || replicas.Length == 0) return;
+
             UnityEngine.Debug.Log($"[DialogueService] Started with {replicas.Length} replicas.");
             _replicas = replicas;
             _currentIndex = 0;
