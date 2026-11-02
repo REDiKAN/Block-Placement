@@ -12,7 +12,7 @@ namespace Game.Views.Menu
     public class CategoryButtonProgressView : MonoBehaviour
     {
         [field: SerializeField] private TextMeshProUGUI Label { get; set; }
-        [field: SerializeField] private Image IconImage { get; set; }
+        //[field: SerializeField] private Image IconImage { get; set; }
         [field: SerializeField] private Button Button { get; set; }
         [field: SerializeField] private Image ProgressImage { get; set; }
         [field: SerializeField] private TextMeshProUGUI ProgressLabel { get; set; }
@@ -33,10 +33,10 @@ namespace Game.Views.Menu
             {
                 ProgressImage.raycastTarget = false;
             }
-            if (IconImage is not null)
-            {
-                IconImage.raycastTarget = false;
-            }
+            //if (IconImage is not null)
+            //{
+            //    IconImage.raycastTarget = false;
+            //}
         }
 
         public void Initialize(CategoryConfig config, int categoryId, IProgressionService progressionService)
@@ -46,18 +46,18 @@ namespace Game.Views.Menu
 
             if (Label is not null) Label.text = config.Title;
 
-            if (IconImage is not null)
-            {
-                if (config.Icon is not null)
-                {
-                    IconImage.sprite = config.Icon;
-                    IconImage.gameObject.SetActive(true);
-                }
-                else
-                {
-                    IconImage.gameObject.SetActive(false);
-                }
-            }
+            //if (IconImage is not null)
+            //{
+            //    if (config.Icon is not null)
+            //    {
+            //        IconImage.sprite = config.Icon;
+            //        IconImage.gameObject.SetActive(true);
+            //    }
+            //    else
+            //    {
+            //        IconImage.gameObject.SetActive(false);
+            //    }
+            //}
 
             if (Button is not null)
             {

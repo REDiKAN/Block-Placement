@@ -53,7 +53,7 @@ GameObject:
   - component: {fileID: 7519691703729782038}
   - component: {fileID: 406958618940257590}
   m_Layer: 5
-  m_Name: CategoryButtonproggresPrefab
+  m_Name: CategoryButtonproggresPrefabOld
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
