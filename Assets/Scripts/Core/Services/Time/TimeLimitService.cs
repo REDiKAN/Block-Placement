@@ -2,12 +2,12 @@ using System;
 using UniRx;
 using UnityEngine;
 using Zenject;
+using Game.Core;
 using Game.Data;
 using Game.Services.Shadow;
 
 namespace Game.Services.Time
 {
-
     public class TimeLimitService : ITimeLimitService, IInitializable, IDisposable
     {
         public IReadOnlyReactiveProperty<float> RemainingTime => _remainingTime;
@@ -18,10 +18,8 @@ namespace Game.Services.Time
         private readonly ReactiveProperty<bool> _isRunning = new(false);
         private readonly Subject<Unit> _onTimeExpired = new();
         private readonly CompositeDisposable _disposables = new();
-
         private readonly IShadowValidationService _validationService;
         private readonly bool _isDeveloperMode;
-
         private LevelConfig _levelConfig;
         private float _initialTime;
 
@@ -41,8 +39,9 @@ namespace Game.Services.Time
                 .Subscribe(_ => StopTimer())
                 .AddTo(_disposables);
 
-            if (_isDeveloperMode) return;
+            if (_isDeveloperMode && !RankedContext.IsRankedModeActive) return;
             if (_levelConfig is null || !_levelConfig.IsTimeLimitEnabled || _levelConfig.TimeLimitSeconds <= 0f) return;
+
             StartTimer(_levelConfig.TimeLimitSeconds);
         }
 
@@ -50,8 +49,10 @@ namespace Game.Services.Time
         {
             StopTimer();
             _levelConfig = config;
-            if (_isDeveloperMode) return;
+
+            if (_isDeveloperMode && !RankedContext.IsRankedModeActive) return;
             if (_levelConfig is null || !_levelConfig.IsTimeLimitEnabled || _levelConfig.TimeLimitSeconds <= 0f) return;
+
             StartTimer(_levelConfig.TimeLimitSeconds);
         }
 

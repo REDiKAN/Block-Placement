@@ -94,6 +94,19 @@ namespace Game.Services.Progression
                 return;
             }
 
+            if (RankedContext.IsRankedModeActive)
+            {
+                _isLevelReady = true;
+                return;
+            }
+
+            if (_isDeveloperMode)
+            {
+                _isLevelReady = true;
+                _contextService.SetContext(InputContext.PlaceBlock);
+                return;
+            }
+
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelCompleted())
                 .AddTo(_disposables);
@@ -175,6 +188,7 @@ namespace Game.Services.Progression
 
         private void HandleLevelCompleted()
         {
+            if (RankedContext.IsRankedModeActive) return;
             if (!_isLevelReady) return;
 
             var hasRain = _environmentEffectService.IsEffectVisible<RainEffectView>();
@@ -201,6 +215,7 @@ namespace Game.Services.Progression
 
         private void HandleTimeExpired()
         {
+            if (RankedContext.IsRankedModeActive) return;
             if (!_isLevelReady) return;
 
             _contextService.SetContext(InputContext.TimeExpired);

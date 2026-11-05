@@ -1,5 +1,7 @@
+using System;
 using Game.Core;
 using Game.Data;
+using Game.Data.Ranked;
 using Game.Services.Achievements;
 using Game.Services.Animation;
 using Game.Services.Dev;
@@ -15,6 +17,7 @@ using Game.Services.Progression;
 using Game.Services.Raycast;
 using Game.Services.Registry;
 using Game.Services.Rotation;
+using Game.Services.Ranked;
 using Game.Services.Settings;
 using Game.Services.Shadow;
 using Game.Services.Time;
@@ -52,6 +55,10 @@ namespace Game.Installers
         [field: SerializeField] public FpsLimitConfig FpsLimitConfig { get; private set; }
         [field: SerializeField] public StructureInventoryAnimationConfig StructureInventoryAnimationConfig { get; private set; }
         [field: SerializeField] public FloatingDecorInteractionConfig FloatingDecorInteractionConfig { get; private set; }
+        [field: SerializeField] public RankedConfig RankedConfig { get; private set; }
+
+        private const int GridSize = 5;
+        private const int CellCount = GridSize * GridSize;
 
         public override void InstallBindings()
         {
@@ -64,7 +71,12 @@ namespace Game.Installers
             Container.BindInstance(GameCamera).WithId("GameCamera");
 
             var activeConfig = LevelContext.SelectedLevelConfig;
-            if (activeConfig is null)
+
+            if (RankedContext.IsRankedModeActive)
+            {
+                activeConfig = CreateEmptyRankedLevelConfig();
+            }
+            else if (activeConfig is null)
             {
                 activeConfig = LevelConfig;
                 if (LevelCatalog is not null && LevelCatalog.Categories is not null &&
@@ -81,7 +93,8 @@ namespace Game.Installers
 
             if (activeConfig is not null)
             {
-                Debug.Log($"[GameInstaller] Binding LevelConfig: {activeConfig.name}");
+                var configName = string.IsNullOrEmpty(activeConfig.name) ? "(Runtime Generated)" : activeConfig.name;
+                Debug.Log($"[GameInstaller] Binding LevelConfig: {configName}");
                 Container.BindInstance(activeConfig);
             }
             else
@@ -99,6 +112,8 @@ namespace Game.Installers
                 Container.BindInstance(StructureConfigs);
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
+            if (RankedConfig is not null)
+                Container.BindInstance(RankedConfig);
 
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
@@ -111,7 +126,6 @@ namespace Game.Installers
             if (DialogueBackgroundUIConfig is not null) Container.BindInstance(DialogueBackgroundUIConfig);
             if (SettingsConfig is not null) Container.BindInstance(SettingsConfig);
             if (FpsLimitConfig is not null) Container.BindInstance(FpsLimitConfig);
-
             if (StructureInventoryAnimationConfig is not null) Container.BindInstance(StructureInventoryAnimationConfig);
             if (FloatingDecorInteractionConfig is not null) Container.BindInstance(FloatingDecorInteractionConfig);
 
@@ -154,10 +168,41 @@ namespace Game.Installers
             Bind<LevelTransitionAnimationService>();
             Bind<LevelLoaderService>();
 
+            Bind<ArchetypeResolver>();
+            Bind<ProfileBuilder>();
+            Bind<SolverService>();
+            Bind<ShapeGenerator>();
+            Bind<QualityValidator>();
+            Bind<RankedLevelGeneratorService>();
+            Bind<RankedModeService>();
+
             Container.BindInterfacesTo<CascadeIntroStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<WaveFromCenterStrategy>().AsSingle().Lazy();
             Container.BindInterfacesTo<RowByRowStrategy>().AsSingle().Lazy();
+
             Container.Bind<AchievementToastView>().FromComponentInHierarchy().AsCached();
+        }
+
+        private LevelConfig CreateEmptyRankedLevelConfig()
+        {
+            var config = ScriptableObject.CreateInstance<LevelConfig>();
+
+            var emptyBlocks = Array.Empty<Vector3Int>();
+            var emptyFloor = new bool[CellCount];
+            Array.Fill(emptyFloor, true);
+
+            var emptyWallYZ = new WallData();
+            emptyWallYZ.SetDensities(new WallCellDensityData[CellCount]);
+
+            var emptyWallXY = new WallData();
+            emptyWallXY.SetDensities(new WallCellDensityData[CellCount]);
+
+            config.SetData(emptyBlocks, emptyFloor, emptyWallYZ, emptyWallXY);
+            config.SetBlockLimit(false, -1);
+            config.SetTimeLimit(false, -1f);
+            config.SetMode(GameMode.Blocks);
+
+            return config;
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

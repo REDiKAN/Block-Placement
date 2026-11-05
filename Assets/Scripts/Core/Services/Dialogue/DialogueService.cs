@@ -42,9 +42,12 @@ namespace Game.Services.Dialogue
 
         public void StartDialogue(DialogueReplica[] replicas)
         {
+            if (Game.Core.RankedContext.IsRankedModeActive) return;
+
             if (replicas == null || replicas.Length == 0) return;
 
             UnityEngine.Debug.Log($"[DialogueService] Started with {replicas.Length} replicas.");
+
             _replicas = replicas;
             _currentIndex = 0;
             _isCurrentReplicaFullyRevealed.Value = false;

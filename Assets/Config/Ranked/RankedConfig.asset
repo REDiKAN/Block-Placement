@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b390281e3f0d21745b3036952ed2745f, type: 3}
+  m_Name: RankedConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Ranked.RankedConfig
+  <StartingMmr>k__BackingField: 1000
+  <MinimumMmr>k__BackingField: 0
+  <MmrPlayerPrefsKey>k__BackingField: ranked_mmr
+  <LevelsPerMatch>k__BackingField: 5
+  <Level5Bonus>k__BackingField: 20
+  <PerfectRunBonus>k__BackingField: 50
+  <BaseReward>k__BackingField: 15
+  <RewardPerDifficulty>k__BackingField: 3
+  <TimeBonusMultiplier>k__BackingField: 20
+  <BaseTimerSeconds>k__BackingField: 120
+  <TimerDecayFactor>k__BackingField: 0.8
+  <MinimumTimerSeconds>k__BackingField: 40
+  <MaxGenerationAttempts>k__BackingField: 50
+  <MaxSolverSteps>k__BackingField: 1000
+  <MetricMatchThreshold>k__BackingField: 0.7
+  <BlockEfficiencyThreshold>k__BackingField: 0.9
+  <GridSize>k__BackingField: 5
+  <Level5PointsDivisor>k__BackingField: 200
+  <Level5MetricBonus>k__BackingField: 0.2
+  <ArchetypeProfiles>k__BackingField:
+  - <Archetype>k__BackingField: 0
+    <MinMmr>k__BackingField: 0
+    <MaxMmr>k__BackingField: 449
+    <BaseDifficulty>k__BackingField: 1
+    <Verticality>k__BackingField: 0.3
+    <OverhangRatio>k__BackingField: 0.1
+    <Ambiguity>k__BackingField: 0.2
+    <DensityComplexity>k__BackingField: 0
+    <Asymmetry>k__BackingField: 0.2
+    <Compactness>k__BackingField: 0.7
+    <MinBlockCount>k__BackingField: 8
+    <MaxBlockCount>k__BackingField: 12
+    <IsBlockLimitEnabled>k__BackingField: 0
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 0
+  - <Archetype>k__BackingField: 1
+    <MinMmr>k__BackingField: 500
+    <MaxMmr>k__BackingField: 999
+    <BaseDifficulty>k__BackingField: 3
+    <Verticality>k__BackingField: 0.5
+    <OverhangRatio>k__BackingField: 0.3
+    <Ambiguity>k__BackingField: 0.4
+    <DensityComplexity>k__BackingField: 0.3
+    <Asymmetry>k__BackingField: 0.5
+    <Compactness>k__BackingField: 0.6
+    <MinBlockCount>k__BackingField: 10
+    <MaxBlockCount>k__BackingField: 14
+    <IsBlockLimitEnabled>k__BackingField: 0
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 0
+  - <Archetype>k__BackingField: 2
+    <MinMmr>k__BackingField: 1000
+    <MaxMmr>k__BackingField: 1499
+    <BaseDifficulty>k__BackingField: 5
+    <Verticality>k__BackingField: 0.7
+    <OverhangRatio>k__BackingField: 0.5
+    <Ambiguity>k__BackingField: 0.6
+    <DensityComplexity>k__BackingField: 0.5
+    <Asymmetry>k__BackingField: 0.7
+    <Compactness>k__BackingField: 0.5
+    <MinBlockCount>k__BackingField: 10
+    <MaxBlockCount>k__BackingField: 14
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 3
+  - <Archetype>k__BackingField: 3
+    <MinMmr>k__BackingField: 1500
+    <MaxMmr>k__BackingField: 1999
+    <BaseDifficulty>k__BackingField: 7
+    <Verticality>k__BackingField: 0.8
+    <OverhangRatio>k__BackingField: 0.7
+    <Ambiguity>k__BackingField: 0.8
+    <DensityComplexity>k__BackingField: 0.7
+    <Asymmetry>k__BackingField: 0.8
+    <Compactness>k__BackingField: 0.4
+    <MinBlockCount>k__BackingField: 8
+    <MaxBlockCount>k__BackingField: 12
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 0
+  - <Archetype>k__BackingField: 4
+    <MinMmr>k__BackingField: 2000
+    <MaxMmr>k__BackingField: 2499
+    <BaseDifficulty>k__BackingField: 8
+    <Verticality>k__BackingField: 0.9
+    <OverhangRatio>k__BackingField: 0.85
+    <Ambiguity>k__BackingField: 0.9
+    <DensityComplexity>k__BackingField: 0.85
+    <Asymmetry>k__BackingField: 0.9
+    <Compactness>k__BackingField: 0.3
+    <MinBlockCount>k__BackingField: 8
+    <MaxBlockCount>k__BackingField: 12
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 0
+  - <Archetype>k__BackingField: 5
+    <MinMmr>k__BackingField: 2500
+    <MaxMmr>k__BackingField: 999999
+    <BaseDifficulty>k__BackingField: 10
+    <Verticality>k__BackingField: 1
+    <OverhangRatio>k__BackingField: 0.95
+    <Ambiguity>k__BackingField: 1
+    <DensityComplexity>k__BackingField: 1
+    <Asymmetry>k__BackingField: 1
+    <Compactness>k__BackingField: 0.2
+    <MinBlockCount>k__BackingField: 8
+    <MaxBlockCount>k__BackingField: 12
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 0

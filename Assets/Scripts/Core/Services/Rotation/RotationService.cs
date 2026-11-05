@@ -32,7 +32,6 @@ namespace Game.Services.Rotation
         private readonly RotationConfig _config;
         private readonly Transform _pivot;
         private readonly CompositeDisposable _disposables = new();
-
         private Vector3Int[] _currentInitialBlocks;
         private Tween _rotationTween;
         private int _lastAngle;
@@ -48,7 +47,9 @@ namespace Game.Services.Rotation
             _contextService = contextService;
             _config = config;
             _pivot = pivot;
-            _currentInitialBlocks = (Vector3Int[])levelConfig.InitialBlocks.Clone();
+            _currentInitialBlocks = levelConfig?.InitialBlocks is not null
+                ? (Vector3Int[])levelConfig.InitialBlocks.Clone()
+                : Array.Empty<Vector3Int>();
         }
 
         public void Initialize()
@@ -56,6 +57,7 @@ namespace Game.Services.Rotation
             _inputService.OnRotateLeft
                 .Subscribe(_ => Rotate(-90))
                 .AddTo(_disposables);
+
             _inputService.OnRotateRight
                 .Subscribe(_ => Rotate(90))
                 .AddTo(_disposables);
@@ -63,7 +65,9 @@ namespace Game.Services.Rotation
 
         public void LoadLevel(LevelConfig config)
         {
-            _currentInitialBlocks = (Vector3Int[])config.InitialBlocks.Clone();
+            _currentInitialBlocks = config?.InitialBlocks is not null
+                ? (Vector3Int[])config.InitialBlocks.Clone()
+                : Array.Empty<Vector3Int>();
             _pivot.localRotation = Quaternion.identity;
         }
 
@@ -86,6 +90,8 @@ namespace Game.Services.Rotation
 
         private void RotateInitialBlocks(int angle)
         {
+            if (_currentInitialBlocks is null) return;
+
             for (var i = 0; i < _currentInitialBlocks.Length; i++)
             {
                 var block = _currentInitialBlocks[i];
@@ -96,7 +102,9 @@ namespace Game.Services.Rotation
         }
 
         public void SetTargetBlocks(Vector3Int[] blocks) =>
-            _currentInitialBlocks = (Vector3Int[])blocks.Clone();
+            _currentInitialBlocks = blocks is not null
+                ? (Vector3Int[])blocks.Clone()
+                : Array.Empty<Vector3Int>();
 
         private void OnRotationComplete()
         {
