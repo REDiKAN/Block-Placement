@@ -20,9 +20,11 @@ namespace Game.Data.Ranked
         [field: SerializeField] public float HideDuration { get; private set; } = 0.5f;
         [field: SerializeField] public Ease HideEase { get; private set; } = Ease.InCubic;
 
-        [field: Title("MMR Animation", CustomColor.Red, CustomColor.Orange)]
-        [field: SerializeField] public float MmrPhaseDuration { get; private set; } = 0.5f;
-        [field: SerializeField] public float MmrTextSwapDuration { get; private set; } = 0.1f;
-        [field: SerializeField] public Ease MmrEase { get; private set; } = Ease.OutCubic;
+        [field: Title("Cascade Animation", CustomColor.Green, CustomColor.DarkGreen)]
+        [field: SerializeField, Range(10f, 200f)] public float PointsPerSecond { get; private set; } = 50f;
+        [field: SerializeField, Range(0.1f, 1f)] public float MinElementDuration { get; private set; } = 0.3f;
+        [field: SerializeField] public Ease CascadeEase { get; private set; } = Ease.Linear;
+        [field: SerializeField, Range(0.1f, 0.5f)] public float ElementFadeOutDuration { get; private set; } = 0.2f;
+        [field: SerializeField, Range(0.1f, 0.5f)] public float ListFadeInDuration { get; private set; } = 0.3f;
     }
 }

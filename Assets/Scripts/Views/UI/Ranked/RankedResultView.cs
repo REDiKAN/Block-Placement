@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UniRx;
@@ -17,11 +15,10 @@ namespace Game.Views.UI.Ranked
     public class RankedResultView : MonoBehaviour
     {
         [field: SerializeField] private GameObject RootObject { get; set; }
-        [field: SerializeField] private RectTransform WindowRectTransform { get; set; }
         [field: SerializeField] private CanvasGroup CanvasGroup { get; set; }
-        [field: SerializeField] private Image FillImage { get; set; }
-        [field: SerializeField] private TextMeshProUGUI MinMmrText { get; set; }
-        [field: SerializeField] private TextMeshProUGUI MaxMmrText { get; set; }
+        [field: SerializeField] private TextMeshProUGUI CurrentMmrText { get; set; }
+        [field: SerializeField] private RankedTransactionListView TransactionListView { get; set; }
+        [field: SerializeField] private RankedMmrProgressBarView ProgressBarView { get; set; }
         [field: SerializeField] private Button NewMatchButton { get; set; }
         [field: SerializeField] private Button ReturnButton { get; set; }
 
@@ -32,21 +29,11 @@ namespace Game.Views.UI.Ranked
         private readonly CompositeDisposable _disposables = new();
         private Sequence _showSequence;
         private Sequence _hideSequence;
-        private Tween _fillTween;
-        private Coroutine _mmrAnimationCoroutine;
-        private RankedMmrRange _displayedRange;
 
         private void Awake()
         {
             if (RootObject is not null)
                 RootObject.SetActive(false);
-
-            if (FillImage is not null)
-            {
-                FillImage.type = Image.Type.Filled;
-                FillImage.fillMethod = Image.FillMethod.Horizontal;
-                FillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
-            }
 
             if (CanvasGroup is not null)
             {
@@ -61,7 +48,6 @@ namespace Game.Views.UI.Ranked
                     .Subscribe(_ => OnNewMatchClicked())
                     .AddTo(_disposables);
             }
-
             if (ReturnButton is not null)
             {
                 ReturnButton.OnClickAsObservable()
@@ -80,135 +66,53 @@ namespace Game.Views.UI.Ranked
                 RootObject.SetActive(true);
 
             SetButtonsInteractable(false);
-            ApplyRange(RankedMmrScale.GetRange(result.OldMmr), result.OldMmr);
+
+            if (CurrentMmrText is not null)
+                CurrentMmrText.text = result.OldMmr.ToString();
+
+            if (ProgressBarView is not null)
+                ProgressBarView.SetInitialMmr(result.OldMmr);
+
+            if (TransactionListView is not null)
+                TransactionListView.Initialize(result.OldMmr, _rankedModeService.LevelResults.Value, result);
 
             PlayShowAnimation()
                 .OnComplete(() =>
                 {
-                    if (_mmrAnimationCoroutine != null)
-                        StopCoroutine(_mmrAnimationCoroutine);
+                    if (TransactionListView is null)
+                    {
+                        SetButtonsInteractable(true);
+                        return;
+                    }
 
-                    _mmrAnimationCoroutine = StartCoroutine(AnimateMmrChangeCoroutine(
-                        result.OldMmr,
-                        result.NewMmr,
-                        () => SetButtonsInteractable(true)));
+                    TransactionListView.PlayCascadeAnimation()
+                        .Subscribe(
+                            currentMmr =>
+                            {
+                                if (CurrentMmrText is not null)
+                                    CurrentMmrText.text = currentMmr.ToString();
+                                if (ProgressBarView is not null)
+                                    ProgressBarView.UpdateCurrentMmr(currentMmr);
+                            },
+                            () => SetButtonsInteractable(true))
+                        .AddTo(_disposables);
                 });
-        }
-
-        private IEnumerator AnimateMmrChangeCoroutine(int oldMmr, int newMmr, Action onComplete)
-        {
-            var finished = false;
-
-            try
-            {
-                var direction = newMmr >= oldMmr ? 1 : -1;
-                var currentMmr = oldMmr;
-
-                while (currentMmr != newMmr)
-                {
-                    var range = RankedMmrScale.GetSegmentRange(currentMmr, direction);
-                    var target = ResolveSegmentTarget(currentMmr, newMmr, direction);
-
-                    if (target == currentMmr) break;
-
-                    yield return AnimateFill(currentMmr, target, range);
-                    currentMmr = target;
-
-                    if (currentMmr == newMmr) break;
-
-                    yield return new WaitForSeconds(_config.MmrTextSwapDuration);
-                    ApplyRange(RankedMmrScale.GetSegmentRange(currentMmr, direction), currentMmr);
-                }
-
-                yield return EnsureFinalRange(newMmr);
-                finished = true;
-            }
-            finally
-            {
-                if (!finished)
-                    UnityEngine.Debug.LogWarning("[RankedResultView] MMR animation aborted unexpectedly");
-
-                onComplete?.Invoke();
-            }
-        }
-
-        private static int ResolveSegmentTarget(int currentMmr, int newMmr, int direction)
-        {
-            if (!RankedMmrScale.TryGetBreakpoint(currentMmr, direction, out var breakpoint))
-                return newMmr;
-
-            return direction > 0
-                ? breakpoint <= newMmr ? breakpoint : newMmr
-                : breakpoint >= newMmr ? breakpoint : newMmr;
-        }
-
-        private IEnumerator EnsureFinalRange(int mmr)
-        {
-            var range = RankedMmrScale.GetRange(mmr);
-
-            if (_displayedRange.Min == range.Min && _displayedRange.Max == range.Max)
-                yield break;
-
-            yield return new WaitForSeconds(_config.MmrTextSwapDuration);
-            ApplyRange(range, mmr);
-        }
-
-        private IEnumerator AnimateFill(int fromMmr, int toMmr, RankedMmrRange range)
-        {
-            if (FillImage is null) yield break;
-
-            var fromFill = range.CalculateFill(fromMmr);
-            var toFill = range.CalculateFill(toMmr);
-            var currentFill = fromFill;
-
-            FillImage.fillAmount = fromFill;
-
-            _fillTween = DOTween.To(
-                () => currentFill,
-                x =>
-                {
-                    currentFill = x;
-                    FillImage.fillAmount = x;
-                },
-                toFill,
-                _config.MmrPhaseDuration)
-                .SetEase(_config.MmrEase);
-
-            yield return _fillTween.WaitForCompletion();
-        }
-
-        private void ApplyRange(RankedMmrRange range, int mmr)
-        {
-            _displayedRange = range;
-
-            if (MinMmrText is not null)
-                MinMmrText.text = range.Min.ToString();
-
-            if (MaxMmrText is not null)
-                MaxMmrText.text = range.FormatMax();
-
-            if (FillImage is not null)
-                FillImage.fillAmount = range.CalculateFill(mmr);
         }
 
         private Sequence PlayShowAnimation()
         {
             _showSequence?.Kill();
-
             if (CanvasGroup is not null)
             {
                 CanvasGroup.alpha = 0f;
                 CanvasGroup.blocksRaycasts = true;
                 CanvasGroup.interactable = true;
             }
-
             _showSequence = DOTween.Sequence();
-
             if (CanvasGroup is not null)
             {
                 _showSequence.Append(CanvasGroup.DOFade(1f, _config.ShowDuration)
                     .SetEase(_config.ShowEase));
-
                 _showSequence.OnComplete(() =>
                 {
                     if (CanvasGroup is null) return;
@@ -216,34 +120,28 @@ namespace Game.Views.UI.Ranked
                     CanvasGroup.interactable = true;
                 });
             }
-
             return _showSequence;
         }
 
         private Sequence PlayHideAnimation()
         {
             _hideSequence?.Kill();
-
             if (CanvasGroup is not null)
             {
                 CanvasGroup.blocksRaycasts = false;
                 CanvasGroup.interactable = false;
             }
-
             _hideSequence = DOTween.Sequence();
-
             if (CanvasGroup is not null)
             {
                 _hideSequence.Append(CanvasGroup.DOFade(0f, _config.HideDuration)
                     .SetEase(_config.HideEase));
             }
-
             _hideSequence.OnComplete(() =>
             {
                 if (RootObject is not null)
                     RootObject.SetActive(false);
             });
-
             return _hideSequence;
         }
 
@@ -251,7 +149,6 @@ namespace Game.Views.UI.Ranked
         {
             if (NewMatchButton is not null)
                 NewMatchButton.interactable = interactable;
-
             if (ReturnButton is not null)
                 ReturnButton.interactable = interactable;
         }
@@ -259,7 +156,6 @@ namespace Game.Views.UI.Ranked
         private void OnNewMatchClicked()
         {
             SetButtonsInteractable(false);
-
             PlayHideAnimation()
                 .OnComplete(() =>
                 {
@@ -272,7 +168,6 @@ namespace Game.Views.UI.Ranked
         private void OnReturnToMenuClicked()
         {
             SetButtonsInteractable(false);
-
             PlayHideAnimation()
                 .OnComplete(() =>
                 {
@@ -286,11 +181,6 @@ namespace Game.Views.UI.Ranked
         {
             _showSequence?.Kill();
             _hideSequence?.Kill();
-            _fillTween?.Kill();
-
-            if (_mmrAnimationCoroutine != null)
-                StopCoroutine(_mmrAnimationCoroutine);
-
             _disposables?.Dispose();
         }
     }

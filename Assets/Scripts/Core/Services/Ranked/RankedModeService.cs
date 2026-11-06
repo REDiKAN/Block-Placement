@@ -13,7 +13,7 @@ using Zenject;
 
 namespace Game.Services.Ranked
 {
-    public class RankedModeService : IRankedModeService, IInitializable, IDisposable
+    public class RankedModeService : IRankedModeService, IInitializable, System.IDisposable
     {
         public IReadOnlyReactiveProperty<int> CurrentMmr => _currentMmr;
         public IReadOnlyReactiveProperty<int> MatchPoints => _matchPoints;

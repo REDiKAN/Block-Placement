@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using DG.Tweening;
 using TMPro;
@@ -26,17 +25,35 @@ namespace Game.Views.UI.Ranked
             }
         }
 
+        public void UpdateCurrentMmr(int mmr)
+        {
+            if (_currentTween is not null)
+            {
+                _currentTween.Kill();
+                _currentTween = null;
+            }
+            if (_animationCoroutine is not null)
+            {
+                StopCoroutine(_animationCoroutine);
+                _animationCoroutine = null;
+            }
+            var archetype = GetArchetypeIndex(mmr);
+            var range = GetArchetypeRange(archetype);
+            UpdateMmrText(range);
+            if (FillImage is not null)
+                FillImage.fillAmount = CalculateFillAmount(mmr, range.Min, range.Max);
+        }
+
         public void AnimateMmrChange(
             int oldMmr,
             int newMmr,
             float phaseDuration,
             float textSwapDuration,
             Ease ease,
-            Action onComplete)
+            System.Action onComplete)
         {
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
-
             _animationCoroutine = StartCoroutine(AnimateMmrChangeCoroutine(
                 oldMmr, newMmr, phaseDuration, textSwapDuration, ease, onComplete));
         }
@@ -47,13 +64,10 @@ namespace Game.Views.UI.Ranked
             float phaseDuration,
             float textSwapDuration,
             Ease ease,
-            Action onComplete)
+            System.Action onComplete)
         {
-            UnityEngine.Debug.Log($"[RankedMmrProgressBar] Start animation: {oldMmr} -> {newMmr}");
-
             var oldArchetype = GetArchetypeIndex(oldMmr);
             var newArchetype = GetArchetypeIndex(newMmr);
-
             if (oldArchetype == newArchetype)
             {
                 yield return AnimateWithinArchetype(oldMmr, newMmr, phaseDuration, ease);
@@ -63,41 +77,28 @@ namespace Game.Views.UI.Ranked
                 var direction = newArchetype > oldArchetype ? 1 : -1;
                 var currentArchetype = oldArchetype;
                 var currentMmr = oldMmr;
-
                 while (currentArchetype != newArchetype)
                 {
                     var nextArchetype = currentArchetype + direction;
                     var targetMmr = GetArchetypeBoundary(currentArchetype, direction);
-
-                    UnityEngine.Debug.Log($"[RankedMmrProgressBar] Phase: {currentMmr} -> {targetMmr} (arch {currentArchetype})");
                     yield return AnimateWithinArchetype(currentMmr, targetMmr, phaseDuration, ease);
                     currentMmr = targetMmr;
-
                     yield return new WaitForSeconds(textSwapDuration);
                     UpdateMmrText(GetArchetypeRange(nextArchetype));
                     currentArchetype = nextArchetype;
                 }
-
-                UnityEngine.Debug.Log($"[RankedMmrProgressBar] Final phase: {currentMmr} -> {newMmr}");
                 yield return AnimateWithinArchetype(currentMmr, newMmr, phaseDuration, ease);
             }
-
-            UnityEngine.Debug.Log("[RankedMmrProgressBar] Animation complete");
             onComplete?.Invoke();
         }
 
         private IEnumerator AnimateWithinArchetype(int fromMmr, int toMmr, float duration, Ease ease)
         {
             if (FillImage is null) yield break;
-
             var range = GetArchetypeRange(GetArchetypeIndex(fromMmr));
             var fromFill = CalculateFillAmount(fromMmr, range.Min, range.Max);
             var toFill = CalculateFillAmount(toMmr, range.Min, range.Max);
-
-            UnityEngine.Debug.Log($"[RankedMmrProgressBar] Fill: {fromFill:F3} -> {toFill:F3} (range {range.Min}-{range.Max})");
-
             FillImage.fillAmount = fromFill;
-
             var currentFill = fromFill;
             _currentTween = DOTween.To(
                 () => currentFill,
@@ -109,7 +110,6 @@ namespace Game.Views.UI.Ranked
                 toFill,
                 duration)
                 .SetEase(ease);
-
             yield return _currentTween.WaitForCompletion();
         }
 
@@ -159,7 +159,6 @@ namespace Game.Views.UI.Ranked
             var archetype = GetArchetypeIndex(mmr);
             var range = GetArchetypeRange(archetype);
             UpdateMmrText(range);
-
             if (FillImage is not null)
                 FillImage.fillAmount = CalculateFillAmount(mmr, range.Min, range.Max);
         }
