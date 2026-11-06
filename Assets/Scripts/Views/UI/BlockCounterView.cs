@@ -4,6 +4,7 @@ using UnityEngine;
 using Zenject;
 using Game.Services.Animation;
 using Game.Services.Placement;
+using Game.Services.Ranked;
 
 namespace Game.Views.UI
 {
@@ -17,6 +18,7 @@ namespace Game.Views.UI
 
         [Inject] private IBlockPlacementService _placementService;
         [Inject] private IShakeAnimationService _shakeService;
+        [InjectOptional] private readonly IRankedModeService _rankedModeService;
 
         private readonly CompositeDisposable _disposables = new();
         private bool _lastIsEnabled;
@@ -26,6 +28,13 @@ namespace Game.Views.UI
             _placementService.RemainingBlocks
                 .Subscribe(UpdateCounter)
                 .AddTo(_disposables);
+
+            if (_rankedModeService is not null)
+            {
+                _rankedModeService.OnMatchEnded
+                    .Subscribe(_ => HideCounter())
+                    .AddTo(_disposables);
+            }
         }
 
         private void UpdateCounter((bool IsEnabled, int Remaining) data)
@@ -42,6 +51,12 @@ namespace Game.Views.UI
                 _shakeService.Shake(ShakeTarget, ShakeDuration, ShakeStrength);
 
             _lastIsEnabled = data.IsEnabled;
+        }
+
+        private void HideCounter()
+        {
+            if (RootObject is not null)
+                RootObject.SetActive(false);
         }
 
         private void OnDestroy() => _disposables?.Dispose();

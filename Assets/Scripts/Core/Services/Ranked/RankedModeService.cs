@@ -2,13 +2,13 @@ using System;
 using UniRx;
 using UnityEngine;
 using Zenject;
-using Game.Data.Ranked;
-using Game.Services.Loading;
-using Game.Services.Time;
-using Game.Services.Shadow;
-using Game.Services.Input;
 using Game.Core;
 using Game.Data;
+using Game.Data.Ranked;
+using Game.Services.Input;
+using Game.Services.Loading;
+using Game.Services.Shadow;
+using Game.Services.Time;
 
 namespace Game.Services.Ranked
 {
@@ -32,7 +32,7 @@ namespace Game.Services.Ranked
 
         private readonly Subject<Unit> _onMatchStarted = new();
         private readonly Subject<RankedLevelResult> _onLevelCompleted = new();
-        private readonly Subject<RankedMatchResult> _onMatchEnded = new();
+        private readonly ReplaySubject<RankedMatchResult> _onMatchEnded = new(1);
 
         private readonly CompositeDisposable _disposables = new();
         private readonly CompositeDisposable _matchDisposables = new();
@@ -82,6 +82,7 @@ namespace Game.Services.Ranked
 
         public void StartMatch()
         {
+            _contextService.SetContext(InputContext.Generating);
             RankedContext.StartMatch(_currentMmr.Value);
             _matchPoints.Value = 0;
             _currentMatchLevel.Value = 1;
@@ -169,6 +170,8 @@ namespace Game.Services.Ranked
 
         public void EndMatch()
         {
+            _contextService.SetContext(InputContext.RankedResult);
+
             if (!_isMatchActive.Value) return;
 
             _isMatchActive.Value = false;
@@ -196,7 +199,6 @@ namespace Game.Services.Ranked
                 RankedContext.LevelsFailed);
 
             _onMatchEnded.OnNext(matchResult);
-            RankedContext.Reset();
         }
 
         public void AbortMatch()
@@ -222,7 +224,8 @@ namespace Game.Services.Ranked
             return Mathf.RoundToInt(baseReward + timeBonus);
         }
 
-        private int CalculatePenalty(int difficulty) => -(_config.BaseReward + (int)(difficulty * _config.RewardPerDifficulty));
+        private int CalculatePenalty(int difficulty) =>
+            -(_config.BaseReward + (int)(difficulty * _config.RewardPerDifficulty));
 
         public void Dispose()
         {

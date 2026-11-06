@@ -94,7 +94,7 @@ MonoBehaviour:
     <BlockLimitPadding>k__BackingField: 0
   - <Archetype>k__BackingField: 4
     <MinMmr>k__BackingField: 2000
-    <MaxMmr>k__BackingField: 2499
+    <MaxMmr>k__BackingField: 2999
     <BaseDifficulty>k__BackingField: 8
     <Verticality>k__BackingField: 0.9
     <OverhangRatio>k__BackingField: 0.85
@@ -108,7 +108,7 @@ MonoBehaviour:
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 0
   - <Archetype>k__BackingField: 5
-    <MinMmr>k__BackingField: 2500
+    <MinMmr>k__BackingField: 3000
     <MaxMmr>k__BackingField: 999999
     <BaseDifficulty>k__BackingField: 10
     <Verticality>k__BackingField: 1

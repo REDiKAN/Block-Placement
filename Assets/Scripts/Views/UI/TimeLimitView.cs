@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using Game.Services.Time;
+using Game.Services.Ranked;
 
 namespace Game.Views.UI
 {
@@ -17,6 +18,7 @@ namespace Game.Views.UI
         [field: SerializeField] private float ColorTransitionDuration { get; set; } = 0.5f;
 
         [Inject] private readonly ITimeLimitService _timeLimitService;
+        [InjectOptional] private readonly IRankedModeService _rankedModeService;
 
         private static readonly Color FullColor = new(0.2f, 0.8f, 0.2f, 1f);
         private static readonly Color HalfColor = new(0.9f, 0.8f, 0.1f, 1f);
@@ -37,6 +39,13 @@ namespace Game.Views.UI
             _timeLimitService.RemainingTime
                 .Subscribe(UpdateTimeDisplay)
                 .AddTo(this);
+
+            if (_rankedModeService is not null)
+            {
+                _rankedModeService.OnMatchEnded
+                    .Subscribe(_ => HideTimer())
+                    .AddTo(this);
+            }
         }
 
         private void HandleRunningState(bool isRunning)
@@ -70,6 +79,12 @@ namespace Game.Views.UI
 
             _colorTween?.Kill();
             _colorTween = FillImage.DOColor(targetColor, ColorTransitionDuration);
+        }
+
+        private void HideTimer()
+        {
+            if (RootObject is not null)
+                RootObject.SetActive(false);
         }
 
         private void OnDestroy()

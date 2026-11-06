@@ -41,7 +41,6 @@ namespace Game.Services.Placement
         private readonly CompositeDisposable _disposables = new();
         private readonly Dictionary<Vector3Int, BlockView> _activeBlocks = new();
 
-
         private readonly IInputService _inputService;
         private readonly IRaycastService _raycastService;
         private readonly IGridService _gridService;
@@ -110,6 +109,7 @@ namespace Game.Services.Placement
         public void Initialize()
         {
             _materialPropertyBlock = new MaterialPropertyBlock();
+
             if (_previewBlock is not null)
             {
                 _previewRenderer = _previewBlock.GetComponentInChildren<Renderer>();
@@ -140,10 +140,9 @@ namespace Game.Services.Placement
             {
                 _gridService.SetCellOccupied(kvp.Key, false);
                 _poolService.Return(kvp.Value);
+
                 if (_isDeveloperMode)
-                {
                     _registryService.Unregister(kvp.Key, PlacedObjectType.Block);
-                }
             }
 
             _activeBlocks.Clear();
@@ -176,14 +175,13 @@ namespace Game.Services.Placement
         }
 
         private static bool IsInputAllowedForPlacement(InputContext context) =>
-            context is InputContext.PlaceBlock or InputContext.None;
+            (context is InputContext.PlaceBlock or InputContext.None) &&
+            context is not InputContext.RankedResult;
 
         private void OnPreviewSettingChanged(bool isEnabled)
         {
             if (!isEnabled && _previewBlock is not null)
-            {
                 _previewBlock.gameObject.SetActive(false);
-            }
         }
 
         private void UpdatePreview(Vector2 mousePosition)
@@ -267,15 +265,11 @@ namespace Game.Services.Placement
             _historyService.RecordPlacement(new PlacementRecord(new[] { cell }, config));
 
             if (_isDeveloperMode)
-            {
                 _registryService.Register(new PlacedObjectData(PlacedObjectType.Block, cell, identifier));
-            }
 
             var placeClip = config?.PlaceClip ?? _audioConfig?.DefaultPlaceClip;
             if (placeClip is not null)
-            {
                 _sfxService.Play(placeClip);
-            }
 
             if (_isLimitEnabled)
             {
@@ -322,15 +316,11 @@ namespace Game.Services.Placement
             _activeBlocks.Remove(cell);
 
             if (_isDeveloperMode)
-            {
                 _registryService.Unregister(cell, PlacedObjectType.Block);
-            }
 
             var removeClip = (record.Config as BlockConfig)?.RemoveClip ?? _audioConfig?.DefaultRemoveClip;
             if (removeClip is not null)
-            {
                 _sfxService.Play(removeClip);
-            }
 
             if (_isLimitEnabled)
             {
@@ -361,9 +351,7 @@ namespace Game.Services.Placement
 
             _activeBlocks.Clear();
             foreach (var kvp in newActiveBlocks)
-            {
                 _activeBlocks.Add(kvp.Key, kvp.Value);
-            }
 
             _gridService.Rotate(angle);
             _historyService.Rotate(angle, gridSize);

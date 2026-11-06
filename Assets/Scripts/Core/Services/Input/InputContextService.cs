@@ -13,7 +13,8 @@ namespace Game.Services.Input
         Paused,
         Generating,
         TimeExpired,
-        Dialogue
+        Dialogue,
+        RankedResult
     }
 
     public interface IInputContextService

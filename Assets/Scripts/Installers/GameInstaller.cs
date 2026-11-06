@@ -56,6 +56,7 @@ namespace Game.Installers
         [field: SerializeField] public StructureInventoryAnimationConfig StructureInventoryAnimationConfig { get; private set; }
         [field: SerializeField] public FloatingDecorInteractionConfig FloatingDecorInteractionConfig { get; private set; }
         [field: SerializeField] public RankedConfig RankedConfig { get; private set; }
+        [field: SerializeField] public RankedResultUIConfig RankedResultUIConfig { get; private set; }
 
         private const int GridSize = 5;
         private const int CellCount = GridSize * GridSize;
@@ -102,6 +103,7 @@ namespace Game.Installers
                 Debug.LogError("[GameInstaller] CRITICAL: activeConfig is NULL! Binding nothing.");
             }
 
+            Container.BindInstance(RankedResultUIConfig);
             Container.BindInstance(RaycastConfig);
             Container.BindInstance(IsDeveloperMode).WithId("IsDeveloperMode");
             Container.BindInstance(LevelCatalog);
