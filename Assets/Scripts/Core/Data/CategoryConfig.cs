@@ -14,5 +14,6 @@ namespace Game.Data
         [field: Title("Progression", CustomColor.Green, CustomColor.DarkGreen)]
         [field: SerializeField] public bool IsSequential { get; private set; }
         [field: SerializeField] public bool IsCustomGenerator { get; private set; }
+        [field: SerializeField] public bool IsRankedMode { get; private set; }
     }
 }

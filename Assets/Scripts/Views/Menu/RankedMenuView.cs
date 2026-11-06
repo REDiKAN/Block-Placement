@@ -1,12 +1,13 @@
-using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Zenject;
+using TMPro;
 using Game.Core;
-using Game.Data.Ranked;
 using Game.Services.Menu;
+using Game.Services.Ranked;
+using Game.Data.Ranked;
 
 namespace Game.Views.Menu
 {
@@ -15,15 +16,45 @@ namespace Game.Views.Menu
         [field: SerializeField] private Button PlayRankedButton { get; set; }
         [field: SerializeField] private TextMeshProUGUI MmrText { get; set; }
         [field: SerializeField] private Button BackButton { get; set; }
-        [field: SerializeField] private RankedConfig RankedConfig { get; set; }
 
         [Inject] private readonly IMenuNavigationService _navigationService;
+        [InjectOptional] private readonly IRankedModeService _rankedModeService;
+        [InjectOptional] private readonly RankedConfig _rankedConfig;
 
         private readonly CompositeDisposable _disposables = new();
 
         private void Start()
         {
-            UpdateMmrDisplay();
+            if (_navigationService is not null)
+            {
+                _navigationService.CurrentView
+                    .Subscribe(view => gameObject.SetActive(view == MenuView.RankedMenu))
+                    .AddTo(_disposables);
+            }
+
+            int currentMmr = 1000;
+            string mmrKey = "ranked_mmr";
+            int defaultMmr = 1000;
+
+            if (_rankedConfig is not null)
+            {
+                mmrKey = string.IsNullOrEmpty(_rankedConfig.MmrPlayerPrefsKey) ? "ranked_mmr" : _rankedConfig.MmrPlayerPrefsKey;
+                defaultMmr = _rankedConfig.StartingMmr;
+            }
+
+            if (_rankedModeService is not null)
+            {
+                currentMmr = _rankedModeService.LoadSavedMmr();
+                _rankedModeService.CurrentMmr
+                    .Subscribe(UpdateMmrDisplay)
+                    .AddTo(_disposables);
+            }
+            else
+            {
+                currentMmr = PlayerPrefs.GetInt(mmrKey, defaultMmr);
+            }
+
+            UpdateMmrDisplay(currentMmr);
 
             if (PlayRankedButton is not null)
             {
@@ -35,31 +66,22 @@ namespace Game.Views.Menu
             if (BackButton is not null && _navigationService is not null)
             {
                 BackButton.OnClickAsObservable()
-                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.MainMenu))
+                    .Subscribe(_ => _navigationService.NavigateTo(MenuView.CategoryList))
                     .AddTo(_disposables);
             }
         }
 
-        private void UpdateMmrDisplay()
+        private void UpdateMmrDisplay(int mmr)
         {
-            var key = RankedConfig is not null ? RankedConfig.MmrPlayerPrefsKey : "ranked_mmr";
-            var defaultMmr = RankedConfig is not null ? RankedConfig.StartingMmr : 1000;
-            var mmr = PlayerPrefs.GetInt(key, defaultMmr);
-
             if (MmrText is not null)
                 MmrText.text = $"MMR: {mmr}";
         }
 
         private void StartRankedMatch()
         {
-            var key = RankedConfig is not null ? RankedConfig.MmrPlayerPrefsKey : "ranked_mmr";
-            var defaultMmr = RankedConfig is not null ? RankedConfig.StartingMmr : 1000;
-
             RankedContext.IsRankedModeActive = true;
-            RankedContext.PlayerMmr = PlayerPrefs.GetInt(key, defaultMmr);
             EndlessContext.IsEndlessModeActive = false;
             LevelContext.SelectedLevelConfig = null;
-
             SceneManager.LoadScene("GameScene");
         }
 

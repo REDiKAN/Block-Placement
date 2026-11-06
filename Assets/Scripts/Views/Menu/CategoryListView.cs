@@ -49,6 +49,7 @@ namespace Game.Views.Menu
             {
                 var config = _catalog.Categories[i];
                 if (config is null) continue;
+
                 var capturedIndex = i;
 
                 if (config.IsSequential && ButtonProgressPrefab is not null)
@@ -56,6 +57,7 @@ namespace Game.Views.Menu
                     var button = Instantiate(ButtonProgressPrefab, Content);
                     button.Initialize(config, capturedIndex, _progressionService);
                     _buttons.Add(button);
+
                     button.OnClick
                         .Subscribe(_ => SelectCategory(config))
                         .AddTo(_disposables);
@@ -65,6 +67,7 @@ namespace Game.Views.Menu
                     var button = Instantiate(ButtonPrefab, Content);
                     button.Initialize(config);
                     _buttons.Add(button);
+
                     button.OnClick
                         .Subscribe(_ => SelectCategory(config))
                         .AddTo(_disposables);
@@ -74,6 +77,12 @@ namespace Game.Views.Menu
 
         private void SelectCategory(CategoryConfig config)
         {
+            if (config.IsRankedMode)
+            {
+                _navigationService.NavigateTo(MenuView.RankedMenu);
+                return;
+            }
+
             if (config.IsCustomGenerator)
             {
                 _navigationService.NavigateTo(MenuView.CustomSettings);

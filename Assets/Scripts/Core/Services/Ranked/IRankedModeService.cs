@@ -1,7 +1,6 @@
-using Game.Services.Time;
 using System;
+using System.Collections.Generic;
 using UniRx;
-using Zenject;
 
 namespace Game.Services.Ranked
 {
@@ -70,12 +69,12 @@ namespace Game.Services.Ranked
         IReadOnlyReactiveProperty<int> CurrentMatchLevel { get; }
         IReadOnlyReactiveProperty<bool> IsMatchActive { get; }
         IReadOnlyReactiveProperty<bool> IsLevel5Completed { get; }
-
+        IReadOnlyReactiveProperty<IReadOnlyList<RankedLevelResult>> LevelResults { get; }
         IObservable<Unit> OnMatchStarted { get; }
         IObservable<RankedLevelResult> OnLevelCompleted { get; }
         IObservable<RankedMatchResult> OnMatchEnded { get; }
-
         void StartMatch();
+        void ConfirmPreRoundSummary();
         void CompleteLevel(bool success, float remainingTime, float totalTime);
         void EndMatch();
         void AbortMatch();

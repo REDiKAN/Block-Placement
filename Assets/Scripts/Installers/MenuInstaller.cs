@@ -1,4 +1,5 @@
 using Game.Data;
+using Game.Data.Ranked;
 using Game.Services.Achievements;
 using Game.Services.Generation;
 using Game.Services.Menu;
@@ -12,7 +13,7 @@ namespace Game.Installers
     {
         [field: SerializeField] public LevelCatalog Catalog { get; private set; }
         [field: SerializeField] public AchievementConfig[] AchievementConfigs { get; private set; }
-
+        [field: SerializeField] private RankedConfig RankedConfig { get; set; }
 
         public override void InstallBindings()
         {
@@ -20,6 +21,10 @@ namespace Game.Installers
                 Container.BindInstance(AchievementConfigs);
 
             Container.BindInstance(Catalog);
+
+            if (RankedConfig is not null)
+                Container.BindInstance(RankedConfig);
+
             Bind<MenuNavigationService>();
             Bind<PreviewService>();
             Bind<CategoryContextService>();
@@ -28,7 +33,6 @@ namespace Game.Installers
 
             Container.BindInterfacesTo<AchievementEventBus>().AsCached();
             Container.BindInterfacesTo<AchievementService>().AsCached();
-
         }
 
         private void Bind<TImplementation>() where TImplementation : class =>

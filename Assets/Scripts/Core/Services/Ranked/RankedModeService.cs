@@ -1,7 +1,3 @@
-using System;
-using UniRx;
-using UnityEngine;
-using Zenject;
 using Game.Core;
 using Game.Data;
 using Game.Data.Ranked;
@@ -9,6 +5,11 @@ using Game.Services.Input;
 using Game.Services.Loading;
 using Game.Services.Shadow;
 using Game.Services.Time;
+using System;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
+using Zenject;
 
 namespace Game.Services.Ranked
 {
@@ -19,7 +20,7 @@ namespace Game.Services.Ranked
         public IReadOnlyReactiveProperty<int> CurrentMatchLevel => _currentMatchLevel;
         public IReadOnlyReactiveProperty<bool> IsMatchActive => _isMatchActive;
         public IReadOnlyReactiveProperty<bool> IsLevel5Completed => _isLevel5Completed;
-
+        public IReadOnlyReactiveProperty<IReadOnlyList<RankedLevelResult>> LevelResults => _levelResults;
         public IObservable<Unit> OnMatchStarted => _onMatchStarted;
         public IObservable<RankedLevelResult> OnLevelCompleted => _onLevelCompleted;
         public IObservable<RankedMatchResult> OnMatchEnded => _onMatchEnded;
@@ -29,11 +30,10 @@ namespace Game.Services.Ranked
         private readonly ReactiveProperty<int> _currentMatchLevel = new();
         private readonly ReactiveProperty<bool> _isMatchActive = new();
         private readonly ReactiveProperty<bool> _isLevel5Completed = new();
-
+        private readonly ReactiveProperty<IReadOnlyList<RankedLevelResult>> _levelResults = new(new List<RankedLevelResult>());
         private readonly Subject<Unit> _onMatchStarted = new();
         private readonly Subject<RankedLevelResult> _onLevelCompleted = new();
         private readonly ReplaySubject<RankedMatchResult> _onMatchEnded = new(1);
-
         private readonly CompositeDisposable _disposables = new();
         private readonly CompositeDisposable _matchDisposables = new();
 
@@ -45,6 +45,8 @@ namespace Game.Services.Ranked
         private readonly IProfileBuilder _profileBuilder;
         private readonly IArchetypeResolver _archetypeResolver;
         private readonly IInputContextService _contextService;
+
+        private LevelConfig _pendingLevelConfig;
 
         public RankedModeService(
             RankedConfig config,
@@ -69,7 +71,6 @@ namespace Game.Services.Ranked
         public void Initialize()
         {
             _currentMmr.Value = LoadSavedMmr();
-
             if (RankedContext.IsRankedModeActive)
             {
                 Observable.NextFrame(FrameCountType.EndOfFrame)
@@ -82,16 +83,17 @@ namespace Game.Services.Ranked
 
         public void StartMatch()
         {
-            _contextService.SetContext(InputContext.Generating);
+            _contextService.SetContext(InputContext.RankedResult);
             RankedContext.StartMatch(_currentMmr.Value);
             _matchPoints.Value = 0;
             _currentMatchLevel.Value = 1;
             _isLevel5Completed.Value = false;
             _isMatchActive.Value = true;
+            _levelResults.Value = new List<RankedLevelResult>();
             _matchDisposables.Clear();
-
             SubscribeToLevelEvents();
-            LoadNextLevel();
+
+            PrepareNextLevel();
             _onMatchStarted.OnNext(Unit.Default);
         }
 
@@ -100,7 +102,6 @@ namespace Game.Services.Ranked
             _validationService.OnLevelCompleted
                 .Subscribe(_ => HandleLevelEnd(true))
                 .AddTo(_matchDisposables);
-
             _timeLimitService.OnTimeExpired
                 .Subscribe(_ => HandleLevelEnd(false))
                 .AddTo(_matchDisposables);
@@ -111,13 +112,11 @@ namespace Game.Services.Ranked
         private void HandleLevelEnd(bool success)
         {
             if (!_isMatchActive.Value) return;
-
             var matchLevel = _currentMatchLevel.Value;
             var archetype = _archetypeResolver.Resolve(_currentMmr.Value);
             var difficulty = _profileBuilder.CalculateDifficulty(archetype, matchLevel, _matchPoints.Value);
             var totalTime = _profileBuilder.CalculateTimeLimit(difficulty);
             var remainingTime = _timeLimitService.RemainingTime.Value;
-
             var pointsDelta = success
                 ? CalculateReward(difficulty, remainingTime, totalTime)
                 : CalculatePenalty(difficulty);
@@ -136,6 +135,9 @@ namespace Game.Services.Ranked
                 remainingTime,
                 totalTime);
 
+            var currentList = new List<RankedLevelResult>(_levelResults.Value) { result };
+            _levelResults.Value = currentList;
+
             _onLevelCompleted.OnNext(result);
 
             if (success) RankedContext.LevelsCompleted++;
@@ -149,19 +151,25 @@ namespace Game.Services.Ranked
             {
                 _currentMatchLevel.Value++;
                 RankedContext.CurrentMatchLevel = _currentMatchLevel.Value;
-                LoadNextLevel();
+                PrepareNextLevel();
             }
         }
 
-        private void LoadNextLevel()
+        private void PrepareNextLevel()
         {
-            _contextService.SetContext(InputContext.Generating);
             var mmr = _currentMmr.Value;
             var level = _currentMatchLevel.Value;
             var points = _matchPoints.Value;
+            _pendingLevelConfig = _generatorService.GenerateLevel(mmr, level, points);
+            LevelContext.SelectedLevelConfig = _pendingLevelConfig;
+            _contextService.SetContext(InputContext.RankedResult);
+        }
 
-            var config = _generatorService.GenerateLevel(mmr, level, points);
-            LevelContext.SelectedLevelConfig = config;
+        public void ConfirmPreRoundSummary()
+        {
+            if (_pendingLevelConfig is null || !_isMatchActive.Value) return;
+            var config = _pendingLevelConfig;
+            _pendingLevelConfig = null;
 
             _levelLoaderService.LoadLevel(config)
                 .Subscribe(_ => _contextService.SetContext(InputContext.PlaceBlock))
@@ -171,24 +179,19 @@ namespace Game.Services.Ranked
         public void EndMatch()
         {
             _contextService.SetContext(InputContext.RankedResult);
-
             if (!_isMatchActive.Value) return;
-
             _isMatchActive.Value = false;
             _matchDisposables.Clear();
-
+            _pendingLevelConfig = null;
             var oldMmr = _currentMmr.Value;
             var matchPoints = _matchPoints.Value;
             var level5Bonus = _isLevel5Completed.Value ? _config.Level5Bonus : 0;
             var perfectRunBonus = RankedContext.IsPerfectRun ? _config.PerfectRunBonus : 0;
-
             var newMmr = Mathf.Max(_config.MinimumMmr, oldMmr + matchPoints + level5Bonus + perfectRunBonus);
-
             _currentMmr.Value = newMmr;
             RankedContext.PlayerMmr = newMmr;
             PlayerPrefs.SetInt(_config.MmrPlayerPrefsKey, newMmr);
             PlayerPrefs.Save();
-
             var matchResult = new RankedMatchResult(
                 oldMmr,
                 newMmr,
@@ -197,14 +200,13 @@ namespace Game.Services.Ranked
                 perfectRunBonus,
                 RankedContext.LevelsCompleted,
                 RankedContext.LevelsFailed);
-
             _onMatchEnded.OnNext(matchResult);
         }
 
         public void AbortMatch()
         {
             if (!_isMatchActive.Value) return;
-
+            _pendingLevelConfig = null;
             while (_currentMatchLevel.Value <= _config.LevelsPerMatch)
             {
                 var archetype = _archetypeResolver.Resolve(_currentMmr.Value);
@@ -213,7 +215,6 @@ namespace Game.Services.Ranked
                 RankedContext.LevelsFailed++;
                 _currentMatchLevel.Value++;
             }
-
             EndMatch();
         }
 
