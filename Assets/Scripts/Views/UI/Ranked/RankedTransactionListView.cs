@@ -17,18 +17,23 @@ namespace Game.Views.UI.Ranked
         [field: SerializeField] private ScrollRect ScrollRect { get; set; }
         [field: SerializeField] private RectTransform Content { get; set; }
         [field: SerializeField] private Transform SpawnParent { get; set; }
-        [field: SerializeField] private RankedTransactionItemView ItemPrefab { get; set; }
         [field: SerializeField] private TextMeshProUGUI StartingMmrText { get; set; }
+
+        [field: SerializeField] private RankedTransactionItemView WinItemPrefab { get; set; }
+        [field: SerializeField] private RankedTransactionItemView LossItemPrefab { get; set; }
+        [field: SerializeField] private RankedTransactionItemView BonusItemPrefab { get; set; }
 
         [Inject] private readonly RankedResultUIConfig _config;
 
-        private readonly Queue<RankedTransactionItemView> _itemPool = new();
+        private readonly Queue<RankedTransactionItemView> _winPool = new();
+        private readonly Queue<RankedTransactionItemView> _lossPool = new();
+        private readonly Queue<RankedTransactionItemView> _bonusPool = new();
         private readonly List<RankedTransactionItemView> _activeItems = new();
 
         private int _startMmr;
-        private Color _winColor = new(0.2f, 0.8f, 0.2f, 1f);
-        private Color _lossColor = new(0.9f, 0.2f, 0.2f, 1f);
-        private Color _bonusColor = new(1f, 0.85f, 0.2f, 1f);
+        private readonly Color _winColor = new(0.2f, 0.8f, 0.2f, 1f);
+        private readonly Color _lossColor = new(0.9f, 0.2f, 0.2f, 1f);
+        private readonly Color _bonusColor = new(1f, 0.85f, 0.2f, 1f);
 
         public void Initialize(int startMmr, IReadOnlyList<RankedLevelResult> results, RankedMatchResult matchResult)
         {
@@ -42,17 +47,22 @@ namespace Game.Views.UI.Ranked
             {
                 foreach (var result in results)
                 {
-                    var status = result.IsCompleted ? "Win" : "Defeat";
+                    var isWin = result.IsCompleted;
+                    var status = isWin ? "Win" : "Defeat";
                     var label = $"{status} lvl {result.MatchLevel}";
-                    var color = result.PointsDelta >= 0 ? _winColor : _lossColor;
-                    AddItem(label, result.PointsDelta, color);
+                    var color = isWin ? _winColor : _lossColor;
+                    var prefab = isWin ? WinItemPrefab : LossItemPrefab;
+                    var type = isWin ? TransactionType.Win : TransactionType.Loss;
+
+                    AddItem(prefab, type, label, result.PointsDelta, color);
                 }
             }
 
             if (matchResult.Level5Bonus > 0)
-                AddItem("Level 5 Bonus", matchResult.Level5Bonus, _bonusColor);
+                AddItem(BonusItemPrefab, TransactionType.Bonus, "Level 5 Bonus", matchResult.Level5Bonus, _bonusColor);
+
             if (matchResult.PerfectRunBonus > 0)
-                AddItem("Perfect Run Bonus", matchResult.PerfectRunBonus, _bonusColor);
+                AddItem(BonusItemPrefab, TransactionType.Bonus, "Perfect Run Bonus", matchResult.PerfectRunBonus, _bonusColor);
         }
 
         public IObservable<int> PlayCascadeAnimation()
@@ -74,6 +84,7 @@ namespace Game.Views.UI.Ranked
                         observer.OnCompleted();
                         return;
                     }
+
                     var item = _activeItems[index];
                     item.AnimateTransfer(
                         _config.PointsPerSecond,
@@ -93,21 +104,26 @@ namespace Game.Views.UI.Ranked
                             })
                         .AddTo(compositeDisposable);
                 };
-                processNext();
 
+                processNext();
                 return compositeDisposable;
             });
         }
 
-        private void AddItem(string label, int points, Color color)
+        private void AddItem(RankedTransactionItemView prefab, TransactionType type, string label, int points, Color color)
         {
-            var item = GetPooledItem();
+            if (prefab is null) return;
+
+            var item = GetPooledItem(prefab, type);
             if (item is null) return;
+
             item.Initialize(label, points, color);
             item.gameObject.SetActive(true);
+
             var parent = SpawnParent != null ? SpawnParent : Content;
             if (parent is not null && item.transform.parent != parent)
                 item.transform.SetParent(parent, false);
+
             _activeItems.Add(item);
         }
 
@@ -116,19 +132,27 @@ namespace Game.Views.UI.Ranked
             if (item is null) return;
             item.ResetState();
             _activeItems.Remove(item);
-            _itemPool.Enqueue(item);
+            GetPool(item.Type).Enqueue(item);
         }
 
-        private RankedTransactionItemView GetPooledItem()
+        private RankedTransactionItemView GetPooledItem(RankedTransactionItemView prefab, TransactionType type)
         {
-            if (_itemPool.Count > 0)
-                return _itemPool.Dequeue();
-            if (ItemPrefab is null) return null;
-            var parent = SpawnParent != null ? SpawnParent : Content;
-            var newItem = Instantiate(ItemPrefab, parent);
+            var pool = GetPool(type);
+            if (pool.Count > 0)
+                return pool.Dequeue();
+
+            var newItem = Instantiate(prefab, SpawnParent);
             newItem.ResetState();
             return newItem;
         }
+
+        private Queue<RankedTransactionItemView> GetPool(TransactionType type) => type switch
+        {
+            TransactionType.Win => _winPool,
+            TransactionType.Loss => _lossPool,
+            TransactionType.Bonus => _bonusPool,
+            _ => _winPool
+        };
 
         private void ClearItems()
         {
@@ -136,7 +160,7 @@ namespace Game.Views.UI.Ranked
             {
                 if (item is null) continue;
                 item.ResetState();
-                _itemPool.Enqueue(item);
+                GetPool(item.Type).Enqueue(item);
             }
             _activeItems.Clear();
 

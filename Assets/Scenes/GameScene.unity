@@ -21601,8 +21601,10 @@ MonoBehaviour:
   <ScrollRect>k__BackingField: {fileID: 1742434285}
   <Content>k__BackingField: {fileID: 1742434283}
   <SpawnParent>k__BackingField: {fileID: 199203289}
-  <ItemPrefab>k__BackingField: {fileID: 3412084861089283733, guid: 114f7d98e3c9d2b4ca72da5e3f0adba0, type: 3}
   <StartingMmrText>k__BackingField: {fileID: 124047500}
+  <WinItemPrefab>k__BackingField: {fileID: 3412084861089283733, guid: 114f7d98e3c9d2b4ca72da5e3f0adba0, type: 3}
+  <LossItemPrefab>k__BackingField: {fileID: 3412084861089283733, guid: 61cc82a8f40569f4f90e09d3b29f7bd0, type: 3}
+  <BonusItemPrefab>k__BackingField: {fileID: 3412084861089283733, guid: e1c6793dbc7c2004892a684829c3284d, type: 3}
 --- !u!1001 &1752881731
 PrefabInstance:
   m_ObjectHideFlags: 0
