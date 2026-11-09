@@ -3,6 +3,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Game.Data.Ranked;
 
 namespace Game.Views.UI.Ranked
 {
@@ -25,23 +26,30 @@ namespace Game.Views.UI.Ranked
             }
         }
 
+        public void SetInitialMmr(int mmr)
+        {
+            var range = RankedMmrScale.GetRange(mmr);
+            UpdateMmrText(range);
+            if (FillImage is not null)
+                FillImage.fillAmount = range.CalculateFill(mmr);
+        }
+
         public void UpdateCurrentMmr(int mmr)
         {
-            if (_currentTween is not null)
-            {
-                _currentTween.Kill();
-                _currentTween = null;
-            }
+            _currentTween?.Kill();
+            _currentTween = null;
+
             if (_animationCoroutine is not null)
             {
                 StopCoroutine(_animationCoroutine);
                 _animationCoroutine = null;
             }
-            var archetype = GetArchetypeIndex(mmr);
-            var range = GetArchetypeRange(archetype);
+
+            var range = RankedMmrScale.GetRange(mmr);
             UpdateMmrText(range);
+
             if (FillImage is not null)
-                FillImage.fillAmount = CalculateFillAmount(mmr, range.Min, range.Max);
+                FillImage.fillAmount = range.CalculateFill(mmr);
         }
 
         public void AnimateMmrChange(
@@ -54,6 +62,7 @@ namespace Game.Views.UI.Ranked
         {
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
+
             _animationCoroutine = StartCoroutine(AnimateMmrChangeCoroutine(
                 oldMmr, newMmr, phaseDuration, textSwapDuration, ease, onComplete));
         }
@@ -66,40 +75,53 @@ namespace Game.Views.UI.Ranked
             Ease ease,
             System.Action onComplete)
         {
-            var oldArchetype = GetArchetypeIndex(oldMmr);
-            var newArchetype = GetArchetypeIndex(newMmr);
-            if (oldArchetype == newArchetype)
+            var currentMmr = oldMmr;
+            var direction = newMmr > oldMmr ? 1 : (newMmr < oldMmr ? -1 : 0);
+
+            if (direction == 0)
             {
-                yield return AnimateWithinArchetype(oldMmr, newMmr, phaseDuration, ease);
+                onComplete?.Invoke();
+                yield break;
             }
-            else
+
+            while (true)
             {
-                var direction = newArchetype > oldArchetype ? 1 : -1;
-                var currentArchetype = oldArchetype;
-                var currentMmr = oldMmr;
-                while (currentArchetype != newArchetype)
+                var currentRange = RankedMmrScale.GetSegmentRange(currentMmr, direction);
+                var targetRange = RankedMmrScale.GetRange(newMmr);
+
+                if (currentRange.Min == targetRange.Min && currentRange.Max == targetRange.Max)
                 {
-                    var nextArchetype = currentArchetype + direction;
-                    var targetMmr = GetArchetypeBoundary(currentArchetype, direction);
-                    yield return AnimateWithinArchetype(currentMmr, targetMmr, phaseDuration, ease);
-                    currentMmr = targetMmr;
-                    yield return new WaitForSeconds(textSwapDuration);
-                    UpdateMmrText(GetArchetypeRange(nextArchetype));
-                    currentArchetype = nextArchetype;
+                    yield return AnimateWithinRange(currentMmr, newMmr, currentRange, phaseDuration, ease);
+                    break;
                 }
-                yield return AnimateWithinArchetype(currentMmr, newMmr, phaseDuration, ease);
+
+                if (RankedMmrScale.TryGetBreakpoint(currentMmr, direction, out var breakpoint))
+                {
+                    yield return AnimateWithinRange(currentMmr, breakpoint, currentRange, phaseDuration, ease);
+                    currentMmr = breakpoint;
+
+                    yield return new WaitForSeconds(textSwapDuration);
+                    UpdateMmrText(RankedMmrScale.GetSegmentRange(currentMmr, direction));
+                }
+                else
+                {
+                    break;
+                }
             }
+
             onComplete?.Invoke();
         }
 
-        private IEnumerator AnimateWithinArchetype(int fromMmr, int toMmr, float duration, Ease ease)
+        private IEnumerator AnimateWithinRange(int fromMmr, int toMmr, RankedMmrRange range, float duration, Ease ease)
         {
             if (FillImage is null) yield break;
-            var range = GetArchetypeRange(GetArchetypeIndex(fromMmr));
-            var fromFill = CalculateFillAmount(fromMmr, range.Min, range.Max);
-            var toFill = CalculateFillAmount(toMmr, range.Min, range.Max);
+
+            var fromFill = range.CalculateFill(fromMmr);
+            var toFill = range.CalculateFill(toMmr);
+
             FillImage.fillAmount = fromFill;
             var currentFill = fromFill;
+
             _currentTween = DOTween.To(
                 () => currentFill,
                 x =>
@@ -110,57 +132,17 @@ namespace Game.Views.UI.Ranked
                 toFill,
                 duration)
                 .SetEase(ease);
+
             yield return _currentTween.WaitForCompletion();
         }
 
-        private void UpdateMmrText((int Min, int Max) range)
+        private void UpdateMmrText(RankedMmrRange range)
         {
             if (MinMmrText is not null)
                 MinMmrText.text = range.Min.ToString();
+
             if (MaxMmrText is not null)
-                MaxMmrText.text = range.Max.ToString();
-        }
-
-        private int GetArchetypeIndex(int mmr) => mmr switch
-        {
-            < 500 => 0,
-            < 1000 => 1,
-            < 1500 => 2,
-            < 2000 => 3,
-            < 2500 => 4,
-            _ => 5
-        };
-
-        private (int Min, int Max) GetArchetypeRange(int archetypeIndex) => archetypeIndex switch
-        {
-            0 => (0, 500),
-            1 => (500, 1000),
-            2 => (1000, 1500),
-            3 => (1500, 2000),
-            4 => (2000, 2500),
-            _ => (2500, 3000)
-        };
-
-        private int GetArchetypeBoundary(int archetypeIndex, int direction)
-        {
-            var range = GetArchetypeRange(archetypeIndex);
-            return direction > 0 ? range.Max : range.Min;
-        }
-
-        private float CalculateFillAmount(int mmr, int min, int max)
-        {
-            var range = max - min;
-            if (range <= 0) return 0f;
-            return Mathf.Clamp01((float)(mmr - min) / range);
-        }
-
-        public void SetInitialMmr(int mmr)
-        {
-            var archetype = GetArchetypeIndex(mmr);
-            var range = GetArchetypeRange(archetype);
-            UpdateMmrText(range);
-            if (FillImage is not null)
-                FillImage.fillAmount = CalculateFillAmount(mmr, range.Min, range.Max);
+                MaxMmrText.text = range.FormatMax();
         }
 
         private void OnDestroy()

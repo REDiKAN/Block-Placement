@@ -15,6 +15,7 @@ namespace Game.Views.UI.Ranked
         [field: SerializeField] private GameObject RootObject { get; set; }
         [field: SerializeField] private Image LeftBarImage { get; set; }
         [field: SerializeField] private Image RightBarImage { get; set; }
+        [field: SerializeField] private CanvasGroup ContentCanvasGroup { get; set; }
         [field: SerializeField] private Image[] CircleImages { get; set; }
         [field: SerializeField] private TextMeshProUGUI[] CircleTexts { get; set; }
         [field: SerializeField] private TextMeshProUGUI FormulaText { get; set; }
@@ -43,6 +44,12 @@ namespace Game.Views.UI.Ranked
             if (RootObject is not null) RootObject.SetActive(false);
             if (LeftBarImage is not null) LeftBarImage.fillAmount = 0f;
             if (RightBarImage is not null) RightBarImage.fillAmount = 0f;
+
+            if (ContentCanvasGroup is not null)
+            {
+                ContentCanvasGroup.alpha = 0f;
+                ContentCanvasGroup.blocksRaycasts = false;
+            }
 
             _rankedService.OnMatchStarted
                 .Subscribe(_ => HandleMatchStarted())
@@ -77,7 +84,6 @@ namespace Game.Views.UI.Ranked
         private void ShowSummary(int completedLevels, IReadOnlyList<RankedLevelResult> results)
         {
             if (_isVisible) return;
-
             _lastShownLevel = completedLevels;
             _contextService.SetContext(InputContext.RankedResult);
             UpdateUI(completedLevels, results);
@@ -87,43 +93,35 @@ namespace Game.Views.UI.Ranked
         private void UpdateUI(int completedLevels, IReadOnlyList<RankedLevelResult> results)
         {
             if (CircleImages is null || CircleTexts is null) return;
-
             var sum = 0;
             var parts = new List<string>();
-
             for (var i = 0; i < 5; i++)
             {
                 if (i < completedLevels && i < results.Count)
                 {
                     var points = results[i].PointsDelta;
                     sum += points;
-
                     if (CircleImages[i] is not null)
                         CircleImages[i].color = points >= 0 ? WinColor : LossColor;
-
                     if (CircleTexts[i] is not null)
                     {
                         CircleTexts[i].text = points.ToString();
                         CircleTexts[i].color = Color.white;
                     }
-
                     parts.Add(points >= 0 ? $"+{points}" : points.ToString());
                 }
                 else
                 {
                     if (CircleImages[i] is not null)
                         CircleImages[i].color = DefaultCircleColor;
-
                     if (CircleTexts[i] is not null)
                     {
                         CircleTexts[i].text = $"lvl{i + 1}";
                         CircleTexts[i].color = PendingColor;
                     }
-
                     parts.Add($"lvl{i + 1}");
                 }
             }
-
             if (FormulaText is not null)
             {
                 var formulaParts = new List<string>();
@@ -152,34 +150,56 @@ namespace Game.Views.UI.Ranked
         {
             _barSequence?.Kill();
             if (RootObject is not null) RootObject.SetActive(true);
-
             _barSequence = DOTween.Sequence();
+
+            var barsSequence = DOTween.Sequence();
             if (LeftBarImage is not null)
             {
                 LeftBarImage.fillAmount = 0f;
-                _barSequence.Join(LeftBarImage.DOFillAmount(1f, BarFillDuration).SetEase(BarFillEase));
+                barsSequence.Join(LeftBarImage.DOFillAmount(1f, BarFillDuration).SetEase(BarFillEase));
             }
             if (RightBarImage is not null)
             {
                 RightBarImage.fillAmount = 0f;
-                _barSequence.Join(RightBarImage.DOFillAmount(1f, BarFillDuration).SetEase(BarFillEase));
+                barsSequence.Join(RightBarImage.DOFillAmount(1f, BarFillDuration).SetEase(BarFillEase));
             }
-            _barSequence.OnComplete(() => _isVisible = true);
+            _barSequence.Append(barsSequence);
+
+            if (ContentCanvasGroup is not null)
+            {
+                ContentCanvasGroup.alpha = 0f;
+                ContentCanvasGroup.blocksRaycasts = false;
+                _barSequence.Append(ContentCanvasGroup.DOFade(1f, BarFillDuration).SetEase(BarFillEase));
+            }
+
+            _barSequence.OnComplete(() =>
+            {
+                _isVisible = true;
+                if (ContentCanvasGroup is not null) ContentCanvasGroup.blocksRaycasts = true;
+            });
         }
 
         private void PlayHideAnimation()
         {
             _barSequence?.Kill();
             _barSequence = DOTween.Sequence();
+
+            if (ContentCanvasGroup is not null)
+                _barSequence.Append(ContentCanvasGroup.DOFade(0f, BarHideDuration).SetEase(BarHideEase));
+
+            var hideBarsSequence = DOTween.Sequence();
             if (LeftBarImage is not null)
-                _barSequence.Join(LeftBarImage.DOFillAmount(0f, BarHideDuration).SetEase(BarHideEase));
+                hideBarsSequence.Join(LeftBarImage.DOFillAmount(0f, BarHideDuration).SetEase(BarHideEase));
             if (RightBarImage is not null)
-                _barSequence.Join(RightBarImage.DOFillAmount(0f, BarHideDuration).SetEase(BarHideEase));
+                hideBarsSequence.Join(RightBarImage.DOFillAmount(0f, BarHideDuration).SetEase(BarHideEase));
+
+            _barSequence.Append(hideBarsSequence);
 
             _barSequence.OnComplete(() =>
             {
                 if (RootObject is not null) RootObject.SetActive(false);
                 _isVisible = false;
+                if (ContentCanvasGroup is not null) ContentCanvasGroup.blocksRaycasts = false;
                 _rankedService.ConfirmPreRoundSummary();
             });
         }
@@ -192,9 +212,18 @@ namespace Game.Views.UI.Ranked
         private void Hide()
         {
             if (_isVisible)
+            {
                 PlayHideAnimation();
+            }
             else if (RootObject is not null)
+            {
                 RootObject.SetActive(false);
+                if (ContentCanvasGroup is not null)
+                {
+                    ContentCanvasGroup.alpha = 0f;
+                    ContentCanvasGroup.blocksRaycasts = false;
+                }
+            }
 
             _isVisible = false;
         }
