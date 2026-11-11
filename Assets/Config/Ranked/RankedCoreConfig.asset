@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b77ce19218797f944a747b7c775956bb, type: 3}
+  m_Name: RankedCoreConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Ranked.RankedCoreConfig
+  <LevelsPerMatch>k__BackingField: 5
+  <Level5Bonus>k__BackingField: 20
+  <PerfectRunBonus>k__BackingField: 50
+  <Level5PointsDivisor>k__BackingField: 200
+  <Level5MetricBonus>k__BackingField: 0.2
+  <GridSize>k__BackingField: 5
+  <MaxGenerationAttempts>k__BackingField: 50
+  <MaxSolverSteps>k__BackingField: 1000

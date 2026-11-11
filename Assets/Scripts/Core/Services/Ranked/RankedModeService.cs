@@ -39,7 +39,9 @@ namespace Game.Services.Ranked
         private readonly CompositeDisposable _disposables = new();
         private readonly CompositeDisposable _matchDisposables = new();
 
-        private readonly RankedConfig _config;
+        private readonly RankedCoreConfig _coreConfig;
+        private readonly RankedBlocksConfig _blocksConfig;
+        private readonly RankedStructuresConfig _structuresConfig;
         private readonly IRankedLevelGeneratorService _generatorService;
         private readonly ILevelLoaderService _levelLoaderService;
         private readonly ITimeLimitService _timeLimitService;
@@ -51,7 +53,9 @@ namespace Game.Services.Ranked
         private LevelConfig _pendingLevelConfig;
 
         public RankedModeService(
-            RankedConfig config,
+            RankedCoreConfig coreConfig,
+            RankedBlocksConfig blocksConfig,
+            RankedStructuresConfig structuresConfig,
             IRankedLevelGeneratorService generatorService,
             ILevelLoaderService levelLoaderService,
             ITimeLimitService timeLimitService,
@@ -60,7 +64,9 @@ namespace Game.Services.Ranked
             IArchetypeResolver archetypeResolver,
             IInputContextService contextService)
         {
-            _config = config;
+            _coreConfig = coreConfig;
+            _blocksConfig = blocksConfig;
+            _structuresConfig = structuresConfig;
             _generatorService = generatorService;
             _levelLoaderService = levelLoaderService;
             _timeLimitService = timeLimitService;
@@ -82,14 +88,8 @@ namespace Game.Services.Ranked
             }
         }
 
-        public int LoadSavedMmr()
-        {
-            var key = RankedContext.CurrentMode == GameMode.Structures
-                ? _config.MmrStructuresPlayerPrefsKey
-                : _config.MmrPlayerPrefsKey;
-
-            return PlayerPrefs.GetInt(key, _config.StartingMmr);
-        }
+        public int LoadSavedMmr() =>
+            PlayerPrefs.GetInt(GetMmrKey(), GetStartingMmr());
 
         public void StartMatch()
         {
@@ -126,7 +126,7 @@ namespace Game.Services.Ranked
             if (!_isMatchActive.Value) return;
 
             var matchLevel = _currentMatchLevel.Value;
-            var archetype = _archetypeResolver.Resolve(_currentMmr.Value);
+            var archetype = _archetypeResolver.Resolve(_currentMmr.Value).Archetype;
             var difficulty = _profileBuilder.CalculateDifficulty(archetype, matchLevel, _matchPoints.Value);
             var totalTime = _profileBuilder.CalculateTimeLimit(difficulty);
             var remainingTime = _timeLimitService.RemainingTime.Value;
@@ -138,16 +138,10 @@ namespace Game.Services.Ranked
             _matchPoints.Value += pointsDelta;
             RankedContext.MatchPoints = _matchPoints.Value;
 
-            if (success && matchLevel == _config.LevelsPerMatch)
+            if (success && matchLevel == _coreConfig.LevelsPerMatch)
                 _isLevel5Completed.Value = true;
 
-            var result = new RankedLevelResult(
-                matchLevel,
-                success,
-                pointsDelta,
-                difficulty,
-                remainingTime,
-                totalTime);
+            var result = new RankedLevelResult(matchLevel, success, pointsDelta, difficulty, remainingTime, totalTime);
 
             var currentList = new List<RankedLevelResult>(_levelResults.Value) { result };
             _levelResults.Value = currentList;
@@ -156,10 +150,7 @@ namespace Game.Services.Ranked
             if (success) RankedContext.LevelsCompleted++;
             else RankedContext.LevelsFailed++;
 
-            if (matchLevel >= _config.LevelsPerMatch)
-            {
-                EndMatch();
-            }
+            if (matchLevel >= _coreConfig.LevelsPerMatch) EndMatch();
             else
             {
                 _currentMatchLevel.Value++;
@@ -202,28 +193,19 @@ namespace Game.Services.Ranked
 
             var oldMmr = _currentMmr.Value;
             var matchPoints = _matchPoints.Value;
-            var level5Bonus = _isLevel5Completed.Value ? _config.Level5Bonus : 0;
-            var perfectRunBonus = RankedContext.IsPerfectRun ? _config.PerfectRunBonus : 0;
-            var newMmr = Mathf.Max(_config.MinimumMmr, oldMmr + matchPoints + level5Bonus + perfectRunBonus);
+            var level5Bonus = _isLevel5Completed.Value ? _coreConfig.Level5Bonus : 0;
+            var perfectRunBonus = RankedContext.IsPerfectRun ? _coreConfig.PerfectRunBonus : 0;
+            var newMmr = Mathf.Max(GetMinimumMmr(), oldMmr + matchPoints + level5Bonus + perfectRunBonus);
 
             _currentMmr.Value = newMmr;
             RankedContext.PlayerMmr = newMmr;
 
-            var key = RankedContext.CurrentMode == GameMode.Structures
-                ? _config.MmrStructuresPlayerPrefsKey
-                : _config.MmrPlayerPrefsKey;
-
-            PlayerPrefs.SetInt(key, newMmr);
+            PlayerPrefs.SetInt(GetMmrKey(), newMmr);
             PlayerPrefs.Save();
 
             var matchResult = new RankedMatchResult(
-                oldMmr,
-                newMmr,
-                matchPoints,
-                level5Bonus,
-                perfectRunBonus,
-                RankedContext.LevelsCompleted,
-                RankedContext.LevelsFailed);
+                oldMmr, newMmr, matchPoints, level5Bonus, perfectRunBonus,
+                RankedContext.LevelsCompleted, RankedContext.LevelsFailed);
 
             _onMatchEnded.OnNext(matchResult);
         }
@@ -233,9 +215,9 @@ namespace Game.Services.Ranked
             if (!_isMatchActive.Value) return;
             _pendingLevelConfig = null;
 
-            while (_currentMatchLevel.Value <= _config.LevelsPerMatch)
+            while (_currentMatchLevel.Value <= _coreConfig.LevelsPerMatch)
             {
-                var archetype = _archetypeResolver.Resolve(_currentMmr.Value);
+                var archetype = _archetypeResolver.Resolve(_currentMmr.Value).Archetype;
                 var difficulty = _profileBuilder.CalculateDifficulty(archetype, _currentMatchLevel.Value, _matchPoints.Value);
                 _matchPoints.Value += CalculatePenalty(difficulty, false);
                 RankedContext.LevelsFailed++;
@@ -247,20 +229,60 @@ namespace Game.Services.Ranked
 
         private int CalculateReward(int difficulty, float remainingTime, float totalTime)
         {
-            var baseReward = _config.BaseReward + (int)(difficulty * _config.RewardPerDifficulty);
-            var timeBonus = totalTime > 0f ? (remainingTime / totalTime) * _config.TimeBonusMultiplier : 0f;
+            var baseReward = GetBaseReward() + (int)(difficulty * GetRewardPerDifficulty());
+            var timeBonus = totalTime > 0f ? (remainingTime / totalTime) * GetTimeBonusMultiplier() : 0f;
             return Mathf.RoundToInt(baseReward + timeBonus);
         }
 
         private int CalculatePenalty(int difficulty, bool applyMitigation)
         {
-            var basePenalty = _config.BasePenalty + (int)(difficulty * _config.PenaltyPerDifficulty);
+            var basePenalty = GetBasePenalty() + (int)(difficulty * GetPenaltyPerDifficulty());
             if (!applyMitigation) return -basePenalty;
 
             var progress = _validationService.GetShadowMatchProgress();
             var mitigatedPenalty = basePenalty * (1f - progress);
             return -Mathf.RoundToInt(mitigatedPenalty);
         }
+
+        private string GetMmrKey() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.MmrPlayerPrefsKey
+                : _blocksConfig.MmrPlayerPrefsKey;
+
+        private int GetStartingMmr() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.StartingMmr
+                : _blocksConfig.StartingMmr;
+
+        private int GetMinimumMmr() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.MinimumMmr
+                : _blocksConfig.MinimumMmr;
+
+        private int GetBaseReward() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.BaseReward
+                : _blocksConfig.BaseReward;
+
+        private float GetRewardPerDifficulty() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.RewardPerDifficulty
+                : _blocksConfig.RewardPerDifficulty;
+
+        private float GetTimeBonusMultiplier() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.TimeBonusMultiplier
+                : _blocksConfig.TimeBonusMultiplier;
+
+        private int GetBasePenalty() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.BasePenalty
+                : _blocksConfig.BasePenalty;
+
+        private float GetPenaltyPerDifficulty() =>
+            RankedContext.CurrentMode == GameMode.Structures
+                ? _structuresConfig.PenaltyPerDifficulty
+                : _blocksConfig.PenaltyPerDifficulty;
 
         public void Dispose()
         {

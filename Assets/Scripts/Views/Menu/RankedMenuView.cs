@@ -22,7 +22,8 @@ namespace Game.Views.Menu
 
         [Inject] private readonly IMenuNavigationService _navigationService;
         [InjectOptional] private readonly IRankedModeService _rankedModeService;
-        [InjectOptional] private readonly RankedConfig _rankedConfig;
+        [InjectOptional] private readonly RankedBlocksConfig _blocksConfig;
+        [InjectOptional] private readonly RankedStructuresConfig _structuresConfig;
 
         private readonly CompositeDisposable _disposables = new();
 
@@ -35,18 +36,10 @@ namespace Game.Views.Menu
                     .AddTo(_disposables);
             }
 
-            var blocksMmr = 1000;
-            var structsMmr = 1000;
-            var blocksKey = "ranked_mmr";
-            var structsKey = "ranked_mmr_structures";
-            var defaultMmr = 1000;
-
-            if (_rankedConfig is not null)
-            {
-                blocksKey = string.IsNullOrEmpty(_rankedConfig.MmrPlayerPrefsKey) ? "ranked_mmr" : _rankedConfig.MmrPlayerPrefsKey;
-                structsKey = string.IsNullOrEmpty(_rankedConfig.MmrStructuresPlayerPrefsKey) ? "ranked_mmr_structures" : _rankedConfig.MmrStructuresPlayerPrefsKey;
-                defaultMmr = _rankedConfig.StartingMmr;
-            }
+            var blocksMmr = _blocksConfig?.StartingMmr ?? 1000;
+            var structsMmr = _structuresConfig?.StartingMmr ?? 1000;
+            var blocksKey = _blocksConfig?.MmrPlayerPrefsKey ?? "ranked_mmr";
+            var structsKey = _structuresConfig?.MmrPlayerPrefsKey ?? "ranked_mmr_structures";
 
             if (_rankedModeService is not null)
             {
@@ -62,12 +55,12 @@ namespace Game.Views.Menu
             }
             else
             {
-                blocksMmr = PlayerPrefs.GetInt(blocksKey, defaultMmr);
-                structsMmr = PlayerPrefs.GetInt(structsKey, defaultMmr);
+                blocksMmr = PlayerPrefs.GetInt(blocksKey, blocksMmr);
+                structsMmr = PlayerPrefs.GetInt(structsKey, structsMmr);
             }
 
-            UpdateMmrDisplay(MmrBlocksText, blocksMmr, TypeRankedMode.Blocks);
-            UpdateMmrDisplay(MmrStructuresText, structsMmr, TypeRankedMode.Structs);
+            UpdateMmrDisplay(MmrBlocksText, blocksMmr);
+            UpdateMmrDisplay(MmrStructuresText, structsMmr);
 
             if (PlayRankedBlocksButton is not null)
             {
@@ -94,17 +87,15 @@ namespace Game.Views.Menu
         private void UpdateCurrentModeMmr(int mmr)
         {
             if (RankedContext.CurrentMode == GameMode.Blocks)
-                UpdateMmrDisplay(MmrBlocksText, mmr, TypeRankedMode.Blocks);
+                UpdateMmrDisplay(MmrBlocksText, mmr);
             else
-                UpdateMmrDisplay(MmrStructuresText, mmr, TypeRankedMode.Structs);
+                UpdateMmrDisplay(MmrStructuresText, mmr);
         }
 
-        private void UpdateMmrDisplay(TextMeshProUGUI textComponent, int mmr, TypeRankedMode typeRanked)
+        private void UpdateMmrDisplay(TextMeshProUGUI textComponent, int mmr)
         {
-            if (typeRanked == TypeRankedMode.Blocks)
-                textComponent.text = $"Ranked Blocks MMR: {mmr}";
-            else 
-                textComponent.text = $"Ranked Structs MMR: {mmr}";
+            if (textComponent is not null)
+                textComponent.text = $"MMR: {mmr}";
         }
 
         private void StartMatch(GameMode mode)
@@ -118,9 +109,4 @@ namespace Game.Views.Menu
 
         private void OnDestroy() => _disposables?.Dispose();
     }
-}
-
-public enum TypeRankedMode
-{
-    Blocks, Structs
 }

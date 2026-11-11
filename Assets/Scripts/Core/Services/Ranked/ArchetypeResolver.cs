@@ -1,28 +1,33 @@
+using Game.Core;
+using Game.Data;
 using Game.Data.Ranked;
 
 namespace Game.Services.Ranked
 {
     public class ArchetypeResolver : IArchetypeResolver
     {
-        private readonly RankedConfig _config;
+        private readonly RankedBlocksConfig _blocksConfig;
+        private readonly RankedStructuresConfig _structuresConfig;
 
-        public ArchetypeResolver(RankedConfig config)
+        public ArchetypeResolver(RankedBlocksConfig blocksConfig, RankedStructuresConfig structuresConfig)
         {
-            _config = config;
+            _blocksConfig = blocksConfig;
+            _structuresConfig = structuresConfig;
         }
 
-        public Archetype Resolve(int mmr)
+        public IRankedArchetypeProfile Resolve(int mmr)
         {
-            if (_config?.ArchetypeProfiles is null || _config.ArchetypeProfiles.Length == 0)
-                return Archetype.I;
+            var profiles = GetActiveProfiles();
+            if (profiles is null || profiles.Length == 0)
+                return GetMaxProfile();
 
-            foreach (var profile in _config.ArchetypeProfiles)
+            foreach (var profile in profiles)
             {
                 if (mmr >= profile.MinMmr && mmr <= profile.MaxMmr)
-                    return profile.Archetype;
+                    return profile;
             }
 
-            return Archetype.Max;
+            return GetMaxProfile();
         }
 
         public int GetBaseDifficulty(Archetype archetype) =>
@@ -37,21 +42,56 @@ namespace Game.Services.Ranked
         public int GetBlockLimitPadding(Archetype archetype) =>
             FindProfile(archetype)?.BlockLimitPadding ?? 0;
 
-        public ArchetypeProfileData GetProfileData(Archetype archetype) =>
-            FindProfile(archetype);
-
-        private ArchetypeProfileData FindProfile(Archetype archetype)
+        private IRankedArchetypeProfile FindProfile(Archetype archetype)
         {
-            if (_config?.ArchetypeProfiles is null)
-                return null;
+            var profiles = GetActiveProfiles();
+            if (profiles is null) return null;
 
-            foreach (var profile in _config.ArchetypeProfiles)
+            foreach (var profile in profiles)
             {
                 if (profile.Archetype == archetype)
                     return profile;
             }
 
             return null;
+        }
+
+        private IRankedArchetypeProfile[] GetActiveProfiles()
+        {
+            if (RankedContext.CurrentMode == GameMode.Structures)
+            {
+                var source = _structuresConfig?.ArchetypeProfiles;
+                if (source is null) return null;
+
+                var result = new IRankedArchetypeProfile[source.Length];
+                for (var i = 0; i < source.Length; i++)
+                    result[i] = source[i];
+
+                return result;
+            }
+
+            var blocksSource = _blocksConfig?.ArchetypeProfiles;
+            if (blocksSource is null) return null;
+
+            var blocksResult = new IRankedArchetypeProfile[blocksSource.Length];
+            for (var i = 0; i < blocksSource.Length; i++)
+                blocksResult[i] = blocksSource[i];
+
+            return blocksResult;
+        }
+
+        private IRankedArchetypeProfile GetMaxProfile()
+        {
+            var profiles = GetActiveProfiles();
+            if (profiles is null || profiles.Length == 0) return null;
+
+            IRankedArchetypeProfile maxProfile = null;
+            foreach (var p in profiles)
+            {
+                if (maxProfile is null || p.MaxMmr > maxProfile.MaxMmr)
+                    maxProfile = p;
+            }
+            return maxProfile;
         }
     }
 }

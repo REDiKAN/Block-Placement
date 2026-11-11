@@ -1561,8 +1561,10 @@ MonoBehaviour:
   <FpsLimitConfig>k__BackingField: {fileID: 11400000, guid: 981f9c53a6719d648bed61b07bf3587a, type: 2}
   <StructureInventoryAnimationConfig>k__BackingField: {fileID: 11400000, guid: 5e99b9c85a1084a45962cfb95884c704, type: 2}
   <FloatingDecorInteractionConfig>k__BackingField: {fileID: 11400000, guid: 4be6ed13014371d4ba28f8d0772b09b8, type: 2}
-  <RankedConfig>k__BackingField: {fileID: 11400000, guid: e6d393fa068b385489ba49d844a6ed18, type: 2}
   <RankedResultUIConfig>k__BackingField: {fileID: 11400000, guid: a497d702884b6ac42af060bac6f4c3d3, type: 2}
+  <RankedCoreConfig>k__BackingField: {fileID: 11400000, guid: 1b094c50bcb57844ebd1ff6db93f2842, type: 2}
+  <RankedBlocksConfig>k__BackingField: {fileID: 11400000, guid: 845909179de1b7b4e9fb39ec91bde02a, type: 2}
+  <RankedStructuresConfig>k__BackingField: {fileID: 11400000, guid: 9888cbd0ffbccb94c9fc3d9768641512, type: 2}
 --- !u!114 &114461252
 MonoBehaviour:
   m_ObjectHideFlags: 0

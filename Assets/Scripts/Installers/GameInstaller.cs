@@ -55,8 +55,10 @@ namespace Game.Installers
         [field: SerializeField] public FpsLimitConfig FpsLimitConfig { get; private set; }
         [field: SerializeField] public StructureInventoryAnimationConfig StructureInventoryAnimationConfig { get; private set; }
         [field: SerializeField] public FloatingDecorInteractionConfig FloatingDecorInteractionConfig { get; private set; }
-        [field: SerializeField] public RankedConfig RankedConfig { get; private set; }
         [field: SerializeField] public RankedResultUIConfig RankedResultUIConfig { get; private set; }
+        [field: SerializeField] public RankedCoreConfig RankedCoreConfig { get; private set; }
+        [field: SerializeField] public RankedBlocksConfig RankedBlocksConfig { get; private set; }
+        [field: SerializeField] public RankedStructuresConfig RankedStructuresConfig { get; private set; }
 
         private const int GridSize = 5;
         private const int CellCount = GridSize * GridSize;
@@ -98,10 +100,7 @@ namespace Game.Installers
                 Debug.Log($"[GameInstaller] Binding LevelConfig: {configName}");
                 Container.BindInstance(activeConfig);
             }
-            else
-            {
-                Debug.LogError("[GameInstaller] CRITICAL: activeConfig is NULL! Binding nothing.");
-            }
+            else Debug.LogError("[GameInstaller] CRITICAL: activeConfig is NULL! Binding nothing.");
 
             Container.BindInstance(RankedResultUIConfig);
             Container.BindInstance(RaycastConfig);
@@ -114,8 +113,10 @@ namespace Game.Installers
                 Container.BindInstance(StructureConfigs);
             if (AchievementConfigs is not null && AchievementConfigs.Length > 0)
                 Container.BindInstance(AchievementConfigs);
-            if (RankedConfig is not null)
-                Container.BindInstance(RankedConfig);
+
+            if (RankedCoreConfig is not null) Container.BindInstance(RankedCoreConfig);
+            if (RankedBlocksConfig is not null) Container.BindInstance(RankedBlocksConfig);
+            if (RankedStructuresConfig is not null) Container.BindInstance(RankedStructuresConfig);
 
             Container.BindInstance(FloorGridView);
             Container.BindInstance(WallViews);
@@ -169,8 +170,6 @@ namespace Game.Installers
             Bind<SettingsService>();
             Bind<LevelTransitionAnimationService>();
             Bind<LevelLoaderService>();
-            Bind<StructureShapeGenerator>(); 
-            Bind<DecoyPlacementService>();
 
             Bind<ArchetypeResolver>();
             Bind<ProfileBuilder>();

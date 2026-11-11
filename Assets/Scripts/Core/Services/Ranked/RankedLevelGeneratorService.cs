@@ -1,59 +1,66 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Game.Core;
 using Game.Data;
 using Game.Data.Ranked;
 using Game.Services.Shadow;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Game.Services.Ranked
 {
     public class RankedLevelGeneratorService : IRankedLevelGeneratorService
     {
-        private readonly RankedConfig _config;
+        private readonly RankedCoreConfig _coreConfig;
+        private readonly RankedBlocksConfig _blocksConfig;
+        private readonly RankedStructuresConfig _structuresConfig;
         private readonly IArchetypeResolver _archetypeResolver;
         private readonly IProfileBuilder _profileBuilder;
         private readonly IShapeGenerator _shapeGenerator;
-        private readonly IStructureShapeGenerator _structureShapeGenerator;
-        private readonly IDecoyPlacementService _decoyPlacementService;
         private readonly IQualityValidator _qualityValidator;
         private readonly IShadowCalculationService _calculationService;
 
+        private static readonly int[] ValidAngles = { 0, 90, 180, 270 };
+
         public RankedLevelGeneratorService(
-            RankedConfig config,
+            RankedCoreConfig coreConfig,
+            RankedBlocksConfig blocksConfig,
+            RankedStructuresConfig structuresConfig,
             IArchetypeResolver archetypeResolver,
             IProfileBuilder profileBuilder,
             IShapeGenerator shapeGenerator,
-            IStructureShapeGenerator structureShapeGenerator,
-            IDecoyPlacementService decoyPlacementService,
             IQualityValidator qualityValidator,
             IShadowCalculationService calculationService)
         {
-            _config = config;
+            _coreConfig = coreConfig;
+            _blocksConfig = blocksConfig;
+            _structuresConfig = structuresConfig;
             _archetypeResolver = archetypeResolver;
             _profileBuilder = profileBuilder;
             _shapeGenerator = shapeGenerator;
-            _structureShapeGenerator = structureShapeGenerator;
-            _decoyPlacementService = decoyPlacementService;
             _qualityValidator = qualityValidator;
             _calculationService = calculationService;
         }
 
         public LevelConfig GenerateLevel(int mmr, int matchLevel, int matchPoints)
         {
-            var archetype = _archetypeResolver.Resolve(mmr);
+            var archetypeProfile = _archetypeResolver.Resolve(mmr);
+            if (archetypeProfile is null) return null;
+
+            var archetype = archetypeProfile.Archetype;
             var profile = _profileBuilder.Build(archetype, matchLevel, matchPoints);
             var isStructureMode = RankedContext.CurrentMode == GameMode.Structures;
-            var profileData = _archetypeResolver.GetProfileData(archetype);
 
-            for (var attempt = 0; attempt < _config.MaxGenerationAttempts; attempt++)
+            for (var attempt = 0; attempt < _coreConfig.MaxGenerationAttempts; attempt++)
             {
                 List<Vector3Int> shape;
+                List<StructureSpawnData> inventory = null;
 
                 if (isStructureMode)
                 {
-                    shape = GenerateStructureShape(profile, profileData);
+                    var result = GenerateStructureShape(profile);
+                    shape = result.Blocks;
+                    inventory = result.Inventory;
                     if (shape.Count == 0) continue;
                 }
                 else
@@ -62,7 +69,7 @@ namespace Game.Services.Ranked
                     if (shape.Count == 0) continue;
                 }
 
-                var config = CreateLevelConfig(shape, profile, archetype, isStructureMode);
+                var config = CreateLevelConfig(shape, archetype, isStructureMode, inventory);
                 var report = _qualityValidator.Validate(config, profile);
 
                 if (_qualityValidator.IsAcceptable(report, profile))
@@ -70,59 +77,151 @@ namespace Game.Services.Ranked
             }
 
             var fallbackProfile = _profileBuilder.BuildFallback(archetype);
-            var fallbackShape = isStructureMode
-                ? GenerateStructureShape(fallbackProfile, profileData)
-                : _shapeGenerator.Generate(fallbackProfile);
+            List<Vector3Int> fallbackShape;
+            List<StructureSpawnData> fallbackInventory = null;
 
-            return CreateLevelConfig(fallbackShape, fallbackProfile, archetype, isStructureMode);
+            if (isStructureMode)
+            {
+                var fallbackResult = GenerateStructureShape(fallbackProfile);
+                fallbackShape = fallbackResult.Blocks;
+                fallbackInventory = fallbackResult.Inventory;
+            }
+            else
+            {
+                fallbackShape = _shapeGenerator.Generate(fallbackProfile);
+            }
+
+            return CreateLevelConfig(fallbackShape, archetype, isStructureMode, fallbackInventory);
         }
 
-        private List<Vector3Int> GenerateStructureShape(RankedDifficultyProfile profile, ArchetypeProfileData profileData)
+        private StructureGenerationResult GenerateStructureShape(RankedDifficultyProfile profile)
         {
             var allBlocks = new HashSet<Vector3Int>();
-            var targetCount = Mathf.Max(3, Mathf.RoundToInt(profile.TargetBlockCount * 0.7f));
-            var attempts = 0;
+            var inventoryMap = new Dictionary<StructureConfig, int>();
+            var availablePool = _structuresConfig?.AvailableStructures;
 
-            while (allBlocks.Count < targetCount && attempts < 50)
+            if (availablePool is null || availablePool.Length == 0)
+                return new StructureGenerationResult(new List<Vector3Int>(), new List<StructureSpawnData>());
+
+            var targetBlockCount = profile.TargetBlockCount;
+            var attempts = 0;
+            var gridSize = _coreConfig.GridSize;
+
+            while (allBlocks.Count < targetBlockCount && attempts < 100)
             {
                 attempts++;
-                var structureBlocks = _structureShapeGenerator.GenerateStructure(profile);
-                var canPlace = true;
+                var config = availablePool[UnityEngine.Random.Range(0, availablePool.Length)];
+                if (config?.LocalCoordinates is null || config.LocalCoordinates.Length == 0) continue;
 
-                foreach (var block in structureBlocks)
+                var angle = GetRandomAngle();
+                var rotatedCoords = GetRotatedLocalCoordinates(config.LocalCoordinates, angle);
+
+                var origin = new Vector3Int(
+                    UnityEngine.Random.Range(0, gridSize), 0, UnityEngine.Random.Range(0, gridSize));
+
+                var canPlace = true;
+                var newBlocks = new List<Vector3Int>();
+
+                foreach (var local in rotatedCoords)
                 {
-                    if (allBlocks.Contains(block))
+                    var world = origin + local;
+                    if (world.x < 0 || world.x >= gridSize ||
+                        world.y < 0 || world.y >= gridSize ||
+                        world.z < 0 || world.z >= gridSize)
                     {
                         canPlace = false;
                         break;
                     }
+                    if (allBlocks.Contains(world))
+                    {
+                        canPlace = false;
+                        break;
+                    }
+                    newBlocks.Add(world);
                 }
 
-                if (canPlace)
+                if (canPlace && newBlocks.Count > 0)
                 {
-                    foreach (var block in structureBlocks)
-                        allBlocks.Add(block);
+                    foreach (var b in newBlocks) allBlocks.Add(b);
+                    if (!inventoryMap.ContainsKey(config)) inventoryMap[config] = 0;
+                    inventoryMap[config]++;
                 }
             }
 
-            if (profileData is { UseDecoyStructures: true } && allBlocks.Count > 0)
+            var archetypeProfile = _archetypeResolver.Resolve(RankedContext.PlayerMmr);
+            if (archetypeProfile is StructuresArchetypeProfile structProfile && structProfile.UseDecoyStructures && allBlocks.Count > 0)
             {
-                var projection = _calculationService.Calculate(allBlocks.ToArray(), _config.GridSize);
-                var decoyCount = UnityEngine.Random.Range(profileData.MinDecoyCount, profileData.MaxDecoyCount + 1);
-                var decoys = _decoyPlacementService.GenerateDecoys(new List<Vector3Int>(allBlocks), projection.Wall1, projection.Wall2, decoyCount);
+                var decoyCount = UnityEngine.Random.Range(structProfile.MinDecoyCount, structProfile.MaxDecoyCount + 1);
+                var decoyAttempts = 0;
+                var decoysAdded = 0;
 
-                foreach (var decoy in decoys)
-                    allBlocks.Add(decoy);
+                while (decoysAdded < decoyCount && decoyAttempts < 50)
+                {
+                    decoyAttempts++;
+                    var config = availablePool[UnityEngine.Random.Range(0, availablePool.Length)];
+                    if (config?.LocalCoordinates is null || config.LocalCoordinates.Length == 0) continue;
+
+                    var angle = GetRandomAngle();
+                    var rotatedCoords = GetRotatedLocalCoordinates(config.LocalCoordinates, angle);
+                    var origin = new Vector3Int(UnityEngine.Random.Range(0, gridSize), 0, UnityEngine.Random.Range(0, gridSize));
+
+                    var canPlace = true;
+                    var newBlocks = new List<Vector3Int>();
+
+                    foreach (var local in rotatedCoords)
+                    {
+                        var world = origin + local;
+                        if (world.x < 0 || world.x >= gridSize || world.y < 0 || world.y >= gridSize || world.z < 0 || world.z >= gridSize)
+                        {
+                            canPlace = false; break;
+                        }
+                        if (allBlocks.Contains(world))
+                        {
+                            canPlace = false; break;
+                        }
+                        newBlocks.Add(world);
+                    }
+
+                    if (!canPlace || newBlocks.Count == 0) continue;
+
+                    var currentShadowYZ = new HashSet<int>();
+                    var currentShadowXY = new HashSet<int>();
+                    foreach (var b in allBlocks)
+                    {
+                        currentShadowYZ.Add(b.y * gridSize + b.z);
+                        currentShadowXY.Add(b.x * gridSize + b.y);
+                    }
+
+                    var createsNewShadow = false;
+                    foreach (var b in newBlocks)
+                    {
+                        var yz = b.y * gridSize + b.z;
+                        var xy = b.x * gridSize + b.y;
+                        if (!currentShadowYZ.Contains(yz) || !currentShadowXY.Contains(xy))
+                        {
+                            createsNewShadow = true; break;
+                        }
+                    }
+
+                    if (!createsNewShadow)
+                    {
+                        foreach (var b in newBlocks) allBlocks.Add(b);
+                        if (!inventoryMap.ContainsKey(config)) inventoryMap[config] = 0;
+                        inventoryMap[config]++;
+                        decoysAdded++;
+                    }
+                }
             }
 
-            return new List<Vector3Int>(allBlocks);
+            var inventory = inventoryMap.Select(kvp => new StructureSpawnData(kvp.Key, kvp.Value)).ToList();
+            return new StructureGenerationResult(new List<Vector3Int>(allBlocks), inventory);
         }
 
-        private LevelConfig CreateLevelConfig(List<Vector3Int> shape, RankedDifficultyProfile profile, Archetype archetype, bool isStructureMode)
+        private LevelConfig CreateLevelConfig(List<Vector3Int> shape, Archetype archetype, bool isStructureMode, List<StructureSpawnData> inventory)
         {
             var config = ScriptableObject.CreateInstance<LevelConfig>();
             var floor = GenerateFloor();
-            var projection = _calculationService.Calculate(shape.ToArray(), _config.GridSize);
+            var projection = _calculationService.Calculate(shape.ToArray(), _coreConfig.GridSize);
 
             var wallYZ = CreateWallData(projection.Wall1, shape, 0);
             var wallXY = CreateWallData(projection.Wall2, shape, 1);
@@ -130,16 +229,8 @@ namespace Game.Services.Ranked
             config.SetData(shape.ToArray(), floor, wallYZ, wallXY);
             config.SetMode(isStructureMode ? GameMode.Structures : GameMode.Blocks);
 
-            if (isStructureMode && _config.AvailableStructures is { Length: > 0 })
-            {
-                var spawnData = new StructureSpawnData[_config.AvailableStructures.Length];
-                for (var i = 0; i < _config.AvailableStructures.Length; i++)
-                {
-                    var maxCount = UnityEngine.Random.Range(2, 5);
-                    spawnData[i] = new StructureSpawnData(_config.AvailableStructures[i], maxCount);
-                }
-                config.SetAvailableStructures(spawnData);
-            }
+            if (isStructureMode && inventory is { Count: > 0 })
+                config.SetAvailableStructures(inventory.ToArray());
 
             var timeLimit = _profileBuilder.CalculateTimeLimit(_archetypeResolver.GetBaseDifficulty(archetype));
             config.SetTimeLimit(true, timeLimit);
@@ -159,7 +250,7 @@ namespace Game.Services.Ranked
 
         private bool[] GenerateFloor()
         {
-            var cellCount = _config.GridSize * _config.GridSize;
+            var cellCount = _coreConfig.GridSize * _coreConfig.GridSize;
             var floor = new bool[cellCount];
             Array.Fill(floor, true);
             return floor;
@@ -182,10 +273,11 @@ namespace Game.Services.Ranked
         private int CalculateDensity(List<Vector3Int> shape, int cellIndex, int wallIndex)
         {
             var count = 0;
-            var y = cellIndex / _config.GridSize;
-            var z = cellIndex % _config.GridSize;
-            var x = cellIndex / _config.GridSize;
-            var y2 = cellIndex % _config.GridSize;
+            var gridSize = _coreConfig.GridSize;
+            var y = cellIndex / gridSize;
+            var z = cellIndex % gridSize;
+            var x = cellIndex / gridSize;
+            var y2 = cellIndex % gridSize;
 
             foreach (var block in shape)
             {
@@ -194,6 +286,38 @@ namespace Game.Services.Ranked
             }
 
             return count;
+        }
+
+        private static int GetRandomAngle() => ValidAngles[UnityEngine.Random.Range(0, ValidAngles.Length)];
+
+        private static Vector3Int[] GetRotatedLocalCoordinates(Vector3Int[] localCoords, int angle)
+        {
+            if (angle == 0) return localCoords;
+            var rotated = new Vector3Int[localCoords.Length];
+            for (var i = 0; i < localCoords.Length; i++)
+            {
+                var local = localCoords[i];
+                rotated[i] = angle switch
+                {
+                    90 => new Vector3Int(local.z, local.y, -local.x),
+                    180 => new Vector3Int(-local.x, local.y, -local.z),
+                    270 => new Vector3Int(-local.z, local.y, local.x),
+                    _ => local
+                };
+            }
+            return rotated;
+        }
+
+        private readonly struct StructureGenerationResult
+        {
+            public List<Vector3Int> Blocks { get; }
+            public List<StructureSpawnData> Inventory { get; }
+
+            public StructureGenerationResult(List<Vector3Int> blocks, List<StructureSpawnData> inventory)
+            {
+                Blocks = blocks;
+                Inventory = inventory;
+            }
         }
     }
 }

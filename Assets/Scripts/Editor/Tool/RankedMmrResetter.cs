@@ -7,69 +7,98 @@ namespace Game.Editor.Tool
 {
     public static class RankedMmrResetter
     {
-        private const string DefaultMmrKey = "ranked_mmr";
+        private const string DefaultBlocksKey = "ranked_mmr";
+        private const string DefaultStructuresKey = "ranked_mmr_structures";
         private const int DefaultStartingMmr = 1000;
 
-        [MenuItem("Tools/Reset Ranked MMR")]
-        public static void ResetMmr()
+        [MenuItem("Tools/Reset All Ranked MMR")]
+        public static void ResetAllMmr()
         {
-            var startingMmr = ResolveStartingMmr();
-            var mmrKey = ResolveMmrKey();
+            var (blocksConfig, structuresConfig) = FindConfigs();
 
-            PlayerPrefs.SetInt(mmrKey, startingMmr);
+            var blocksStart = blocksConfig is not null ? blocksConfig.StartingMmr : DefaultStartingMmr;
+            var structsStart = structuresConfig is not null ? structuresConfig.StartingMmr : DefaultStartingMmr;
+
+            var blocksKey = blocksConfig is not null && !string.IsNullOrEmpty(blocksConfig.MmrPlayerPrefsKey)
+                ? blocksConfig.MmrPlayerPrefsKey
+                : DefaultBlocksKey;
+
+            var structsKey = structuresConfig is not null && !string.IsNullOrEmpty(structuresConfig.MmrPlayerPrefsKey)
+                ? structuresConfig.MmrPlayerPrefsKey
+                : DefaultStructuresKey;
+
+            PlayerPrefs.SetInt(blocksKey, blocksStart);
+            PlayerPrefs.SetInt(structsKey, structsStart);
             PlayerPrefs.Save();
 
-            Debug.Log($"[RankedMmrResetter] MMR reset to {startingMmr} (key: '{mmrKey}').");
+            Debug.Log($"[RankedMmrResetter] Blocks MMR reset to {blocksStart} (key: '{blocksKey}').");
+            Debug.Log($"[RankedMmrResetter] Structures MMR reset to {structsStart} (key: '{structsKey}').");
         }
 
-        [MenuItem("Tools/Delete Ranked MMR")]
-        public static void DeleteMmr()
+        [MenuItem("Tools/Delete All Ranked MMR")]
+        public static void DeleteAllMmr()
         {
-            var mmrKey = ResolveMmrKey();
+            var (blocksConfig, structuresConfig) = FindConfigs();
 
-            if (!PlayerPrefs.HasKey(mmrKey))
-            {
-                Debug.LogWarning($"[RankedMmrResetter] Key '{mmrKey}' not found in PlayerPrefs.");
-                return;
-            }
+            var blocksKey = blocksConfig is not null && !string.IsNullOrEmpty(blocksConfig.MmrPlayerPrefsKey)
+                ? blocksConfig.MmrPlayerPrefsKey
+                : DefaultBlocksKey;
 
-            PlayerPrefs.DeleteKey(mmrKey);
+            var structsKey = structuresConfig is not null && !string.IsNullOrEmpty(structuresConfig.MmrPlayerPrefsKey)
+                ? structuresConfig.MmrPlayerPrefsKey
+                : DefaultStructuresKey;
+
+            if (PlayerPrefs.HasKey(blocksKey)) PlayerPrefs.DeleteKey(blocksKey);
+            if (PlayerPrefs.HasKey(structsKey)) PlayerPrefs.DeleteKey(structsKey);
+
             PlayerPrefs.Save();
-
-            Debug.Log($"[RankedMmrResetter] MMR key '{mmrKey}' deleted from PlayerPrefs.");
+            Debug.Log($"[RankedMmrResetter] Deleted keys '{blocksKey}' and '{structsKey}'.");
         }
 
         [MenuItem("Tools/Show Current Ranked MMR")]
         public static void ShowCurrentMmr()
         {
-            var startingMmr = ResolveStartingMmr();
-            var mmrKey = ResolveMmrKey();
-            var currentMmr = PlayerPrefs.GetInt(mmrKey, startingMmr);
+            var (blocksConfig, structuresConfig) = FindConfigs();
 
-            Debug.Log($"[RankedMmrResetter] Current MMR: {currentMmr} (key: '{mmrKey}', default: {startingMmr}).");
+            var blocksStart = blocksConfig is not null ? blocksConfig.StartingMmr : DefaultStartingMmr;
+            var structsStart = structuresConfig is not null ? structuresConfig.StartingMmr : DefaultStartingMmr;
+
+            var blocksKey = blocksConfig is not null && !string.IsNullOrEmpty(blocksConfig.MmrPlayerPrefsKey)
+                ? blocksConfig.MmrPlayerPrefsKey
+                : DefaultBlocksKey;
+
+            var structsKey = structuresConfig is not null && !string.IsNullOrEmpty(structuresConfig.MmrPlayerPrefsKey)
+                ? structuresConfig.MmrPlayerPrefsKey
+                : DefaultStructuresKey;
+
+            var currentBlocks = PlayerPrefs.GetInt(blocksKey, blocksStart);
+            var currentStructs = PlayerPrefs.GetInt(structsKey, structsStart);
+
+            Debug.Log($"[RankedMmrResetter] Blocks MMR: {currentBlocks} (key: '{blocksKey}').");
+            Debug.Log($"[RankedMmrResetter] Structures MMR: {currentStructs} (key: '{structsKey}').");
         }
 
-        private static int ResolveStartingMmr()
+        private static (RankedBlocksConfig, RankedStructuresConfig) FindConfigs()
         {
-            var config = FindRankedConfig();
-            return config is not null ? config.StartingMmr : DefaultStartingMmr;
-        }
+            var blocksGuids = AssetDatabase.FindAssets($"t:{nameof(RankedBlocksConfig)}");
+            var structsGuids = AssetDatabase.FindAssets($"t:{nameof(RankedStructuresConfig)}");
 
-        private static string ResolveMmrKey()
-        {
-            var config = FindRankedConfig();
-            return config is not null && !string.IsNullOrEmpty(config.MmrPlayerPrefsKey)
-                ? config.MmrPlayerPrefsKey
-                : DefaultMmrKey;
-        }
+            RankedBlocksConfig blocksConfig = null;
+            RankedStructuresConfig structsConfig = null;
 
-        private static RankedConfig FindRankedConfig()
-        {
-            var guids = AssetDatabase.FindAssets($"t:{nameof(RankedConfig)}");
-            if (guids is null || guids.Length == 0) return null;
+            if (blocksGuids is { Length: > 0 })
+            {
+                var path = AssetDatabase.GUIDToAssetPath(blocksGuids[0]);
+                blocksConfig = AssetDatabase.LoadAssetAtPath<RankedBlocksConfig>(path);
+            }
 
-            var path = AssetDatabase.GUIDToAssetPath(guids[0]);
-            return AssetDatabase.LoadAssetAtPath<RankedConfig>(path);
+            if (structsGuids is { Length: > 0 })
+            {
+                var path = AssetDatabase.GUIDToAssetPath(structsGuids[0]);
+                structsConfig = AssetDatabase.LoadAssetAtPath<RankedStructuresConfig>(path);
+            }
+
+            return (blocksConfig, structsConfig);
         }
     }
 }

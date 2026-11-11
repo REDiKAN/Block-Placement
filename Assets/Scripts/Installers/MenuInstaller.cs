@@ -13,7 +13,9 @@ namespace Game.Installers
     {
         [field: SerializeField] public LevelCatalog Catalog { get; private set; }
         [field: SerializeField] public AchievementConfig[] AchievementConfigs { get; private set; }
-        [field: SerializeField] private RankedConfig RankedConfig { get; set; }
+        [field: SerializeField] private RankedCoreConfig RankedCoreConfig { get; set; }
+        [field: SerializeField] private RankedBlocksConfig RankedBlocksConfig { get; set; }
+        [field: SerializeField] private RankedStructuresConfig RankedStructuresConfig { get; set; }
 
         public override void InstallBindings()
         {
@@ -22,8 +24,9 @@ namespace Game.Installers
 
             Container.BindInstance(Catalog);
 
-            if (RankedConfig is not null)
-                Container.BindInstance(RankedConfig);
+            if (RankedCoreConfig is not null) Container.BindInstance(RankedCoreConfig);
+            if (RankedBlocksConfig is not null) Container.BindInstance(RankedBlocksConfig);
+            if (RankedStructuresConfig is not null) Container.BindInstance(RankedStructuresConfig);
 
             Bind<MenuNavigationService>();
             Bind<PreviewService>();

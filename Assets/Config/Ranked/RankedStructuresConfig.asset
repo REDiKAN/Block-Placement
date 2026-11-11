@@ -1,0 +1,173 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d68c93119367faf4c8ef1620f3a185b2, type: 3}
+  m_Name: RankedStructuresConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Ranked.RankedStructuresConfig
+  <StartingMmr>k__BackingField: 1000
+  <MinimumMmr>k__BackingField: 0
+  <MmrPlayerPrefsKey>k__BackingField: ranked_mmr_structures
+  <BaseReward>k__BackingField: 20
+  <RewardPerDifficulty>k__BackingField: 4
+  <TimeBonusMultiplier>k__BackingField: 25
+  <BasePenalty>k__BackingField: 25
+  <PenaltyPerDifficulty>k__BackingField: 6
+  <BaseTimerSeconds>k__BackingField: 150
+  <TimerDecayFactor>k__BackingField: 0.8
+  <MinimumTimerSeconds>k__BackingField: 60
+  <MetricMatchThreshold>k__BackingField: 0.5
+  <BlockEfficiencyThreshold>k__BackingField: 0.5
+  <ArchetypeProfiles>k__BackingField:
+  - <Archetype>k__BackingField: 0
+    <MinMmr>k__BackingField: 0
+    <MaxMmr>k__BackingField: 999
+    <BaseDifficulty>k__BackingField: 1
+    <Verticality>k__BackingField: 0.2
+    <OverhangRatio>k__BackingField: 0
+    <Ambiguity>k__BackingField: 0.1
+    <DensityComplexity>k__BackingField: 0.2
+    <Asymmetry>k__BackingField: 0.1
+    <Compactness>k__BackingField: 0.8
+    <MinBlockCount>k__BackingField: 6
+    <MaxBlockCount>k__BackingField: 10
+    <IsBlockLimitEnabled>k__BackingField: 0
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
+    <MinStructureTypes>k__BackingField: 2
+    <MaxStructureTypes>k__BackingField: 2
+  - <Archetype>k__BackingField: 1
+    <MinMmr>k__BackingField: 1000
+    <MaxMmr>k__BackingField: 1999
+    <BaseDifficulty>k__BackingField: 2
+    <Verticality>k__BackingField: 0.4
+    <OverhangRatio>k__BackingField: 0.1
+    <Ambiguity>k__BackingField: 0.2
+    <DensityComplexity>k__BackingField: 0.3
+    <Asymmetry>k__BackingField: 0.2
+    <Compactness>k__BackingField: 0.7
+    <MinBlockCount>k__BackingField: 10
+    <MaxBlockCount>k__BackingField: 15
+    <IsBlockLimitEnabled>k__BackingField: 0
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
+    <MinStructureTypes>k__BackingField: 2
+    <MaxStructureTypes>k__BackingField: 3
+  - <Archetype>k__BackingField: 2
+    <MinMmr>k__BackingField: 2000
+    <MaxMmr>k__BackingField: 2999
+    <BaseDifficulty>k__BackingField: 3
+    <Verticality>k__BackingField: 0.5
+    <OverhangRatio>k__BackingField: 0.1
+    <Ambiguity>k__BackingField: 0.4
+    <DensityComplexity>k__BackingField: 0.4
+    <Asymmetry>k__BackingField: 0.6
+    <Compactness>k__BackingField: 0.5
+    <MinBlockCount>k__BackingField: 14
+    <MaxBlockCount>k__BackingField: 20
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 2
+    <UseDecoyStructures>k__BackingField: 1
+    <MinDecoyCount>k__BackingField: 1
+    <MaxDecoyCount>k__BackingField: 1
+    <MinStructureTypes>k__BackingField: 2
+    <MaxStructureTypes>k__BackingField: 3
+  - <Archetype>k__BackingField: 3
+    <MinMmr>k__BackingField: 3000
+    <MaxMmr>k__BackingField: 3999
+    <BaseDifficulty>k__BackingField: 4
+    <Verticality>k__BackingField: 0.7
+    <OverhangRatio>k__BackingField: 0.2
+    <Ambiguity>k__BackingField: 0.5
+    <DensityComplexity>k__BackingField: 0.6
+    <Asymmetry>k__BackingField: 0.6
+    <Compactness>k__BackingField: 0.5
+    <MinBlockCount>k__BackingField: 18
+    <MaxBlockCount>k__BackingField: 26
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 1
+    <UseDecoyStructures>k__BackingField: 1
+    <MinDecoyCount>k__BackingField: 1
+    <MaxDecoyCount>k__BackingField: 2
+    <MinStructureTypes>k__BackingField: 3
+    <MaxStructureTypes>k__BackingField: 4
+  - <Archetype>k__BackingField: 4
+    <MinMmr>k__BackingField: 4000
+    <MaxMmr>k__BackingField: 4999
+    <BaseDifficulty>k__BackingField: 5
+    <Verticality>k__BackingField: 0.8
+    <OverhangRatio>k__BackingField: 0.3
+    <Ambiguity>k__BackingField: 0.7
+    <DensityComplexity>k__BackingField: 0.7
+    <Asymmetry>k__BackingField: 0.7
+    <Compactness>k__BackingField: 0.4
+    <MinBlockCount>k__BackingField: 22
+    <MaxBlockCount>k__BackingField: 32
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 1
+    <MinDecoyCount>k__BackingField: 2
+    <MaxDecoyCount>k__BackingField: 3
+    <MinStructureTypes>k__BackingField: 3
+    <MaxStructureTypes>k__BackingField: 4
+  - <Archetype>k__BackingField: 5
+    <MinMmr>k__BackingField: 5000
+    <MaxMmr>k__BackingField: 99999
+    <BaseDifficulty>k__BackingField: 6
+    <Verticality>k__BackingField: 0.9
+    <OverhangRatio>k__BackingField: 0.4
+    <Ambiguity>k__BackingField: 0.9
+    <DensityComplexity>k__BackingField: 0.8
+    <Asymmetry>k__BackingField: 0.9
+    <Compactness>k__BackingField: 0.3
+    <MinBlockCount>k__BackingField: 30
+    <MaxBlockCount>k__BackingField: 40
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 1
+    <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 1
+    <MinDecoyCount>k__BackingField: 3
+    <MaxDecoyCount>k__BackingField: 4
+    <MinStructureTypes>k__BackingField: 4
+    <MaxStructureTypes>k__BackingField: 5
+  <AvailableStructures>k__BackingField:
+  - {fileID: 11400000, guid: 15009a0006e4f1342a858da578c9927f, type: 2}
+  - {fileID: 11400000, guid: 8bb9f3324dfdef54aa66bbde3aafed39, type: 2}
+  - {fileID: 11400000, guid: afff97807c9e35a489e7c84d104302c6, type: 2}
+  - {fileID: 11400000, guid: 6e2f8a6eb4f97b44baa44fee9765c6db, type: 2}
+  - {fileID: 11400000, guid: e8916ef9488196e49b6333be57449d9e, type: 2}
+  - {fileID: 11400000, guid: 8c78b78c2600574498bd4734f8dc1954, type: 2}
+  - {fileID: 11400000, guid: 193266b0a7ee73f489716bb42c88e5ac, type: 2}
+  - {fileID: 11400000, guid: 45b9b70d6c1068245ac5b1bd1deec3dd, type: 2}
+  - {fileID: 11400000, guid: 485963a9f07dbf147a6661f5552f19bc, type: 2}
+  - {fileID: 11400000, guid: 8627db91b2c071341883b8722e6e4bdb, type: 2}
+  - {fileID: 11400000, guid: 93ae3c76714c070488cdfbb0ee271c30, type: 2}
+  - {fileID: 11400000, guid: 1ae218246ffd2374288839c8171bc167, type: 2}
+  - {fileID: 11400000, guid: 60a4bd232c40d4b43b53520aef6cec8f, type: 2}
+  - {fileID: 11400000, guid: 094462bed365a2f4cb38c8d96d4aee2f, type: 2}
+  - {fileID: 11400000, guid: 140ed644ba12f6e4dbab3fee35aa9ec7, type: 2}
+  - {fileID: 11400000, guid: ed77ca536df19f94b912302137dc7d00, type: 2}
+  - {fileID: 11400000, guid: b14d1f201bf99d04db2d6dcbf0cba7dd, type: 2}
+  - {fileID: 11400000, guid: f97e74de69baad74e8f21864131e1a94, type: 2}
+  - {fileID: 11400000, guid: cf7f6716aea3acd4dbe3d3a020c604a2, type: 2}
+  - {fileID: 11400000, guid: ba62bc25a0200e84c9b4ec7ab5c6feaf, type: 2}
+  - {fileID: 11400000, guid: 58ea642bd51e76a469e12c33e041c75a, type: 2}
+  - {fileID: 11400000, guid: fe637c507eea6f54f942a290961fe7b5, type: 2}
+  - {fileID: 11400000, guid: b2c4cc50edcd30040aae38e377e43613, type: 2}
+  - {fileID: 11400000, guid: 1bdb4eb4c504b7441b5c7fec78b3aa9e, type: 2}

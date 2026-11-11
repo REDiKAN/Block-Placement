@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.Core;
 using Game.Data;
 using Game.Data.Ranked;
 using Game.Services.Shadow;
@@ -9,16 +10,22 @@ namespace Game.Services.Ranked
 {
     public class QualityValidator : IQualityValidator
     {
-        private readonly RankedConfig _config;
+        private readonly RankedCoreConfig _coreConfig;
+        private readonly RankedBlocksConfig _blocksConfig;
+        private readonly RankedStructuresConfig _structuresConfig;
         private readonly ISolverService _solverService;
         private readonly IShadowCalculationService _calculationService;
 
         public QualityValidator(
-            RankedConfig config,
+            RankedCoreConfig coreConfig,
+            RankedBlocksConfig blocksConfig,
+            RankedStructuresConfig structuresConfig,
             ISolverService solverService,
             IShadowCalculationService calculationService)
         {
-            _config = config;
+            _coreConfig = coreConfig;
+            _blocksConfig = blocksConfig;
+            _structuresConfig = structuresConfig;
             _solverService = solverService;
             _calculationService = calculationService;
         }
@@ -28,10 +35,13 @@ namespace Game.Services.Ranked
             if (config?.InitialBlocks is null || config.InitialBlocks.Length == 0)
                 return RankedValidationReport.Failure;
 
-            var projection = _calculationService.Calculate(config.InitialBlocks, _config.GridSize);
+            var projection = _calculationService.Calculate(config.InitialBlocks, _coreConfig.GridSize);
             var floor = config.FloorMatrix ?? GetDefaultFloor();
+            var isStructureMode = config.Mode == GameMode.Structures;
 
-            var solverResult = _solverService.Solve(projection.Wall1, projection.Wall2, floor);
+            var solverResult = isStructureMode
+                ? new SolverResult(1, 0, config.InitialBlocks.Length)
+                : _solverService.Solve(projection.Wall1, projection.Wall2, floor);
 
             if (!solverResult.IsSolvable || !solverResult.HasUniqueSolution)
                 return RankedValidationReport.Failure;
@@ -39,23 +49,21 @@ namespace Game.Services.Ranked
             var actualProfile = CalculateActualProfile(config.InitialBlocks);
             var metricScore = CalculateMetricMatchScore(actualProfile, targetProfile);
 
-            if (metricScore < _config.MetricMatchThreshold)
+            var threshold = isStructureMode
+                ? _structuresConfig.MetricMatchThreshold
+                : _blocksConfig.MetricMatchThreshold;
+
+            if (metricScore < threshold)
                 return RankedValidationReport.Failure;
 
             var blockEfficiency = solverResult.MinimumBlocksRequired > 0
                 ? (float)config.InitialBlocks.Length / solverResult.MinimumBlocksRequired
-                : 0f;
+                : 1f;
 
             var requiresRotation = actualProfile.Asymmetry > 0.5f;
 
             return new RankedValidationReport(
-                true,
-                true,
-                solverResult.SolverSteps,
-                blockEfficiency,
-                metricScore,
-                requiresRotation,
-                solverResult.MinimumBlocksRequired);
+                true, true, solverResult.SolverSteps, blockEfficiency, metricScore, requiresRotation, solverResult.MinimumBlocksRequired);
         }
 
         public bool IsAcceptable(RankedValidationReport report, RankedDifficultyProfile targetProfile) =>
@@ -63,7 +71,7 @@ namespace Game.Services.Ranked
 
         private bool[] GetDefaultFloor()
         {
-            var floor = new bool[_config.GridSize * _config.GridSize];
+            var floor = new bool[_coreConfig.GridSize * _coreConfig.GridSize];
             Array.Fill(floor, true);
             return floor;
         }
@@ -72,20 +80,16 @@ namespace Game.Services.Ranked
         {
             var maxY = 0;
             var overhangs = 0;
-            var minX = _config.GridSize;
+            var minX = _coreConfig.GridSize;
             var maxX = 0;
-            var minZ = _config.GridSize;
+            var minZ = _coreConfig.GridSize;
             var maxZ = 0;
-
             var blockSet = new HashSet<Vector3Int>(blocks);
 
             foreach (var block in blocks)
             {
                 if (block.y > maxY) maxY = block.y;
-
-                if (block.y > 0 && !blockSet.Contains(new Vector3Int(block.x, block.y - 1, block.z)))
-                    overhangs++;
-
+                if (block.y > 0 && !blockSet.Contains(new Vector3Int(block.x, block.y - 1, block.z))) overhangs++;
                 if (block.x < minX) minX = block.x;
                 if (block.x > maxX) maxX = block.x;
                 if (block.z < minZ) minZ = block.z;
@@ -94,54 +98,39 @@ namespace Game.Services.Ranked
 
             var verticality = maxY / 4f;
             var overhangRatio = blocks.Length > 0 ? (float)overhangs / blocks.Length : 0f;
-
-            var projection = _calculationService.Calculate(blocks, _config.GridSize);
+            var projection = _calculationService.Calculate(blocks, _coreConfig.GridSize);
             var ambiguity = CalculateAmbiguity(projection.Wall1, projection.Wall2);
             var densityComplexity = CalculateDensityVariance(blocks);
             var asymmetry = CalculateAsymmetry(blocks);
-
             var volume = (maxX - minX + 1) * (maxY + 1) * (maxZ - minZ + 1);
             var compactness = volume > 0 ? (float)blocks.Length / volume : 0f;
 
             return new RankedDifficultyProfile(
-                verticality,
-                overhangRatio,
-                ambiguity,
-                densityComplexity,
-                asymmetry,
-                compactness,
-                blocks.Length);
+                verticality, overhangRatio, ambiguity, densityComplexity, asymmetry, compactness, blocks.Length);
         }
 
         private float CalculateAmbiguity(bool[] wall1, bool[] wall2)
         {
             var w1Count = 0;
             var w2Count = 0;
-            var cellCount = _config.GridSize * _config.GridSize;
-
+            var cellCount = _coreConfig.GridSize * _coreConfig.GridSize;
             for (var i = 0; i < cellCount; i++)
             {
                 if (wall1[i]) w1Count++;
                 if (wall2[i]) w2Count++;
             }
-
             var ratio = Mathf.Abs(w1Count - w2Count) / (float)cellCount;
             return Mathf.Clamp01(ratio * 2f);
         }
 
         private float CalculateDensityVariance(Vector3Int[] blocks)
         {
-            var cellCount = _config.GridSize * _config.GridSize;
+            var cellCount = _coreConfig.GridSize * _coreConfig.GridSize;
             var densities = new int[cellCount];
-
-            foreach (var block in blocks)
-            {
-                densities[block.y * _config.GridSize + block.z]++;
-            }
+            foreach (var block in blocks) densities[block.y * _coreConfig.GridSize + block.z]++;
 
             var sum = 0f;
             var count = 0;
-
             for (var i = 0; i < cellCount; i++)
             {
                 if (densities[i] > 0)
@@ -150,20 +139,14 @@ namespace Game.Services.Ranked
                     count++;
                 }
             }
-
             if (count == 0) return 0f;
 
             var mean = sum / count;
             var variance = 0f;
-
             for (var i = 0; i < cellCount; i++)
             {
-                if (densities[i] > 0)
-                {
-                    variance += (densities[i] - mean) * (densities[i] - mean);
-                }
+                if (densities[i] > 0) variance += (densities[i] - mean) * (densities[i] - mean);
             }
-
             return Mathf.Clamp01(variance / count / 5f);
         }
 
@@ -171,16 +154,13 @@ namespace Game.Services.Ranked
         {
             var leftCount = 0;
             var rightCount = 0;
-
             foreach (var block in blocks)
             {
                 if (block.x < 2) leftCount++;
                 else if (block.x > 2) rightCount++;
             }
-
             var total = leftCount + rightCount;
             if (total == 0) return 0f;
-
             return Mathf.Abs(leftCount - rightCount) / (float)total;
         }
 
@@ -193,7 +173,6 @@ namespace Game.Services.Ranked
             diff += Mathf.Abs(actual.DensityComplexity - target.DensityComplexity);
             diff += Mathf.Abs(actual.Asymmetry - target.Asymmetry);
             diff += Mathf.Abs(actual.Compactness - target.Compactness);
-
             return Mathf.Clamp01(1f - (diff / 6f));
         }
     }
