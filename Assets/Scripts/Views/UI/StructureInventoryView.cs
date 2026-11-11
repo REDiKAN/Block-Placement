@@ -146,6 +146,7 @@ namespace Game.Views.UI
         {
             var contentRect = Content as RectTransform;
             if (contentRect is null) return;
+
             var cellSize = _layoutGroup is not null ? _layoutGroup.cellSize : new Vector2(150f, 150f);
             var spacing = _layoutGroup is not null ? _layoutGroup.spacing : new Vector2(50f, 0f);
 
@@ -157,19 +158,22 @@ namespace Game.Views.UI
 
             contentRect.sizeDelta = new Vector2(totalWidth, contentRect.sizeDelta.y);
 
-            var startX = -totalWidth / 2f + cellSize.x / 2f;
-
             for (var i = 0; i < count; i++)
             {
                 var rt = _items[i].GetComponent<RectTransform>();
                 if (rt is null) continue;
-                rt.anchorMin = new Vector2(0.5f, 0.5f);
-                rt.anchorMax = new Vector2(0.5f, 0.5f);
+
+                rt.anchorMin = new Vector2(0f, 0.5f);
+                rt.anchorMax = new Vector2(0f, 0.5f);
                 rt.pivot = new Vector2(0.5f, 0.5f);
                 rt.sizeDelta = cellSize;
-                var x = startX + i * (cellSize.x + spacing.x);
+
+                var x = (cellSize.x / 2f) + i * (cellSize.x + spacing.x);
                 _items[i].Initialize(new Vector2(x, 0f));
             }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+            Canvas.ForceUpdateCanvases();
 
             UpdateScrollability();
             PlayIntro();
@@ -178,10 +182,11 @@ namespace Game.Views.UI
         private void UpdateScrollability()
         {
             if (ScrollRect is null || Content is null) return;
+
             var contentRect = Content as RectTransform;
             if (contentRect is null) return;
 
-            var viewport = Viewport != null ? Viewport : ScrollRect.viewport;
+            var viewport = Viewport is not null ? Viewport : ScrollRect.viewport;
             if (viewport is null) return;
 
             var viewportWidth = viewport.rect.width;
@@ -189,11 +194,16 @@ namespace Game.Views.UI
             var isScrollable = contentWidth > viewportWidth;
 
             ScrollRect.enabled = isScrollable;
+            ScrollRect.horizontal = isScrollable;
+            ScrollRect.vertical = false;
+            ScrollRect.movementType = ScrollRect.MovementType.Clamped;
 
             if (!isScrollable)
             {
-                contentRect.anchoredPosition = Vector2.zero;
+                var offset = (viewportWidth - contentWidth) / 2f;
+                contentRect.anchoredPosition = new Vector2(offset, contentRect.anchoredPosition.y);
             }
+            else ScrollRect.horizontalNormalizedPosition = 0f;
         }
 
         private void PlayIntro()
