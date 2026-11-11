@@ -15,12 +15,15 @@ MonoBehaviour:
   <StartingMmr>k__BackingField: 1000
   <MinimumMmr>k__BackingField: 0
   <MmrPlayerPrefsKey>k__BackingField: ranked_mmr
+  <MmrStructuresPlayerPrefsKey>k__BackingField: ranked_mmr_structures
   <LevelsPerMatch>k__BackingField: 5
   <Level5Bonus>k__BackingField: 20
   <PerfectRunBonus>k__BackingField: 50
   <BaseReward>k__BackingField: 15
   <RewardPerDifficulty>k__BackingField: 3
   <TimeBonusMultiplier>k__BackingField: 20
+  <BasePenalty>k__BackingField: 20
+  <PenaltyPerDifficulty>k__BackingField: 5
   <BaseTimerSeconds>k__BackingField: 120
   <TimerDecayFactor>k__BackingField: 0.8
   <MinimumTimerSeconds>k__BackingField: 40
@@ -29,6 +32,31 @@ MonoBehaviour:
   <MetricMatchThreshold>k__BackingField: 0.7
   <BlockEfficiencyThreshold>k__BackingField: 0.9
   <GridSize>k__BackingField: 5
+  <AvailableStructures>k__BackingField:
+  - {fileID: 11400000, guid: 15009a0006e4f1342a858da578c9927f, type: 2}
+  - {fileID: 11400000, guid: 8bb9f3324dfdef54aa66bbde3aafed39, type: 2}
+  - {fileID: 11400000, guid: afff97807c9e35a489e7c84d104302c6, type: 2}
+  - {fileID: 11400000, guid: 6e2f8a6eb4f97b44baa44fee9765c6db, type: 2}
+  - {fileID: 11400000, guid: e8916ef9488196e49b6333be57449d9e, type: 2}
+  - {fileID: 11400000, guid: 8c78b78c2600574498bd4734f8dc1954, type: 2}
+  - {fileID: 11400000, guid: 193266b0a7ee73f489716bb42c88e5ac, type: 2}
+  - {fileID: 11400000, guid: 45b9b70d6c1068245ac5b1bd1deec3dd, type: 2}
+  - {fileID: 11400000, guid: 485963a9f07dbf147a6661f5552f19bc, type: 2}
+  - {fileID: 11400000, guid: 8627db91b2c071341883b8722e6e4bdb, type: 2}
+  - {fileID: 11400000, guid: 93ae3c76714c070488cdfbb0ee271c30, type: 2}
+  - {fileID: 11400000, guid: 1ae218246ffd2374288839c8171bc167, type: 2}
+  - {fileID: 11400000, guid: 60a4bd232c40d4b43b53520aef6cec8f, type: 2}
+  - {fileID: 11400000, guid: 094462bed365a2f4cb38c8d96d4aee2f, type: 2}
+  - {fileID: 11400000, guid: 140ed644ba12f6e4dbab3fee35aa9ec7, type: 2}
+  - {fileID: 11400000, guid: ed77ca536df19f94b912302137dc7d00, type: 2}
+  - {fileID: 11400000, guid: b14d1f201bf99d04db2d6dcbf0cba7dd, type: 2}
+  - {fileID: 11400000, guid: f97e74de69baad74e8f21864131e1a94, type: 2}
+  - {fileID: 11400000, guid: cf7f6716aea3acd4dbe3d3a020c604a2, type: 2}
+  - {fileID: 11400000, guid: ba62bc25a0200e84c9b4ec7ab5c6feaf, type: 2}
+  - {fileID: 11400000, guid: 58ea642bd51e76a469e12c33e041c75a, type: 2}
+  - {fileID: 11400000, guid: fe637c507eea6f54f942a290961fe7b5, type: 2}
+  - {fileID: 11400000, guid: b2c4cc50edcd30040aae38e377e43613, type: 2}
+  - {fileID: 11400000, guid: 1bdb4eb4c504b7441b5c7fec78b3aa9e, type: 2}
   <Level5PointsDivisor>k__BackingField: 200
   <Level5MetricBonus>k__BackingField: 0.2
   <ArchetypeProfiles>k__BackingField:
@@ -47,6 +75,9 @@ MonoBehaviour:
     <IsBlockLimitEnabled>k__BackingField: 0
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
   - <Archetype>k__BackingField: 1
     <MinMmr>k__BackingField: 500
     <MaxMmr>k__BackingField: 999
@@ -62,6 +93,9 @@ MonoBehaviour:
     <IsBlockLimitEnabled>k__BackingField: 0
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
   - <Archetype>k__BackingField: 2
     <MinMmr>k__BackingField: 1000
     <MaxMmr>k__BackingField: 1499
@@ -72,11 +106,14 @@ MonoBehaviour:
     <DensityComplexity>k__BackingField: 0.5
     <Asymmetry>k__BackingField: 0.7
     <Compactness>k__BackingField: 0.5
-    <MinBlockCount>k__BackingField: 10
-    <MaxBlockCount>k__BackingField: 14
+    <MinBlockCount>k__BackingField: 16
+    <MaxBlockCount>k__BackingField: 22
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 3
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
   - <Archetype>k__BackingField: 3
     <MinMmr>k__BackingField: 1500
     <MaxMmr>k__BackingField: 1999
@@ -87,11 +124,14 @@ MonoBehaviour:
     <DensityComplexity>k__BackingField: 0.7
     <Asymmetry>k__BackingField: 0.8
     <Compactness>k__BackingField: 0.4
-    <MinBlockCount>k__BackingField: 8
-    <MaxBlockCount>k__BackingField: 12
+    <MinBlockCount>k__BackingField: 22
+    <MaxBlockCount>k__BackingField: 28
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
   - <Archetype>k__BackingField: 4
     <MinMmr>k__BackingField: 2000
     <MaxMmr>k__BackingField: 2999
@@ -102,11 +142,14 @@ MonoBehaviour:
     <DensityComplexity>k__BackingField: 0.85
     <Asymmetry>k__BackingField: 0.9
     <Compactness>k__BackingField: 0.3
-    <MinBlockCount>k__BackingField: 8
-    <MaxBlockCount>k__BackingField: 12
+    <MinBlockCount>k__BackingField: 28
+    <MaxBlockCount>k__BackingField: 32
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0
   - <Archetype>k__BackingField: 5
     <MinMmr>k__BackingField: 3000
     <MaxMmr>k__BackingField: 999999
@@ -117,8 +160,11 @@ MonoBehaviour:
     <DensityComplexity>k__BackingField: 1
     <Asymmetry>k__BackingField: 1
     <Compactness>k__BackingField: 0.2
-    <MinBlockCount>k__BackingField: 8
-    <MaxBlockCount>k__BackingField: 12
+    <MinBlockCount>k__BackingField: 32
+    <MaxBlockCount>k__BackingField: 36
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 0
+    <UseDecoyStructures>k__BackingField: 0
+    <MinDecoyCount>k__BackingField: 0
+    <MaxDecoyCount>k__BackingField: 0

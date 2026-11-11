@@ -9,5 +9,6 @@ namespace Game.Services.Ranked
         bool IsRotationRequired(Archetype archetype);
         bool IsBlockLimitEnabled(Archetype archetype);
         int GetBlockLimitPadding(Archetype archetype);
+        ArchetypeProfileData GetProfileData(Archetype archetype);
     }
 }

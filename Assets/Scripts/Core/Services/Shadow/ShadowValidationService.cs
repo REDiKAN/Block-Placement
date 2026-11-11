@@ -37,6 +37,7 @@ namespace Game.Services.Shadow
         IObservable<Unit> OnLevelCompleted { get; }
         void ForceRevalidate();
         void SetSuppressed(bool suppressed);
+        float GetShadowMatchProgress();
         ShadowCellState GetCellState(int wallIndex, int cellIndex);
     }
 
@@ -51,7 +52,6 @@ namespace Game.Services.Shadow
         private readonly Subject<ShadowCellUpdate> _onCellStateChanged = new();
         private readonly Subject<Unit> _onLevelCompleted = new();
         private readonly CompositeDisposable _disposables = new();
-
         private readonly IGridService _gridService;
         private readonly IShadowCalculationService _calculationService;
         private readonly IRotationService _rotationService;
@@ -99,6 +99,20 @@ namespace Game.Services.Shadow
             return cellIndex >= 0 && cellIndex < states.Length ? states[cellIndex] : ShadowCellState.Empty;
         }
 
+        public float GetShadowMatchProgress()
+        {
+            if (_targetWall1 is null || _targetWall2 is null) return 0f;
+
+            var matches = 0;
+            for (var i = 0; i < CellCount; i++)
+            {
+                if (_hasShadow1[i] == _targetWall1[i]) matches++;
+                if (_hasShadow2[i] == _targetWall2[i]) matches++;
+            }
+
+            return matches / (float)(CellCount * 2);
+        }
+
         private void ValidateAndPublish()
         {
             var projection = _calculationService.Calculate(_rotationService.CurrentInitialBlocks, GridSize);
@@ -118,6 +132,7 @@ namespace Game.Services.Shadow
                     {
                         _cellCoord.z = z;
                         if (!_gridService.IsCellOccupied(_cellCoord)) continue;
+
                         _hasShadow1[y * GridSize + z] = true;
                         _hasShadow2[x * GridSize + y] = true;
                     }
@@ -132,6 +147,7 @@ namespace Game.Services.Shadow
             {
                 var yzData = GetDensityData(yzDensities, i);
                 var xyData = GetDensityData(xyDensities, i);
+
                 isLevelCompleted &= EvaluateAndPublish(0, i, _hasShadow1[i], _targetWall1[i], yzData, ref _wall1States[i]);
                 isLevelCompleted &= EvaluateAndPublish(1, i, _hasShadow2[i], _targetWall2[i], xyData, ref _wall2States[i]);
             }
@@ -144,6 +160,7 @@ namespace Game.Services.Shadow
         {
             if (densities is null || index >= densities.Length)
                 return default;
+
             return densities[index];
         }
 

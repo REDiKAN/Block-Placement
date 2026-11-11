@@ -25,29 +25,20 @@ namespace Game.Services.Ranked
             return Archetype.Max;
         }
 
-        public int GetBaseDifficulty(Archetype archetype)
-        {
-            var profile = FindProfile(archetype);
-            return profile?.BaseDifficulty ?? 1;
-        }
+        public int GetBaseDifficulty(Archetype archetype) =>
+            FindProfile(archetype)?.BaseDifficulty ?? 1;
 
-        public bool IsRotationRequired(Archetype archetype)
-        {
-            var profile = FindProfile(archetype);
-            return profile?.IsRotationRequired ?? false;
-        }
+        public bool IsRotationRequired(Archetype archetype) =>
+            FindProfile(archetype)?.IsRotationRequired ?? false;
 
-        public bool IsBlockLimitEnabled(Archetype archetype)
-        {
-            var profile = FindProfile(archetype);
-            return profile?.IsBlockLimitEnabled ?? false;
-        }
+        public bool IsBlockLimitEnabled(Archetype archetype) =>
+            FindProfile(archetype)?.IsBlockLimitEnabled ?? false;
 
-        public int GetBlockLimitPadding(Archetype archetype)
-        {
-            var profile = FindProfile(archetype);
-            return profile?.BlockLimitPadding ?? 0;
-        }
+        public int GetBlockLimitPadding(Archetype archetype) =>
+            FindProfile(archetype)?.BlockLimitPadding ?? 0;
+
+        public ArchetypeProfileData GetProfileData(Archetype archetype) =>
+            FindProfile(archetype);
 
         private ArchetypeProfileData FindProfile(Archetype archetype)
         {

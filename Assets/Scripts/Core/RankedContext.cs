@@ -1,8 +1,11 @@
+using Game.Data;
+
 namespace Game.Core
 {
     public static class RankedContext
     {
         public static bool IsRankedModeActive { get; set; }
+        public static GameMode CurrentMode { get; set; }
         public static int PlayerMmr { get; set; }
         public static int MatchPoints { get; set; }
         public static int CurrentMatchLevel { get; set; }
@@ -13,6 +16,7 @@ namespace Game.Core
         public static void Reset()
         {
             IsRankedModeActive = false;
+            CurrentMode = GameMode.Blocks;
             PlayerMmr = 0;
             MatchPoints = 0;
             CurrentMatchLevel = 1;
@@ -21,9 +25,10 @@ namespace Game.Core
             IsLevel5Completed = false;
         }
 
-        public static void StartMatch(int startingMmr)
+        public static void StartMatch(int startingMmr, GameMode mode)
         {
             IsRankedModeActive = true;
+            CurrentMode = mode;
             PlayerMmr = startingMmr;
             MatchPoints = 0;
             CurrentMatchLevel = 1;

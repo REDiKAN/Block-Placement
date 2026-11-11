@@ -169,6 +169,8 @@ namespace Game.Installers
             Bind<SettingsService>();
             Bind<LevelTransitionAnimationService>();
             Bind<LevelLoaderService>();
+            Bind<StructureShapeGenerator>(); 
+            Bind<DecoyPlacementService>();
 
             Bind<ArchetypeResolver>();
             Bind<ProfileBuilder>();

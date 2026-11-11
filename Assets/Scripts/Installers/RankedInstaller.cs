@@ -18,6 +18,8 @@ namespace Game.Installers
             Bind<ProfileBuilder>();
             Bind<SolverService>();
             Bind<ShapeGenerator>();
+            Bind<StructureShapeGenerator>();
+            Bind<DecoyPlacementService>();
             Bind<QualityValidator>();
             Bind<RankedLevelGeneratorService>();
             Bind<RankedModeService>();
