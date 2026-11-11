@@ -1,3 +1,4 @@
+using System;
 using Game.Core;
 using Game.Data;
 using Game.Data.Ranked;
@@ -42,6 +43,45 @@ namespace Game.Services.Ranked
         public int GetBlockLimitPadding(Archetype archetype) =>
             FindProfile(archetype)?.BlockLimitPadding ?? 0;
 
+        public MmrBoundsInfo GetMmrBounds(int mmr)
+        {
+            var profiles = GetSortedProfiles();
+            if (profiles is null || profiles.Length == 0)
+                return default;
+
+            var currentIndex = -1;
+            for (var i = 0; i < profiles.Length; i++)
+            {
+                if (mmr >= profiles[i].MinMmr && mmr <= profiles[i].MaxMmr)
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+
+            if (currentIndex == -1)
+            {
+                if (mmr > profiles[^1].MaxMmr)
+                    currentIndex = profiles.Length - 1;
+                else
+                    currentIndex = 0;
+            }
+
+            var current = profiles[currentIndex];
+
+            var prevArchetype = currentIndex > 0 ? (Archetype?)profiles[currentIndex - 1].Archetype : null;
+            var prevMax = currentIndex > 0 ? profiles[currentIndex - 1].MaxMmr : current.MinMmr;
+
+            var nextArchetype = currentIndex < profiles.Length - 1 ? (Archetype?)profiles[currentIndex + 1].Archetype : null;
+            var nextMin = currentIndex < profiles.Length - 1 ? profiles[currentIndex + 1].MinMmr : current.MaxMmr;
+
+            return new MmrBoundsInfo(
+                current.Archetype, current.MinMmr, current.MaxMmr,
+                prevArchetype, prevMax,
+                nextArchetype, nextMin,
+                mmr);
+        }
+
         private IRankedArchetypeProfile FindProfile(Archetype archetype)
         {
             var profiles = GetActiveProfiles();
@@ -78,6 +118,19 @@ namespace Game.Services.Ranked
                 blocksResult[i] = blocksSource[i];
 
             return blocksResult;
+        }
+
+        private IRankedArchetypeProfile[] GetSortedProfiles()
+        {
+            var profiles = GetActiveProfiles();
+            if (profiles is null || profiles.Length == 0) return null;
+
+            var sorted = new IRankedArchetypeProfile[profiles.Length];
+            for (var i = 0; i < profiles.Length; i++)
+                sorted[i] = profiles[i];
+
+            Array.Sort(sorted, (a, b) => a.MinMmr.CompareTo(b.MinMmr));
+            return sorted;
         }
 
         private IRankedArchetypeProfile GetMaxProfile()

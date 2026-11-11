@@ -1,20 +1,26 @@
-using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
+using Game.Services.Ranked;
 using Game.Data.Ranked;
 
 namespace Game.Views.UI.Ranked
 {
     public class RankedMmrProgressBarView : MonoBehaviour
     {
+        [field: SerializeField] private TextMeshProUGUI LeftInfoText { get; set; }
         [field: SerializeField] private Image FillImage { get; set; }
-        [field: SerializeField] private TextMeshProUGUI MinMmrText { get; set; }
-        [field: SerializeField] private TextMeshProUGUI MaxMmrText { get; set; }
+        [field: SerializeField] private TextMeshProUGUI CurrentArchetypeText { get; set; }
+        [field: SerializeField] private TextMeshProUGUI RightInfoText { get; set; }
 
-        private Coroutine _animationCoroutine;
+        [Inject] private readonly IArchetypeResolver _archetypeResolver;
+
         private Tween _currentTween;
+        private int _currentMmr;
+        private int _barMin;
+        private int _barMax;
 
         private void Awake()
         {
@@ -28,128 +34,61 @@ namespace Game.Views.UI.Ranked
 
         public void SetInitialMmr(int mmr)
         {
-            var range = RankedMmrScale.GetRange(mmr);
-            UpdateMmrText(range);
+            _currentMmr = mmr;
+            UpdateBoundsAndText();
             if (FillImage is not null)
-                FillImage.fillAmount = range.CalculateFill(mmr);
+                FillImage.fillAmount = CalculateFill(mmr);
         }
 
         public void UpdateCurrentMmr(int mmr)
         {
             _currentTween?.Kill();
             _currentTween = null;
-
-            if (_animationCoroutine is not null)
-            {
-                StopCoroutine(_animationCoroutine);
-                _animationCoroutine = null;
-            }
-
-            var range = RankedMmrScale.GetRange(mmr);
-            UpdateMmrText(range);
-
+            _currentMmr = mmr;
+            UpdateBoundsAndText();
             if (FillImage is not null)
-                FillImage.fillAmount = range.CalculateFill(mmr);
+                FillImage.fillAmount = CalculateFill(mmr);
         }
 
-        public void AnimateMmrChange(
-            int oldMmr,
-            int newMmr,
-            float phaseDuration,
-            float textSwapDuration,
-            Ease ease,
-            System.Action onComplete)
+        private void UpdateBoundsAndText()
         {
-            if (_animationCoroutine != null)
-                StopCoroutine(_animationCoroutine);
+            var bounds = _archetypeResolver.GetMmrBounds(_currentMmr);
 
-            _animationCoroutine = StartCoroutine(AnimateMmrChangeCoroutine(
-                oldMmr, newMmr, phaseDuration, textSwapDuration, ease, onComplete));
-        }
+            _barMin = bounds.CurrentMin;
+            _barMax = bounds.NextArchetype.HasValue ? bounds.NextMin : bounds.CurrentMax;
+            if (_barMax <= _barMin) _barMax = _barMin + 1;
 
-        private IEnumerator AnimateMmrChangeCoroutine(
-            int oldMmr,
-            int newMmr,
-            float phaseDuration,
-            float textSwapDuration,
-            Ease ease,
-            System.Action onComplete)
-        {
-            var currentMmr = oldMmr;
-            var direction = newMmr > oldMmr ? 1 : (newMmr < oldMmr ? -1 : 0);
+            var lossToPrev = bounds.PrevArchetype.HasValue ? _currentMmr - bounds.PrevMax : 0;
+            var gainToNext = bounds.NextArchetype.HasValue ? bounds.NextMin - _currentMmr : 0;
 
-            if (direction == 0)
+            if (LeftInfoText is not null)
             {
-                onComplete?.Invoke();
-                yield break;
+                LeftInfoText.text = bounds.PrevArchetype.HasValue
+                    ? $"({bounds.PrevArchetype.Value}) {bounds.PrevMax} (-{lossToPrev})"
+                    : string.Empty;
             }
 
-            while (true)
+            if (CurrentArchetypeText is not null)
+                CurrentArchetypeText.text = $"({bounds.CurrentArchetype})";
+
+            if (RightInfoText is not null)
             {
-                var currentRange = RankedMmrScale.GetSegmentRange(currentMmr, direction);
-                var targetRange = RankedMmrScale.GetRange(newMmr);
-
-                if (currentRange.Min == targetRange.Min && currentRange.Max == targetRange.Max)
-                {
-                    yield return AnimateWithinRange(currentMmr, newMmr, currentRange, phaseDuration, ease);
-                    break;
-                }
-
-                if (RankedMmrScale.TryGetBreakpoint(currentMmr, direction, out var breakpoint))
-                {
-                    yield return AnimateWithinRange(currentMmr, breakpoint, currentRange, phaseDuration, ease);
-                    currentMmr = breakpoint;
-
-                    yield return new WaitForSeconds(textSwapDuration);
-                    UpdateMmrText(RankedMmrScale.GetSegmentRange(currentMmr, direction));
-                }
-                else
-                {
-                    break;
-                }
+                RightInfoText.text = bounds.NextArchetype.HasValue
+                    ? $"(+{gainToNext}) {bounds.NextMin} ({bounds.NextArchetype.Value})"
+                    : string.Empty;
             }
-
-            onComplete?.Invoke();
         }
 
-        private IEnumerator AnimateWithinRange(int fromMmr, int toMmr, RankedMmrRange range, float duration, Ease ease)
+        private float CalculateFill(int mmr)
         {
-            if (FillImage is null) yield break;
-
-            var fromFill = range.CalculateFill(fromMmr);
-            var toFill = range.CalculateFill(toMmr);
-
-            FillImage.fillAmount = fromFill;
-            var currentFill = fromFill;
-
-            _currentTween = DOTween.To(
-                () => currentFill,
-                x =>
-                {
-                    currentFill = x;
-                    FillImage.fillAmount = x;
-                },
-                toFill,
-                duration)
-                .SetEase(ease);
-
-            yield return _currentTween.WaitForCompletion();
-        }
-
-        private void UpdateMmrText(RankedMmrRange range)
-        {
-            if (MinMmrText is not null)
-                MinMmrText.text = range.Min.ToString();
-
-            if (MaxMmrText is not null)
-                MaxMmrText.text = range.FormatMax();
+            if (_barMax <= _barMin) return 0f;
+            var clamped = Mathf.Clamp(mmr, _barMin, _barMax);
+            return (float)(clamped - _barMin) / (_barMax - _barMin);
         }
 
         private void OnDestroy()
         {
             _currentTween?.Kill();
-            if (_animationCoroutine != null)
-                StopCoroutine(_animationCoroutine);
         }
     }
 }
