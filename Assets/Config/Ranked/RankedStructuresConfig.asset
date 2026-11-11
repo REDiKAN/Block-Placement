@@ -20,132 +20,132 @@ MonoBehaviour:
   <TimeBonusMultiplier>k__BackingField: 25
   <BasePenalty>k__BackingField: 25
   <PenaltyPerDifficulty>k__BackingField: 6
-  <BaseTimerSeconds>k__BackingField: 150
-  <TimerDecayFactor>k__BackingField: 0.8
-  <MinimumTimerSeconds>k__BackingField: 60
+  <BaseTimerSeconds>k__BackingField: 110
+  <TimerDecayFactor>k__BackingField: 1.5
+  <MinimumTimerSeconds>k__BackingField: 40
   <MetricMatchThreshold>k__BackingField: 0.5
   <BlockEfficiencyThreshold>k__BackingField: 0.5
   <ArchetypeProfiles>k__BackingField:
   - <Archetype>k__BackingField: 0
     <MinMmr>k__BackingField: 0
     <MaxMmr>k__BackingField: 999
-    <BaseDifficulty>k__BackingField: 1
+    <BaseDifficulty>k__BackingField: 3
     <Verticality>k__BackingField: 0.2
     <OverhangRatio>k__BackingField: 0
     <Ambiguity>k__BackingField: 0.1
     <DensityComplexity>k__BackingField: 0.2
     <Asymmetry>k__BackingField: 0.1
     <Compactness>k__BackingField: 0.8
-    <MinBlockCount>k__BackingField: 6
-    <MaxBlockCount>k__BackingField: 10
+    <MinBlockCount>k__BackingField: 14
+    <MaxBlockCount>k__BackingField: 20
     <IsBlockLimitEnabled>k__BackingField: 0
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 0
     <UseDecoyStructures>k__BackingField: 0
-    <MinDecoyCount>k__BackingField: 0
-    <MaxDecoyCount>k__BackingField: 0
-    <MinStructureTypes>k__BackingField: 2
-    <MaxStructureTypes>k__BackingField: 2
+    <MinDecoyCount>k__BackingField: 1
+    <MaxDecoyCount>k__BackingField: 1
+    <MinStructureTypes>k__BackingField: 3
+    <MaxStructureTypes>k__BackingField: 3
   - <Archetype>k__BackingField: 1
     <MinMmr>k__BackingField: 1000
     <MaxMmr>k__BackingField: 1999
-    <BaseDifficulty>k__BackingField: 2
+    <BaseDifficulty>k__BackingField: 5
     <Verticality>k__BackingField: 0.4
     <OverhangRatio>k__BackingField: 0.1
     <Ambiguity>k__BackingField: 0.2
     <DensityComplexity>k__BackingField: 0.3
     <Asymmetry>k__BackingField: 0.2
     <Compactness>k__BackingField: 0.7
-    <MinBlockCount>k__BackingField: 10
-    <MaxBlockCount>k__BackingField: 15
+    <MinBlockCount>k__BackingField: 18
+    <MaxBlockCount>k__BackingField: 26
     <IsBlockLimitEnabled>k__BackingField: 0
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 0
     <UseDecoyStructures>k__BackingField: 0
-    <MinDecoyCount>k__BackingField: 0
-    <MaxDecoyCount>k__BackingField: 0
-    <MinStructureTypes>k__BackingField: 2
-    <MaxStructureTypes>k__BackingField: 3
+    <MinDecoyCount>k__BackingField: 1
+    <MaxDecoyCount>k__BackingField: 2
+    <MinStructureTypes>k__BackingField: 3
+    <MaxStructureTypes>k__BackingField: 4
   - <Archetype>k__BackingField: 2
     <MinMmr>k__BackingField: 2000
     <MaxMmr>k__BackingField: 2999
-    <BaseDifficulty>k__BackingField: 3
+    <BaseDifficulty>k__BackingField: 7
     <Verticality>k__BackingField: 0.5
     <OverhangRatio>k__BackingField: 0.1
     <Ambiguity>k__BackingField: 0.4
     <DensityComplexity>k__BackingField: 0.4
     <Asymmetry>k__BackingField: 0.6
     <Compactness>k__BackingField: 0.5
-    <MinBlockCount>k__BackingField: 14
-    <MaxBlockCount>k__BackingField: 20
+    <MinBlockCount>k__BackingField: 24
+    <MaxBlockCount>k__BackingField: 32
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 2
     <UseDecoyStructures>k__BackingField: 1
-    <MinDecoyCount>k__BackingField: 1
-    <MaxDecoyCount>k__BackingField: 1
-    <MinStructureTypes>k__BackingField: 2
-    <MaxStructureTypes>k__BackingField: 3
+    <MinDecoyCount>k__BackingField: 2
+    <MaxDecoyCount>k__BackingField: 3
+    <MinStructureTypes>k__BackingField: 4
+    <MaxStructureTypes>k__BackingField: 4
   - <Archetype>k__BackingField: 3
     <MinMmr>k__BackingField: 3000
     <MaxMmr>k__BackingField: 3999
-    <BaseDifficulty>k__BackingField: 4
+    <BaseDifficulty>k__BackingField: 8
     <Verticality>k__BackingField: 0.7
     <OverhangRatio>k__BackingField: 0.2
     <Ambiguity>k__BackingField: 0.5
     <DensityComplexity>k__BackingField: 0.6
     <Asymmetry>k__BackingField: 0.6
     <Compactness>k__BackingField: 0.5
-    <MinBlockCount>k__BackingField: 18
-    <MaxBlockCount>k__BackingField: 26
+    <MinBlockCount>k__BackingField: 28
+    <MaxBlockCount>k__BackingField: 38
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 1
     <UseDecoyStructures>k__BackingField: 1
-    <MinDecoyCount>k__BackingField: 1
-    <MaxDecoyCount>k__BackingField: 2
-    <MinStructureTypes>k__BackingField: 3
-    <MaxStructureTypes>k__BackingField: 4
+    <MinDecoyCount>k__BackingField: 3
+    <MaxDecoyCount>k__BackingField: 4
+    <MinStructureTypes>k__BackingField: 4
+    <MaxStructureTypes>k__BackingField: 5
   - <Archetype>k__BackingField: 4
     <MinMmr>k__BackingField: 4000
     <MaxMmr>k__BackingField: 4999
-    <BaseDifficulty>k__BackingField: 5
+    <BaseDifficulty>k__BackingField: 9
     <Verticality>k__BackingField: 0.8
     <OverhangRatio>k__BackingField: 0.3
     <Ambiguity>k__BackingField: 0.7
     <DensityComplexity>k__BackingField: 0.7
     <Asymmetry>k__BackingField: 0.7
     <Compactness>k__BackingField: 0.4
-    <MinBlockCount>k__BackingField: 22
-    <MaxBlockCount>k__BackingField: 32
+    <MinBlockCount>k__BackingField: 35
+    <MaxBlockCount>k__BackingField: 42
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 0
     <UseDecoyStructures>k__BackingField: 1
-    <MinDecoyCount>k__BackingField: 2
-    <MaxDecoyCount>k__BackingField: 3
-    <MinStructureTypes>k__BackingField: 3
-    <MaxStructureTypes>k__BackingField: 4
+    <MinDecoyCount>k__BackingField: 4
+    <MaxDecoyCount>k__BackingField: 5
+    <MinStructureTypes>k__BackingField: 5
+    <MaxStructureTypes>k__BackingField: 6
   - <Archetype>k__BackingField: 5
     <MinMmr>k__BackingField: 5000
     <MaxMmr>k__BackingField: 99999
-    <BaseDifficulty>k__BackingField: 6
+    <BaseDifficulty>k__BackingField: 10
     <Verticality>k__BackingField: 0.9
     <OverhangRatio>k__BackingField: 0.4
     <Ambiguity>k__BackingField: 0.9
     <DensityComplexity>k__BackingField: 0.8
     <Asymmetry>k__BackingField: 0.9
     <Compactness>k__BackingField: 0.3
-    <MinBlockCount>k__BackingField: 30
-    <MaxBlockCount>k__BackingField: 40
+    <MinBlockCount>k__BackingField: 40
+    <MaxBlockCount>k__BackingField: 45
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 1
     <BlockLimitPadding>k__BackingField: 0
     <UseDecoyStructures>k__BackingField: 1
-    <MinDecoyCount>k__BackingField: 3
-    <MaxDecoyCount>k__BackingField: 4
-    <MinStructureTypes>k__BackingField: 4
-    <MaxStructureTypes>k__BackingField: 5
+    <MinDecoyCount>k__BackingField: 5
+    <MaxDecoyCount>k__BackingField: 6
+    <MinStructureTypes>k__BackingField: 5
+    <MaxStructureTypes>k__BackingField: 6
   <AvailableStructures>k__BackingField:
   - {fileID: 11400000, guid: 15009a0006e4f1342a858da578c9927f, type: 2}
   - {fileID: 11400000, guid: 8bb9f3324dfdef54aa66bbde3aafed39, type: 2}

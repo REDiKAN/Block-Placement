@@ -20,99 +20,99 @@ MonoBehaviour:
   <TimeBonusMultiplier>k__BackingField: 20
   <BasePenalty>k__BackingField: 20
   <PenaltyPerDifficulty>k__BackingField: 5
-  <BaseTimerSeconds>k__BackingField: 120
-  <TimerDecayFactor>k__BackingField: 0.8
-  <MinimumTimerSeconds>k__BackingField: 40
+  <BaseTimerSeconds>k__BackingField: 70
+  <TimerDecayFactor>k__BackingField: 1.2
+  <MinimumTimerSeconds>k__BackingField: 20
   <MetricMatchThreshold>k__BackingField: 0.7
   <BlockEfficiencyThreshold>k__BackingField: 0.9
   <ArchetypeProfiles>k__BackingField:
   - <Archetype>k__BackingField: 0
     <MinMmr>k__BackingField: 0
     <MaxMmr>k__BackingField: 999
-    <BaseDifficulty>k__BackingField: 1
-    <Verticality>k__BackingField: 0.1
-    <OverhangRatio>k__BackingField: 0
-    <Ambiguity>k__BackingField: 0.1
-    <DensityComplexity>k__BackingField: 0.1
-    <Asymmetry>k__BackingField: 0.1
-    <Compactness>k__BackingField: 0.8
-    <MinBlockCount>k__BackingField: 5
-    <MaxBlockCount>k__BackingField: 8
-    <IsBlockLimitEnabled>k__BackingField: 0
-    <IsRotationRequired>k__BackingField: 0
-    <BlockLimitPadding>k__BackingField: 0
-  - <Archetype>k__BackingField: 1
-    <MinMmr>k__BackingField: 1000
-    <MaxMmr>k__BackingField: 1999
-    <BaseDifficulty>k__BackingField: 2
-    <Verticality>k__BackingField: 0.3
-    <OverhangRatio>k__BackingField: 0
-    <Ambiguity>k__BackingField: 0.2
-    <DensityComplexity>k__BackingField: 0.2
-    <Asymmetry>k__BackingField: 0.2
-    <Compactness>k__BackingField: 0.7
-    <MinBlockCount>k__BackingField: 8
-    <MaxBlockCount>k__BackingField: 12
-    <IsBlockLimitEnabled>k__BackingField: 0
-    <IsRotationRequired>k__BackingField: 0
-    <BlockLimitPadding>k__BackingField: 0
-  - <Archetype>k__BackingField: 2
-    <MinMmr>k__BackingField: 2000
-    <MaxMmr>k__BackingField: 2999
     <BaseDifficulty>k__BackingField: 3
     <Verticality>k__BackingField: 0.5
-    <OverhangRatio>k__BackingField: 0.1
+    <OverhangRatio>k__BackingField: 0.2
     <Ambiguity>k__BackingField: 0.4
-    <DensityComplexity>k__BackingField: 0.4
+    <DensityComplexity>k__BackingField: 0.5
     <Asymmetry>k__BackingField: 0.4
     <Compactness>k__BackingField: 0.6
-    <MinBlockCount>k__BackingField: 12
-    <MaxBlockCount>k__BackingField: 18
+    <MinBlockCount>k__BackingField: 15
+    <MaxBlockCount>k__BackingField: 20
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 2
-  - <Archetype>k__BackingField: 3
-    <MinMmr>k__BackingField: 3000
-    <MaxMmr>k__BackingField: 3999
-    <BaseDifficulty>k__BackingField: 4
-    <Verticality>k__BackingField: 0.6
-    <OverhangRatio>k__BackingField: 0.2
-    <Ambiguity>k__BackingField: 0.5
-    <DensityComplexity>k__BackingField: 0.6
+  - <Archetype>k__BackingField: 1
+    <MinMmr>k__BackingField: 1000
+    <MaxMmr>k__BackingField: 1999
+    <BaseDifficulty>k__BackingField: 5
+    <Verticality>k__BackingField: 0.7
+    <OverhangRatio>k__BackingField: 0.3
+    <Ambiguity>k__BackingField: 0.6
+    <DensityComplexity>k__BackingField: 0.7
     <Asymmetry>k__BackingField: 0.6
     <Compactness>k__BackingField: 0.5
-    <MinBlockCount>k__BackingField: 15
-    <MaxBlockCount>k__BackingField: 22
+    <MinBlockCount>k__BackingField: 20
+    <MaxBlockCount>k__BackingField: 26
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 1
+  - <Archetype>k__BackingField: 2
+    <MinMmr>k__BackingField: 2000
+    <MaxMmr>k__BackingField: 2999
+    <BaseDifficulty>k__BackingField: 7
+    <Verticality>k__BackingField: 0.8
+    <OverhangRatio>k__BackingField: 0.4
+    <Ambiguity>k__BackingField: 0.7
+    <DensityComplexity>k__BackingField: 0.8
+    <Asymmetry>k__BackingField: 0.7
+    <Compactness>k__BackingField: 0.4
+    <MinBlockCount>k__BackingField: 25
+    <MaxBlockCount>k__BackingField: 32
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 0
+  - <Archetype>k__BackingField: 3
+    <MinMmr>k__BackingField: 3000
+    <MaxMmr>k__BackingField: 3999
+    <BaseDifficulty>k__BackingField: 8
+    <Verticality>k__BackingField: 0.9
+    <OverhangRatio>k__BackingField: 0.5
+    <Ambiguity>k__BackingField: 0.8
+    <DensityComplexity>k__BackingField: 0.9
+    <Asymmetry>k__BackingField: 0.8
+    <Compactness>k__BackingField: 0.3
+    <MinBlockCount>k__BackingField: 30
+    <MaxBlockCount>k__BackingField: 38
+    <IsBlockLimitEnabled>k__BackingField: 1
+    <IsRotationRequired>k__BackingField: 0
+    <BlockLimitPadding>k__BackingField: 0
   - <Archetype>k__BackingField: 4
     <MinMmr>k__BackingField: 4000
     <MaxMmr>k__BackingField: 4999
-    <BaseDifficulty>k__BackingField: 5
-    <Verticality>k__BackingField: 0.8
-    <OverhangRatio>k__BackingField: 0.3
-    <Ambiguity>k__BackingField: 0.7
-    <DensityComplexity>k__BackingField: 0.7
-    <Asymmetry>k__BackingField: 0.7
-    <Compactness>k__BackingField: 0.4
-    <MinBlockCount>k__BackingField: 18
-    <MaxBlockCount>k__BackingField: 28
+    <BaseDifficulty>k__BackingField: 9
+    <Verticality>k__BackingField: 1
+    <OverhangRatio>k__BackingField: 0.6
+    <Ambiguity>k__BackingField: 0.9
+    <DensityComplexity>k__BackingField: 1
+    <Asymmetry>k__BackingField: 0.9
+    <Compactness>k__BackingField: 0.2
+    <MinBlockCount>k__BackingField: 35
+    <MaxBlockCount>k__BackingField: 42
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 0
   - <Archetype>k__BackingField: 5
     <MinMmr>k__BackingField: 5000
     <MaxMmr>k__BackingField: 99999
-    <BaseDifficulty>k__BackingField: 6
-    <Verticality>k__BackingField: 0.9
-    <OverhangRatio>k__BackingField: 0.4
-    <Ambiguity>k__BackingField: 0.9
-    <DensityComplexity>k__BackingField: 0.8
-    <Asymmetry>k__BackingField: 0.9
-    <Compactness>k__BackingField: 0.3
-    <MinBlockCount>k__BackingField: 25
-    <MaxBlockCount>k__BackingField: 35
+    <BaseDifficulty>k__BackingField: 10
+    <Verticality>k__BackingField: 1
+    <OverhangRatio>k__BackingField: 0.7
+    <Ambiguity>k__BackingField: 1
+    <DensityComplexity>k__BackingField: 1
+    <Asymmetry>k__BackingField: 1
+    <Compactness>k__BackingField: 0.1
+    <MinBlockCount>k__BackingField: 40
+    <MaxBlockCount>k__BackingField: 45
     <IsBlockLimitEnabled>k__BackingField: 1
     <IsRotationRequired>k__BackingField: 0
     <BlockLimitPadding>k__BackingField: 0

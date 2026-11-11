@@ -19,8 +19,6 @@ namespace Game.Views.UI.Ranked
 
         private Tween _currentTween;
         private int _currentMmr;
-        private int _barMin;
-        private int _barMax;
 
         private void Awake()
         {
@@ -53,13 +51,10 @@ namespace Game.Views.UI.Ranked
         private void UpdateBoundsAndText()
         {
             var bounds = _archetypeResolver.GetMmrBounds(_currentMmr);
-
-            _barMin = bounds.CurrentMin;
-            _barMax = bounds.NextArchetype.HasValue ? bounds.NextMin : bounds.CurrentMax;
-            if (_barMax <= _barMin) _barMax = _barMin + 1;
+            var isMaxRank = !bounds.NextArchetype.HasValue;
 
             var lossToPrev = bounds.PrevArchetype.HasValue ? _currentMmr - bounds.PrevMax : 0;
-            var gainToNext = bounds.NextArchetype.HasValue ? bounds.NextMin - _currentMmr : 0;
+            var gainToNext = isMaxRank ? 0 : bounds.NextMin - _currentMmr;
 
             if (LeftInfoText is not null)
             {
@@ -73,17 +68,27 @@ namespace Game.Views.UI.Ranked
 
             if (RightInfoText is not null)
             {
-                RightInfoText.text = bounds.NextArchetype.HasValue
-                    ? $"(+{gainToNext}) {bounds.NextMin} ({bounds.NextArchetype.Value})"
-                    : string.Empty;
+                RightInfoText.text = isMaxRank
+                    ? "MAX"
+                    : $"(+{gainToNext}) {bounds.NextMin} ({bounds.NextArchetype.Value})";
             }
         }
 
         private float CalculateFill(int mmr)
         {
-            if (_barMax <= _barMin) return 0f;
-            var clamped = Mathf.Clamp(mmr, _barMin, _barMax);
-            return (float)(clamped - _barMin) / (_barMax - _barMin);
+            var bounds = _archetypeResolver.GetMmrBounds(mmr);
+
+            if (!bounds.NextArchetype.HasValue)
+                return 1f;
+
+            var barMin = bounds.CurrentMin;
+            var barMax = bounds.NextMin;
+
+            if (barMax <= barMin)
+                return 1f;
+
+            var clamped = Mathf.Clamp(mmr, barMin, barMax);
+            return (float)(clamped - barMin) / (barMax - barMin);
         }
 
         private void OnDestroy()
